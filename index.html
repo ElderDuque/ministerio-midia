@@ -441,6 +441,19 @@ const LS = {
   del: k => localStorage.removeItem(k)
 };
 
+// Salva no JSONBin sempre que dados importantes mudam
+async function saveToCloud() {
+  await dbSet({
+    mm_members: LS.get('mm_members') || [],
+    mm_escala:  LS.get('mm_escala')  || [],
+    mm_notifs:  LS.get('mm_notifs')  || [],
+    mm_pedidos: LS.get('mm_pedidos') || []
+  });
+  // Atualiza status para online
+  const el = document.getElementById('fb-status');
+  if (el) { el.textContent = '🟢 online · tempo real'; el.style.color = '#58d68d'; }
+}
+
 function showSyncBanner(show) {
   document.getElementById('sync-banner').style.display = show ? 'flex' : 'none';
 }
@@ -455,6 +468,12 @@ async function syncFromFirebase() {
     LS.set('mm_init_v2', true);
   }
   showSyncBanner(false);
+  // Atualiza indicador de status
+  const el = document.getElementById('fb-status');
+  if (el) {
+    if (remote) { el.textContent = '🟢 online · tempo real'; el.style.color = '#58d68d'; }
+    else        { el.textContent = '🔴 sem conexão'; el.style.color = '#e74c3c'; }
+  }
 }
 
 function updateFbStatus() {}
@@ -985,6 +1004,102 @@ function checkVagas() {
   vagas.forEach(v=>msg+=`📅 ${fmtDate(v.day.date)} — ${v.m.role}\n`);
   msg+='\nNotificar o grupo no WhatsApp?';
   if(confirm(msg)) vagas.forEach(v=>waVaga(v.day.date,v.day.label,v.m.role));
+}
+
+// ══════════════════════════════════
+//  AUTO NOTIFICAÇÃO — ESCALA COMPLETA
+// ══════════════════════════════════
+
+// Verifica se um culto específico está completo (todos confirmados)
+function checkCultoCompleto(dayId) {
+  const day = STATE.escala.find(d => d.id === dayId);
+  if (!day || !day.membros.length) return false;
+  return day.membros.every(m => m.status === 'confirmed');
+}
+
+// Verifica se a escala do mês inteiro está completa
+function checkEscalaCompletaTotal() {
+  if (!STATE.escala.length) return false;
+  return STATE.escala.every(day =>
+    day.membros.length > 0 && day.membros.every(m => m.status === 'confirmed')
+  );
+}
+
+// Notifica grupo que um culto específico está completo
+function waNotifyCultoCompleto(day) {
+  const txt =
+    `🎬 *MINISTÉRIO DE MÍDIA — ESCALA CONFIRMADA* ✅
+
+` +
+    `📅 *${fmtDate(day.date)} — ${day.label}*
+
+` +
+    `Todos os membros confirmaram presença:
+` +
+    day.membros.map(m => `✅ ${m.name} — ${m.role}`).join('
+') +
+    `
+
+_Escala completa! Até lá, equipe! 🙌_`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+
+// Notifica grupo que a escala do mês inteiro está completa
+function waNotifyEscalaTotal() {
+  const now = new Date();
+  const mes = now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+  let txt = `🎬 *MINISTÉRIO DE MÍDIA — ESCALA DO MÊS COMPLETA* 🎉
+
+`;
+  txt += `📆 *${mes}*
+
+`;
+  STATE.escala.forEach(day => {
+    txt += `📅 *${fmtDate(day.date)} — ${day.label}*
+`;
+    day.membros.forEach(m => txt += `✅ ${m.name} — ${m.role}
+`);
+    txt += '
+';
+  });
+  txt += `_Todos confirmados! Que Deus abençoe o ministério! 🙏_`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+
+// Chamado após qualquer confirmação de presença
+function autoCheckNotify(dayId) {
+  // Checa culto individual
+  if (checkCultoCompleto(dayId)) {
+    const day = STATE.escala.find(d => d.id === dayId);
+    // Adiciona aviso interno
+    STATE.notifs.unshift({
+      id: Date.now(),
+      icon: '🎉',
+      text: `<strong>Escala completa!</strong> Todos confirmaram para <strong>${fmtDate(day.date)} — ${day.label}</strong>.`,
+      time: nowStr(),
+      unread: true
+    });
+    LS.set('mm_notifs', STATE.notifs);
+    saveToCloud();
+    updateNotifBadge();
+    // Notifica grupo
+    setTimeout(() => waNotifyCultoCompleto(day), 300);
+  }
+
+  // Checa se mês inteiro ficou completo
+  if (checkEscalaCompletaTotal()) {
+    STATE.notifs.unshift({
+      id: Date.now() + 1,
+      icon: '🏆',
+      text: `<strong>Escala do mês completa!</strong> Todos os cultos estão confirmados!`,
+      time: nowStr(),
+      unread: true
+    });
+    LS.set('mm_notifs', STATE.notifs);
+    saveToCloud();
+    updateNotifBadge();
+    setTimeout(() => waNotifyEscalaTotal(), 1500);
+  }
 }
 
 // ══════════════════════════════════
