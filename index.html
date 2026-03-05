@@ -329,26 +329,38 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 // ══════════════════════════════════
 //  JSONBIN CONFIG
 // ══════════════════════════════════
-const BIN_ID  = '69a86c2dae596e708f5f2a8c';
+const BIN_ID  = '69a8de6343b1c97be9b48c0f';
 const BIN_KEY = '$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
 const BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
 
 async function cloudGet() {
   try {
-    const r = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': BIN_KEY } });
+    const r = await fetch(BIN_URL + '/latest', {
+      headers: {
+        'X-Master-Key': BIN_KEY,
+        'X-Bin-Meta': 'false'
+      }
+    });
     if (!r.ok) return null;
-    return (await r.json()).record;
-  } catch(e) { return null; }
+    const json = await r.json();
+    setOnline(true);
+    return json.record !== undefined ? json.record : json;
+  } catch(e) { setOnline(false); return null; }
 }
 
 async function cloudSet(data) {
   try {
-    await fetch(BIN_URL, {
+    const r = await fetch(BIN_URL, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'X-Master-Key': BIN_KEY },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': BIN_KEY,
+        'X-Bin-Versioning': 'false'
+      },
       body: JSON.stringify(data)
     });
-    setOnline(true);
+    if (r.ok) setOnline(true);
+    else setOnline(false);
   } catch(e) { setOnline(false); }
 }
 
