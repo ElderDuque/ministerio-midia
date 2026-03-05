@@ -196,6 +196,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <div class="hdiv"></div>
       <p class="stitle">⚙ Ações do Líder</p>
       <button class="btn bgold bblock" onclick="openMo('mo-addday')">＋ Adicionar Culto</button>
+      <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">🤖 Importar Escala com IA</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">⚠️ Verificar Vagas em Aberto</button>
       <button class="wabtn" onclick="waEscala()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -278,8 +279,19 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <input type="date" class="mfi" id="nd-date" onchange="autoLabel()">
     <label class="mfl">Nome do Culto</label>
     <input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebração">
-    <label class="mfl">Membros Escalados</label>
-    <div id="nd-checks" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+    <label class="mfl">Modo do Culto</label>
+    <select class="mfs" id="nd-modo" onchange="toggleModo()" style="margin-bottom:13px;">
+      <option value="fixo">👤 Membros fixos (líder escolhe)</option>
+      <option value="aberto">🙋 Inscrição livre (membros se inscrevem)</option>
+    </select>
+    <div id="nd-checks-wrap">
+      <label class="mfl">Membros Escalados</label>
+      <div id="nd-checks" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+    </div>
+    <div id="nd-aberto-info" style="display:none;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.76rem;color:var(--cream2);line-height:1.5;">
+      🙋 O culto ficará <strong style="color:var(--gold-l);">aberto para inscrição</strong>.<br>
+      Os membros entram no app e tocam em <strong style="color:var(--gold-l);">"Quero participar"</strong> para se inscrever.
+    </div>
     <div class="macts">
       <button class="btn bout" onclick="closeMo('mo-addday')">Cancelar</button>
       <button class="btn bgold" onclick="addCulto()">Adicionar</button>
@@ -325,7 +337,50 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 
 <div id="toast"></div>
 
+<!-- MODAL IA -->
+<div class="mo" id="mo-ia" onclick="closeMo('mo-ia')">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:30px;">
+    <div class="mhandle"></div>
+    <div class="mtitle">🤖 Importar Escala com IA</div>
+    <p style="font-size:.76rem;color:var(--cream2);opacity:.7;margin-bottom:14px;">Cole o texto da escala <strong>ou</strong> envie uma foto. A IA lê e monta os cultos automaticamente!</p>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;">
+      <button id="ia-tab-txt" onclick="iaTab('txt')" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--dark);font-weight:700;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif;">✏️ Texto</button>
+      <button id="ia-tab-img" onclick="iaTab('img')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:transparent;color:var(--gold);font-weight:700;font-size:.75rem;cursor:pointer;font-family:Nunito,sans-serif;">📷 Foto</button>
+    </div>
+
+    <!-- Texto -->
+    <div id="ia-txt-wrap">
+      <textarea id="ia-texto" class="mfi" rows="6" placeholder="Cole aqui o texto da escala. Ex:&#10;Domingo 08/03 — Culto de Celebração&#10;Projeção: Elder, Anna&#10;&#10;Quinta 12/03 — Quinta Profética&#10;Projeção: Rafael, Douglas" style="resize:vertical;height:130px;"></textarea>
+    </div>
+
+    <!-- Foto -->
+    <div id="ia-img-wrap" style="display:none;">
+      <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:24px;cursor:pointer;margin-bottom:13px;gap:8px;">
+        <span style="font-size:2rem;">📷</span>
+        <span style="font-size:.76rem;color:var(--cream2);opacity:.6;">Toque para escolher a foto da escala</span>
+        <input type="file" id="ia-foto" accept="image/*" style="display:none;" onchange="iaPreview(this)">
+      </label>
+      <div id="ia-preview" style="display:none;margin-bottom:13px;">
+        <img id="ia-preview-img" style="width:100%;border-radius:8px;max-height:180px;object-fit:cover;">
+      </div>
+    </div>
+
+    <div id="ia-status" style="display:none;font-size:.75rem;color:var(--gold);text-align:center;padding:10px;margin-bottom:8px;">
+      <span class="spin">🔄</span> IA analisando a escala...
+    </div>
+    <div id="ia-result" style="display:none;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.6;"></div>
+
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button>
+      <button class="btn bgold" id="ia-btn" onclick="importarComIA()">🤖 Analisar</button>
+    </div>
+  </div>
+</div>
+
 <script>
+
 // ══════════════════════════════════
 //  JSONBIN CONFIG
 // ══════════════════════════════════
@@ -480,6 +535,12 @@ function autoLabel() {
   const dow = new Date(v+'T12:00:00').getDay();
   document.getElementById('nd-label').value = dow===0 ? 'Culto de Celebração' : dow===4 ? 'Quinta Profética' : '';
 }
+function toggleModo() {
+  const modo = document.getElementById('nd-modo').value;
+  document.getElementById('nd-checks-wrap').style.display = modo==='fixo' ? 'block' : 'none';
+  document.getElementById('nd-aberto-info').style.display = modo==='aberto' ? 'block' : 'none';
+}
+
 function toggleSubField() {
   document.getElementById('ped-sub-wrap').style.display =
     document.getElementById('ped-tipo').value === 'sub' ? 'block' : 'none';
@@ -775,20 +836,30 @@ function sendAviso() {
 function addCulto() {
   const date  = document.getElementById('nd-date').value;
   const label = document.getElementById('nd-label').value.trim();
+  const modo  = document.getElementById('nd-modo').value;
   if (!date||!label) { toast('⚠️ Preencha data e nome.'); return; }
-  const checked = Array.from(document.querySelectorAll('#nd-checks input:checked'));
-  if (!checked.length) { toast('⚠️ Selecione ao menos 1 membro.'); return; }
-  const membrosEsc = checked.map(function(cb) {
-    const m = S.members.find(function(x){return x.id==cb.value;});
-    return {id:m.id, name:m.name, role:m.role, status:'pending'};
-  });
-  S.escala.push({id:Date.now(), date:date, label:label, membros:membrosEsc});
+  var membrosEsc = [];
+  if (modo === 'fixo') {
+    const checked = Array.from(document.querySelectorAll('#nd-checks input:checked'));
+    if (!checked.length) { toast('⚠️ Selecione ao menos 1 membro.'); return; }
+    membrosEsc = checked.map(function(cb) {
+      const m = S.members.find(function(x){return x.id==cb.value;});
+      return {id:m.id, name:m.name, role:m.role, status:'pending'};
+    });
+  }
+  S.escala.push({id:Date.now(), date:date, label:label, membros:membrosEsc, aberto: modo==='aberto'});
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
-  S.notifs.unshift({id:Date.now()+1, icon:'🗓', text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+'.', time:nowStr(), unread:true});
+  const icon = modo==='aberto' ? '🙋' : '🗓';
+  const txt  = modo==='aberto'
+    ? '<strong>Culto aberto para inscrição:</strong> '+label+' em '+fmtDate(date)+'. Entrem no app e se inscrevam!'
+    : '<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+'.';
+  S.notifs.unshift({id:Date.now()+1, icon:icon, text:txt, time:nowStr(), unread:true});
   saveAll().then(function() {
     closeMo('mo-addday');
     document.getElementById('nd-date').value='';
     document.getElementById('nd-label').value='';
+    document.getElementById('nd-modo').value='fixo';
+    toggleModo();
     toast('✅ Culto adicionado!');
     renderAll();
   });
@@ -848,15 +919,64 @@ function changePass() {
 }
 
 // ══════════════════════════════════
+//  INSCRIÇÃO LIVRE
+// ══════════════════════════════════
+function inscreverCulto(dayId) {
+  const day = S.escala.find(function(d){return d.id===dayId;});
+  if (!day) return;
+  if (day.membros.find(function(m){return m.id===CU.id;})) { toast('Você já está inscrito!'); return; }
+  day.membros.push({id:CU.id, name:CU.name, role:CU.role, status:'confirmed'});
+  S.notifs.unshift({id:Date.now(), icon:'🙋',
+    text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+' — '+day.label+'</strong>.',
+    time:nowStr(), unread:true});
+  saveAll().then(function(){ toast('✅ Inscrição confirmada!'); renderAll(); autoCheckNotify(dayId); });
+}
+
+function desinscreverCulto(dayId) {
+  const day = S.escala.find(function(d){return d.id===dayId;});
+  if (!day) return;
+  day.membros = day.membros.filter(function(m){return m.id!==CU.id;});
+  S.notifs.unshift({id:Date.now(), icon:'↩️',
+    text:'<strong>'+CU.name+'</strong> cancelou inscrição em <strong>'+fmtDate(day.date)+' — '+day.label+'</strong>.',
+    time:nowStr(), unread:true});
+  saveAll().then(function(){ toast('Inscrição cancelada.'); renderAll(); });
+}
+
+// ══════════════════════════════════
 //  VAGAS
 // ══════════════════════════════════
 function checkVagas() {
   const vagas = [];
-  S.escala.forEach(function(d){ d.membros.forEach(function(m){ if(m.status==='declined') vagas.push({day:d,m:m}); }); });
-  if (!vagas.length) { toast('✅ Nenhuma vaga em aberto!'); return; }
-  let msg = '⚠️ '+vagas.length+' vaga(s) em aberto:\n\n';
-  vagas.forEach(function(v){ msg += '📅 '+fmtDate(v.day.date)+' — '+v.m.role+'\n'; });
-  if (confirm(msg+'\nNotificar no WhatsApp?')) vagas.forEach(function(v){ waVaga(v.day.date,v.day.label,v.m.role); });
+  const abertos = [];
+  S.escala.forEach(function(d){
+    d.membros.forEach(function(m){ if(m.status==='declined') vagas.push({day:d,m:m}); });
+    if (d.aberto) abertos.push(d);
+  });
+  if (!vagas.length && !abertos.length) { toast('✅ Nenhuma vaga em aberto!'); return; }
+  let msg = '';
+  if (vagas.length) {
+    msg += '🔴 VAGAS POR RECUSA:\n';
+    vagas.forEach(function(v){ msg += '📅 '+fmtDate(v.day.date)+' — '+v.day.label+'\n   Função: '+v.m.role+'\n'; });
+    msg += '\n';
+  }
+  if (abertos.length) {
+    msg += '🙋 CULTOS COM INSCRIÇÃO LIVRE:\n';
+    abertos.forEach(function(d){ msg += '📅 '+fmtDate(d.date)+' — '+d.label+'\n   '+d.membros.length+' inscrito(s)\n'; });
+  }
+  if (confirm(msg+'\nNotificar o grupo no WhatsApp?')) {
+    vagas.forEach(function(v){ waVaga(v.day.date,v.day.label,v.m.role); });
+    if (abertos.length) waVagasAbertas(abertos);
+  }
+}
+
+function waVagasAbertas(dias) {
+  let txt = '🎬 *MINISTÉRIO DE MÍDIA — CULTOS DISPONÍVEIS* 🙋\n\n';
+  txt += 'Os cultos abaixo estão com inscrição livre!\nEntrem no app e toquem em *"Quero participar"*:\n\n';
+  dias.forEach(function(d){
+    txt += '📅 *'+fmtDate(d.date)+' — '+d.label+'*\n   '+d.membros.length+' inscrito(s) até agora\n\n';
+  });
+  txt += '_Acesse: https://elderduque.github.io/ministerio-midia_';
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
 }
 
 // ══════════════════════════════════
@@ -915,6 +1035,115 @@ function waNotifyEscalaTotal() {
 // ══════════════════════════════════
 //  INIT
 // ══════════════════════════════════
+// ══════════════════════════════════
+//  IA — IMPORTAR ESCALA
+// ══════════════════════════════════
+function iaTab(tab) {
+  document.getElementById('ia-txt-wrap').style.display = tab==='txt' ? 'block' : 'none';
+  document.getElementById('ia-img-wrap').style.display = tab==='img' ? 'block' : 'none';
+  document.getElementById('ia-tab-txt').style.background = tab==='txt' ? 'var(--gold)' : 'transparent';
+  document.getElementById('ia-tab-txt').style.color = tab==='txt' ? 'var(--dark)' : 'var(--gold)';
+  document.getElementById('ia-tab-img').style.background = tab==='img' ? 'var(--gold)' : 'transparent';
+  document.getElementById('ia-tab-img').style.color = tab==='img' ? 'var(--dark)' : 'var(--gold)';
+}
+
+function iaPreview(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('ia-preview-img').src = e.target.result;
+    document.getElementById('ia-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+async function importarComIA() {
+  const isImg = document.getElementById('ia-img-wrap').style.display !== 'none';
+  const status = document.getElementById('ia-status');
+  const result = document.getElementById('ia-result');
+  const btn    = document.getElementById('ia-btn');
+  result.style.display = 'none';
+  status.style.display = 'block';
+  btn.disabled = true;
+
+  const membrosNomes = S.members.map(function(m){ return m.name; }).join(', ');
+  const prompt = `Você é um assistente que lê escalas de ministério de mídia de igrejas.
+Analise a escala abaixo e retorne APENAS um JSON válido com este formato:
+[
+  {
+    "date": "2026-03-08",
+    "label": "Culto de Celebração",
+    "membros": ["Nome1", "Nome2"]
+  }
+]
+Regras:
+- date deve ser no formato YYYY-MM-DD
+- label é o nome do culto
+- membros é lista de nomes encontrados na escala
+- Se não encontrar data clara, use o próximo domingo/quinta mais próximo de hoje (${new Date().toISOString().split('T')[0]})
+- Retorne SOMENTE o JSON, sem explicações
+- Membros cadastrados no sistema: ${membrosNomes}`;
+
+  try {
+    let messages;
+    if (isImg) {
+      const foto = document.getElementById('ia-foto').files[0];
+      if (!foto) { status.style.display='none'; btn.disabled=false; toast('⚠️ Escolha uma foto.'); return; }
+      const b64 = await new Promise(function(res) {
+        const r = new FileReader(); r.onload = function(e){ res(e.target.result.split(',')[1]); }; r.readAsDataURL(foto);
+      });
+      messages = [{ role:'user', content:[
+        { type:'image', source:{ type:'base64', media_type: foto.type, data: b64 }},
+        { type:'text', text: prompt }
+      ]}];
+    } else {
+      const texto = document.getElementById('ia-texto').value.trim();
+      if (!texto) { status.style.display='none'; btn.disabled=false; toast('⚠️ Cole o texto da escala.'); return; }
+      messages = [{ role:'user', content: prompt + '\n\nEscala:\n' + texto }];
+    }
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, messages: messages })
+    });
+    const data = await resp.json();
+    const txt  = data.content[0].text.replace(/```json|```/g,'').trim();
+    const cultos = JSON.parse(txt);
+
+    // Mount escala
+    var adicionados = 0;
+    cultos.forEach(function(c) {
+      var membrosEsc = c.membros.map(function(nome) {
+        var m = S.members.find(function(x){ return x.name.toLowerCase().includes(nome.toLowerCase()) || nome.toLowerCase().includes(x.name.toLowerCase().split(' ')[0]); });
+        if (m) return {id:m.id, name:m.name, role:m.role, status:'pending'};
+        return {id: Date.now()+Math.random(), name:nome, role:'Projeção', status:'pending'};
+      }).filter(Boolean);
+      S.escala.push({id:Date.now()+adicionados, date:c.date, label:c.label, membros:membrosEsc, aberto:false});
+      adicionados++;
+    });
+    S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
+    S.notifs.unshift({id:Date.now(), icon:'🤖', text:'<strong>Escala importada pela IA!</strong> '+adicionados+' culto(s) adicionado(s).', time:nowStr(), unread:true});
+    await saveAll();
+
+    status.style.display = 'none';
+    result.style.display = 'block';
+    result.innerHTML = '✅ <strong>'+adicionados+' culto(s) importado(s) com sucesso!</strong><br>' +
+      cultos.map(function(c){ return '📅 '+c.date+' — '+c.label+' ('+c.membros.length+' membros)'; }).join('<br>');
+    btn.disabled = false;
+    renderAll();
+  } catch(e) {
+    status.style.display = 'none';
+    result.style.display = 'block';
+    result.style.background = 'rgba(192,57,43,.1)';
+    result.style.borderColor = 'var(--red)';
+    result.style.color = '#ec7063';
+    result.innerHTML = '❌ Erro ao analisar. Tente novamente ou ajuste o texto.';
+    btn.disabled = false;
+    console.error(e);
+  }
+}
+
 window.addEventListener('load', function() {
   const saved = sessionStorage.getItem('mm_cu');
   if (saved) {
