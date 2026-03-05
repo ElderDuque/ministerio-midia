@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Ministério de Mídia</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Ministerio de Midia</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C9A84C;--gold-l:#F0D080;--gold-d:rgba(201,168,76,.15);--dark:#0F0D07;--d2:#1C1608;--d3:#251D0A;--cream:#FAF3E0;--cream2:#D4C9A8;--red:#C0392B;--green:#1E8449;}
@@ -13,14 +13,14 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--cream);m
 .login-icon{font-size:3rem;margin-bottom:6px;}
 .login-title{font-family:'Cinzel',serif;font-size:1.55rem;color:var(--gold);text-align:center;}
 .login-sub{font-size:.73rem;color:var(--cream2);opacity:.55;margin:5px 0 26px;letter-spacing:1.2px;text-transform:uppercase;}
-.login-box{width:100%;max-width:360px;background:linear-gradient(145deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:26px 22px;box-shadow:0 8px 40px rgba(0,0,0,.55);}
-.login-box h2{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);margin-bottom:18px;text-align:center;letter-spacing:1px;}
+.login-box{width:100%;max-width:360px;background:linear-gradient(145deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:26px 22px;}
+.login-box h2{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);margin-bottom:18px;text-align:center;}
 .fl{display:block;font-size:.68rem;font-weight:700;color:var(--gold);letter-spacing:.9px;text-transform:uppercase;margin-bottom:5px;}
-.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.22);border-radius:8px;padding:11px 13px;color:var(--cream);font-size:.86rem;font-family:'Nunito',sans-serif;outline:none;transition:border-color .2s;}
+.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.22);border-radius:8px;padding:11px 13px;color:var(--cream);font-size:.86rem;font-family:'Nunito',sans-serif;outline:none;}
 .fi:focus{border-color:var(--gold);}
 .fi::placeholder{color:rgba(255,255,255,.22);}
 .fg{margin-bottom:14px;}
-.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,#C9A84C,#A07830);border:none;border-radius:10px;color:var(--dark);font-family:'Cinzel',serif;font-size:.93rem;font-weight:700;cursor:pointer;letter-spacing:1px;margin-top:4px;}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,#C9A84C,#A07830);border:none;border-radius:10px;color:var(--dark);font-family:'Cinzel',serif;font-size:.93rem;font-weight:700;cursor:pointer;margin-top:4px;}
 .login-err{color:#e74c3c;font-size:.76rem;text-align:center;margin-top:9px;min-height:17px;}
 .login-hint{font-size:.68rem;color:var(--cream2);opacity:.42;text-align:center;margin-top:14px;line-height:1.6;}
 #sync-banner{display:none;background:#1A4F7A;padding:7px 16px;font-size:.72rem;color:#add8f7;align-items:center;justify-content:center;gap:7px;}
@@ -31,7 +31,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 .hdr-left{display:flex;flex-direction:column;}
 .hdr-title{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);}
 .hdr-right{display:flex;align-items:center;gap:8px;}
-.hdr-av{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7A5A10);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.78rem;color:var(--dark);font-weight:700;border:1.5px solid rgba(201,168,76,.4);}
+.hdr-av{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7A5A10);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.78rem;color:var(--dark);font-weight:700;}
 .hdr-name{font-size:.72rem;color:var(--cream2);}
 .hdr-badge{font-size:.56rem;background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 5px;border-radius:7px;display:inline-block;}
 .btn-out{background:transparent;border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:5px 8px;color:rgba(255,255,255,.38);font-size:.63rem;cursor:pointer;font-family:'Nunito',sans-serif;}
@@ -114,33 +114,30 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 #toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--d3);border:1px solid var(--gold);border-radius:10px;padding:9px 16px;font-size:.78rem;color:var(--cream);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .pw-box{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.13);border-radius:10px;padding:13px;margin-top:10px;}
-.ia-tbtn{flex:1;padding:9px;border-radius:8px;font-weight:700;font-size:.75rem;cursor:pointer;font-family:'Nunito',sans-serif;}
-.ia-tbtn.on{background:var(--gold);color:var(--dark);border:1px solid var(--gold);}
-.ia-tbtn.off{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.4);}
 </style>
 </head>
 <body>
 
 <div id="login-screen">
-  <div class="login-icon">🎬</div>
-  <h1 class="login-title">Ministério de Mídia</h1>
+  <div class="login-icon">&#127916;</div>
+  <h1 class="login-title">Ministerio de Midia</h1>
   <p class="login-sub">Escala Mensal da Equipe</p>
   <div class="login-box">
     <h2>ENTRAR</h2>
-    <div class="fg"><label class="fl">Telefone (somente números)</label><input class="fi" id="li-phone" type="tel" placeholder="Ex: 93800471" inputmode="numeric"></div>
+    <div class="fg"><label class="fl">Telefone (somente numeros)</label><input class="fi" id="li-phone" type="tel" placeholder="Ex: 93800471" inputmode="numeric"></div>
     <div class="fg"><label class="fl">Senha</label><input class="fi" id="li-pass" type="password" placeholder="Senha"></div>
     <button class="btn-login" onclick="doLogin()">ENTRAR</button>
     <div class="login-err" id="li-err"></div>
-    <p class="login-hint">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
+    <p class="login-hint">Login: numero do celular<br>Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
   </div>
 </div>
 
 <div id="app">
-  <div id="sync-banner"><span class="spin">&#x1F504;</span> Sincronizando...</div>
+  <div id="sync-banner"><span class="spin">&#8635;</span> Sincronizando...</div>
   <header>
     <div class="hdr-left">
-      <div class="hdr-title">&#x1F3AC; Ministério de Mídia</div>
-      <div id="hdr-online" style="font-size:.55rem;margin-top:1px;color:rgba(255,255,255,.3);">&#x25CF; carregando</div>
+      <div class="hdr-title">&#127916; Ministerio de Midia</div>
+      <div id="hdr-online" style="font-size:.55rem;margin-top:1px;color:rgba(255,255,255,.3);">&#9679; carregando</div>
     </div>
     <div class="hdr-right">
       <div style="text-align:right;"><div class="hdr-name" id="hdr-name">-</div><span class="hdr-badge" id="hdr-badge">-</span></div>
@@ -149,15 +146,15 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     </div>
   </header>
   <div class="tabs">
-    <div class="tab active" onclick="goPage('escala',this)">&#x1F4C5; Escala</div>
-    <div class="tab" onclick="goPage('minha',this)">&#x1F64B; Minha</div>
-    <div class="tab" onclick="goPage('pedidos',this)">&#x1F501; Pedidos</div>
-    <div class="tab" onclick="goPage('equipe',this)">&#x1F465; Equipe</div>
-    <div class="tab" onclick="goPage('notifs',this)" id="tab-notifs">&#x1F514; Avisos</div>
+    <div class="tab active" onclick="goPage('escala',this)">&#128197; Escala</div>
+    <div class="tab" onclick="goPage('minha',this)">&#128587; Minha</div>
+    <div class="tab" onclick="goPage('pedidos',this)">&#128259; Pedidos</div>
+    <div class="tab" onclick="goPage('equipe',this)">&#128101; Equipe</div>
+    <div class="tab" onclick="goPage('notifs',this)" id="tab-notifs">&#128276; Avisos</div>
   </div>
 
   <div id="page-escala" class="page active">
-    <div class="mhdr"><h2 id="month-lbl">-</h2><p>Escala Geral do Ministério de Mídia</p></div>
+    <div class="mhdr"><h2 id="month-lbl">-</h2><p>Escala Geral do Ministerio de Midia</p></div>
     <div class="stats">
       <div class="sbox"><div class="snum" id="st-cultos">0</div><div class="slbl">Cultos</div></div>
       <div class="sbox"><div class="snum" id="st-membros">0</div><div class="slbl">Membros</div></div>
@@ -166,57 +163,60 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div id="escala-list"></div>
     <div id="admin-escala" style="display:none;">
       <div class="hdiv"></div>
-      <p class="stitle">&#x2699; Ações do Líder</p>
-      <div id="backup-alert" style="display:none;background:rgba(192,57,43,.13);border:1px solid rgba(192,57,43,.4);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:.74rem;color:#ec7063;">&#x26A0;&#xFE0F; <strong>Dados alterados! Faça um backup.</strong></div>
+      <p class="stitle">Acoes do Lider</p>
+      <div id="backup-alert" style="display:none;background:rgba(192,57,43,.13);border:1px solid rgba(192,57,43,.4);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:.74rem;color:#ec7063;">&#9888; <strong>Dados alterados! Faca um backup.</strong></div>
       <button class="btn bgold bblock" onclick="openMo('mo-addday')">+ Adicionar Culto</button>
-      <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">&#x1F4E5; Importar Escala</button>
-      <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">&#x26A0;&#xFE0F; Verificar Vagas em Aberto</button>
-      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="fazerBackup()">&#x1F4BE; Fazer Backup</button>
-      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="document.getElementById('backup-file').click()">&#x1F4C2; Restaurar Backup</button>
+      <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">&#129302; Importar Escala</button>
+      <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">&#9888; Verificar Vagas em Aberto</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="fazerBackup()">&#128190; Fazer Backup</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="document.getElementById('backup-file').click()">&#128194; Restaurar Backup</button>
       <input type="file" id="backup-file" accept=".json" style="display:none;" onchange="restaurarBackup(this)">
-      <button class="wabtn" onclick="waEscala()">&#x1F4F2; Enviar Escala no WhatsApp</button>
+      <button class="wabtn" onclick="waEscala()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar Escala no WhatsApp
+      </button>
     </div>
   </div>
 
   <div id="page-minha" class="page">
-    <div class="card"><div class="card-title">&#x1F4CB; Meus Cultos este Mês</div><div id="minha-lista"></div></div>
+    <div class="card"><div class="card-title">&#128203; Meus Cultos este Mes</div><div id="minha-lista"></div></div>
     <div class="card">
-      <div class="card-title">&#x2705; Confirmar / Recusar</div>
-      <p style="font-size:.77rem;color:var(--cream2);opacity:.58;margin-bottom:11px;">Confirme sua presença nos cultos pendentes.</p>
+      <div class="card-title">&#9989; Confirmar / Recusar</div>
+      <p style="font-size:.77rem;color:var(--cream2);opacity:.58;margin-bottom:11px;">Confirme sua presenca nos cultos pendentes.</p>
       <div id="minha-pend"></div>
     </div>
     <div class="card">
-      <div class="card-title">&#x1F511; Alterar Minha Senha</div>
+      <div class="card-title">&#128273; Alterar Minha Senha</div>
       <div class="pw-box">
         <div class="fg2"><label class="fl2">Senha Atual</label><input class="fi2" id="pw-old" type="password" placeholder="Senha atual"></div>
-        <div class="fg2"><label class="fl2">Nova Senha</label><input class="fi2" id="pw-new" type="password" placeholder="Mínimo 5 caracteres"></div>
-        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Confirmar Nova Senha</label><input class="fi2" id="pw-conf" type="password" placeholder="Repita a nova senha"></div>
+        <div class="fg2"><label class="fl2">Nova Senha</label><input class="fi2" id="pw-new" type="password" placeholder="Minimo 5 caracteres"></div>
+        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Confirmar</label><input class="fi2" id="pw-conf" type="password" placeholder="Repita a nova senha"></div>
         <button class="btn bgold bblock" style="margin-top:12px;" onclick="changePass()">Salvar Nova Senha</button>
       </div>
     </div>
   </div>
 
   <div id="page-pedidos" class="page">
-    <p class="stitle">&#x1F4E9; Pedidos Recebidos</p>
+    <p class="stitle">Pedidos Recebidos</p>
     <div id="pedidos-list"></div>
     <div class="hdiv"></div>
-    <p class="stitle">&#x2709; Fazer Pedido</p>
+    <p class="stitle">Fazer Pedido de Troca</p>
     <div class="card">
       <div class="fg2"><label class="fl2">Culto</label><select class="fs2" id="ped-culto"></select></div>
       <div class="fg2"><label class="fl2">Tipo</label>
         <select class="fs2" id="ped-tipo" onchange="toggleSubField()">
           <option value="sub">Pedir Substituto</option>
-          <option value="aus">Informar Ausência</option>
+          <option value="aus">Informar Ausencia</option>
         </select>
       </div>
-      <div id="ped-sub-wrap" class="fg2"><label class="fl2">Substituto Sugerido</label><select class="fs2" id="ped-sub"></select></div>
+      <div id="ped-sub-wrap" class="fg2"><label class="fl2">Substituto Indicado</label><select class="fs2" id="ped-sub"></select></div>
       <div class="fg2"><label class="fl2">Motivo</label><input class="fi2" id="ped-motivo" placeholder="Ex: Viagem, compromisso..."></div>
       <button class="btn bgold bblock" onclick="sendPedido()">Enviar Pedido</button>
     </div>
   </div>
 
   <div id="page-equipe" class="page">
-    <p class="stitle">&#x1F465; Equipe do Ministério</p>
+    <p class="stitle">Equipe do Ministerio</p>
     <div id="equipe-list"></div>
     <div id="admin-equipe" style="display:none;">
       <div class="hdiv"></div>
@@ -225,13 +225,13 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 
   <div id="page-notifs" class="page">
-    <p class="stitle">&#x1F514; Avisos e Notificações</p>
+    <p class="stitle">Avisos e Notificacoes</p>
     <div id="notifs-list"></div>
     <div id="admin-notifs" style="display:none;">
       <div class="hdiv"></div>
-      <p class="stitle">&#x1F4E3; Enviar Aviso</p>
+      <p class="stitle">Enviar Aviso</p>
       <div class="card">
-        <div class="fg2"><label class="fl2">Destinatário</label><select class="fs2" id="notif-dest"></select></div>
+        <div class="fg2"><label class="fl2">Destinatario</label><select class="fs2" id="notif-dest"></select></div>
         <div class="fg2" style="margin-bottom:0;"><label class="fl2">Mensagem</label><input class="fi2" id="notif-msg" placeholder="Digite o aviso..."></div>
         <button class="btn bgold bblock" style="margin-top:12px;" onclick="sendAviso()">Enviar Aviso</button>
       </div>
@@ -243,21 +243,26 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 <div class="mo" id="mo-addday" onclick="closeMo('mo-addday')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mhandle"></div>
-    <div class="mtitle">+ Novo Culto</div>
+    <div class="mtitle">+ Novo Culto na Escala</div>
     <label class="mfl">Data</label><input type="date" class="mfi" id="nd-date" onchange="autoLabel()">
-    <label class="mfl">Nome do Culto</label><input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebração">
+    <label class="mfl">Nome do Culto</label><input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebracao">
     <label class="mfl">Modo</label>
     <select class="mfs" id="nd-modo" onchange="toggleModo()">
       <option value="fixo">Membros fixos - precisam confirmar</option>
       <option value="confirmado">Membros fixos - ja confirmados</option>
-      <option value="aberto">Inscricao livre (membros escolhem)</option>
+      <option value="aberto">Inscricao livre (membros se inscrevem)</option>
     </select>
     <div id="nd-checks-wrap">
       <label class="mfl">Membros Escalados</label>
       <div id="nd-checks" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
     </div>
-    <div id="nd-aberto-info" style="display:none;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.76rem;color:var(--cream2);">Culto aberto para inscricao livre.</div>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-addday')">Cancelar</button><button class="btn bgold" onclick="addCulto()">Adicionar</button></div>
+    <div id="nd-aberto-info" style="display:none;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.76rem;color:var(--cream2);">
+      Culto ficara aberto. Membros entram e tocam "Quero participar".
+    </div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-addday')">Cancelar</button>
+      <button class="btn bgold" onclick="addCulto()">Adicionar</button>
+    </div>
   </div>
 </div>
 
@@ -268,11 +273,17 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <label class="mfl">Nome Completo</label><input type="text" class="mfi" id="nm-nome" placeholder="Nome completo">
     <label class="mfl">Telefone (login)</label><input type="tel" class="mfi" id="nm-tel" placeholder="Somente numeros" inputmode="numeric">
     <label class="mfl">Funcao</label>
-    <select class="mfs" id="nm-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option><option>Social Media</option></select>
+    <select class="mfs" id="nm-funcao">
+      <option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option>
+      <option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option>
+    </select>
     <label class="mfl">Perfil</label>
     <select class="mfs" id="nm-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
-    <p style="font-size:.69rem;color:var(--cream2);opacity:.45;margin-bottom:4px;">Senha inicial: 12345</p>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-addmem')">Cancelar</button><button class="btn bgold" onclick="addMembro()">Adicionar</button></div>
+    <p style="font-size:.69rem;color:var(--cream2);opacity:.45;margin-bottom:4px;">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-addmem')">Cancelar</button>
+      <button class="btn bgold" onclick="addMembro()">Adicionar</button>
+    </div>
   </div>
 </div>
 
@@ -280,47 +291,75 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mhandle"></div>
     <div class="mtitle">Redefinir Senha</div>
-    <p style="font-size:.82rem;color:var(--cream2);margin-bottom:14px;">Senha de <strong id="reset-nome" style="color:var(--gold-l);">-</strong> sera redefinida para 12345.</p>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-resetpw')">Cancelar</button><button class="btn bgold" onclick="confirmReset()">Redefinir</button></div>
+    <p style="font-size:.82rem;color:var(--cream2);margin-bottom:14px;">Senha de <strong id="reset-nome" style="color:var(--gold-l);">-</strong> sera redefinida para <strong style="color:var(--gold);">12345</strong>.</p>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-resetpw')">Cancelar</button>
+      <button class="btn bgold" onclick="confirmReset()">Redefinir</button>
+    </div>
   </div>
 </div>
 
 <div class="mo" id="mo-ia" onclick="closeMo('mo-ia')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mhandle"></div>
-    <div class="mtitle">Importar Escala</div>
-    <p style="font-size:.76rem;color:var(--cream2);opacity:.7;margin-bottom:14px;">Cole o texto da escala. O app reconhece automaticamente!</p>
-    <p style="font-size:.72rem;color:var(--gold);opacity:.8;margin-bottom:10px;">Formatos aceitos:</p>
-    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:9px;margin-bottom:13px;font-size:.68rem;color:var(--cream2);line-height:1.8;">
-      qui., 26/03 - Quinta Profetica<br>
-      Karen Duque - Projecao<br><br>
-      8-Mar DOMINGO CELEBRACAO KAREN<br><br>
-      Domingo 08/03 - Culto<br>
-      Nicole, Elder
+    <div class="mtitle">&#129302; Importar Escala</div>
+    <p style="font-size:.76rem;color:var(--cream2);opacity:.7;margin-bottom:10px;">Cole o texto da escala. Formatos reconhecidos:</p>
+    <div style="font-size:.72rem;color:var(--gold-l);margin-bottom:12px;background:rgba(201,168,76,.06);border-radius:8px;padding:8px;line-height:1.8;">
+      &#8227; <em>qui., 26/03 &#8212; Quinta Profetica</em><br>
+      &#8227; <em>dom., 29/03 &#8212; Culto de Celebracao</em><br>
+      &#8227; <em>8-Mar DOMINGO CELEBRACAO KAREN</em><br>
+      &#8227; Escala enviada pelo app no WhatsApp
     </div>
-    <textarea id="ia-texto" class="mfi" rows="7" style="resize:vertical;height:140px;" placeholder="Cole aqui o texto da escala..."></textarea>
-    <div id="ia-status" style="display:none;font-size:.75rem;color:var(--gold);text-align:center;padding:10px;">Processando...</div>
+    <label class="mfl">Texto da Escala</label>
+    <textarea id="ia-texto" class="mfi" rows="7" placeholder="Cole aqui o texto copiado do WhatsApp..." style="height:130px;resize:vertical;"></textarea>
+    <div id="ia-status" style="display:none;font-size:.75rem;color:var(--gold);text-align:center;padding:10px;"><span class="spin">&#8635;</span> Processando...</div>
     <div id="ia-result" style="display:none;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;line-height:1.6;"></div>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button><button class="btn bgold" id="ia-btn" onclick="importarEscala()">Importar</button></div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button>
+      <button class="btn bgold" id="ia-btn" onclick="importarEscala()">Importar</button>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-var BIN_ID  = '69a8de6343b1c97be9b48c0f';
-var BIN_KEY = '$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
-var BIN_URL = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
+var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
 
-function cloudGet(){return fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(!j)return null;return j.record!==undefined?j.record:j;}).catch(function(){return null;});}
-function cloudSet(d){return fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)}).then(function(r){setOnline(r.ok);}).catch(function(){setOnline(false);});}
-function setOnline(ok){var e=document.getElementById('hdr-online');if(!e)return;e.textContent=ok?'online - tempo real':'sem conexao';e.style.color=ok?'#58d68d':'#e74c3c';}
+function setOnline(ok){
+  var el=document.getElementById('hdr-online');
+  el.innerHTML=ok?'&#128994; online &middot; tempo real':'&#128308; sem conexao';
+  el.style.color=ok?'#58d68d':'#e74c3c';
+}
+async function cloudGet(){
+  try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});
+    if(!r.ok){setOnline(false);return null;}
+    var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;
+  }catch(e){setOnline(false);return null;}
+}
+async function cloudSet(data){
+  try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(data)});setOnline(r.ok);}
+  catch(e){setOnline(false);}
+}
 
 var S={members:[],escala:[],notifs:[],pedidos:[]};
-var CU=null,resetTargetId=null,backupDirty=false;
+var CU=null,resetTargetId=null;
+
+function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
+async function loadFromCloud(){
+  showSync(true);
+  var d=await cloudGet();
+  if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;}
+  showSync(false);
+}
+async function saveAll(){
+  await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos});
+  document.getElementById('backup-alert').style.display='block';
+}
 
 function seedMembers(){
-  if(S.members.length===0){S.members=[
+  if(!S.members.length)S.members=[
     {id:1,name:'Pastor Matheus Maia',phone:'99422976',role:'Lider',profile:'lider',pass:'12345'},
     {id:2,name:'Jeniffer Limao',phone:'89800898',role:'Projecao',profile:'lider',pass:'12345'},
     {id:3,name:'Nicole',phone:'98071171',role:'Projecao',profile:'lider',pass:'12345'},
@@ -329,199 +368,444 @@ function seedMembers(){
     {id:6,name:'Karen Duque',phone:'93800472',role:'Projecao',profile:'membro',pass:'12345'},
     {id:7,name:'Douglas',phone:'82561012',role:'Projecao',profile:'membro',pass:'12345'},
     {id:8,name:'Calebe',phone:'84703842',role:'Projecao',profile:'membro',pass:'12345'},
-    {id:9,name:'Rafael Camba',phone:'73363378',role:'Projecao',profile:'membro',pass:'12345'}
-  ];}
-  if(!S.notifs.length)S.notifs=[{id:1,icon:'GB',text:'<strong>Bem-vindos!</strong> Lider ira montar a escala.',time:'Agora',unread:true}];
+    {id:9,name:'Rafael Camba',phone:'73363378',role:'Projecao',profile:'membro',pass:'12345'},
+  ];
+  if(!S.notifs.length)S.notifs=[{id:1,icon:'&#127916;',text:'<strong>Bem-vindos!</strong> Lider ira montar a escala.',time:'Agora',unread:true}];
 }
 
-function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
-function loadFromCloud(){showSync(true);return cloudGet().then(function(d){if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;setOnline(true);}else setOnline(false);showSync(false);});}
-function saveAll(){markDirty();return cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos});}
-function startPolling(){setInterval(function(){if(!CU)return;cloudGet().then(function(d){if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();}});},8000);}
-
-function markDirty(){backupDirty=true;var e=document.getElementById('backup-alert');if(e)e.style.display='block';}
-function fazerBackup(){var d={versao:1,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos};var b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);backupDirty=false;var e=document.getElementById('backup-alert');if(e)e.style.display='none';toast('Backup salvo!');}
-function restaurarBackup(input){if(!input.files||!input.files[0])return;if(!confirm('Restaurar backup? Isso substituira todos os dados atuais.'))return;var r=new FileReader();r.onload=function(e){try{var d=JSON.parse(e.target.result);if(!d.members){toast('Arquivo invalido.');return;}S.members=d.members;S.escala=d.escala||[];S.notifs=d.notifs||[];S.pedidos=d.pedidos||[];saveAll().then(function(){toast('Backup restaurado!');renderAll();});}catch(err){toast('Erro ao ler arquivo.');}};r.readAsText(input.files[0]);input.value='';}
+function startPolling(){
+  setInterval(async function(){
+    if(!CU)return;
+    var d=await cloudGet();if(!d)return;
+    var ch=false;
+    ['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});
+    if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();}
+  },8000);
+}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
-function openMo(id){if(id==='mo-addday'){document.getElementById('nd-checks').innerHTML=S.members.map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;"><input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+' ('+m.role+')</label>';}).join('');}document.getElementById(id).classList.add('open');}
+
+function openMo(id){
+  if(id==='mo-addday'){
+    document.getElementById('nd-checks').innerHTML=S.members.map(function(m){
+      return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;">'+
+        '<input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+
+        ' <span style="color:var(--gold);font-size:.65rem;opacity:.7;">('+m.role+')</span></label>';
+    }).join('');
+  }
+  document.getElementById(id).classList.add('open');
+}
 function closeMo(id){document.getElementById(id).classList.remove('open');}
-function autoLabel(){var v=document.getElementById('nd-date').value;if(!v)return;var dow=new Date(v+'T12:00:00').getDay();document.getElementById('nd-label').value=dow===0?'Culto de Celebracao':dow===4?'Quinta Profetica':'';}
+function autoLabel(){var v=document.getElementById('nd-date').value;if(!v)return;var d=new Date(v+'T12:00:00').getDay();document.getElementById('nd-label').value=d===0?'Culto de Celebracao':d===4?'Quinta Profetica':'';}
 function toggleModo(){var m=document.getElementById('nd-modo').value;document.getElementById('nd-checks-wrap').style.display=(m==='fixo'||m==='confirmado')?'block':'none';document.getElementById('nd-aberto-info').style.display=m==='aberto'?'block':'none';}
 function toggleSubField(){document.getElementById('ped-sub-wrap').style.display=document.getElementById('ped-tipo').value==='sub'?'block':'none';}
 
-function doLogin(){var ph=document.getElementById('li-phone').value.replace(/\D/g,'').trim();var pw=document.getElementById('li-pass').value;var err=document.getElementById('li-err');err.textContent='';if(!ph||!pw){err.textContent='Preencha telefone e senha.';return;}err.textContent='Conectando...';loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.phone===ph&&x.pass===pw;});if(!m){err.textContent='Telefone ou senha incorretos.';return;}CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();});}
+function doLogin(){
+  var phone=document.getElementById('li-phone').value.replace(/\D/g,'').trim();
+  var pass=document.getElementById('li-pass').value;
+  var err=document.getElementById('li-err');
+  err.textContent='';
+  if(!phone||!pass){err.textContent='Preencha telefone e senha.';return;}
+  err.textContent='Conectando...';
+  loadFromCloud().then(function(){
+    seedMembers();
+    var m=S.members.find(function(x){return x.phone===phone&&x.pass===pass;});
+    if(!m){err.textContent='Telefone ou senha incorretos.';return;}
+    CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    updateHeader();renderAll();startPolling();
+  });
+}
 function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
 
-function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();}
-
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('page-'+id).classList.add('active');el.classList.add('active');
+  if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();
+}
 function renderAll(){renderEscala();renderMinha();renderPedidos();renderEquipe();renderNotifs();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
-function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
+function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
-function renderEscala(){var now=new Date();document.getElementById('month-lbl').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);document.getElementById('st-cultos').textContent=S.escala.length;document.getElementById('st-membros').textContent=S.members.length;document.getElementById('st-pend').textContent=pend;var c=document.getElementById('escala-list');c.innerHTML='';S.escala.forEach(function(day){var declined=day.membros.filter(function(m){return m.status==='declined';});var div=document.createElement('div');div.className='dc';var btnI=(day.aberto&&CU&&!day.membros.find(function(m){return m.id===CU.id;}))?'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>':'';var btnD=(day.aberto&&CU&&day.membros.find(function(m){return m.id===CU.id;}))?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'';var rows=day.membros.length?day.membros.map(function(m){return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'Confirmado':m.status==='pending'?'Pendente':'Recusado')+'</span></div>';}).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>';div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')"><div><div class="dc-date">'+fmtDate(day.date)+(day.aberto?' [Inscricao livre]':'')+'</div><div class="dc-lbl">'+day.label+' - '+day.membros.length+' pessoas</div></div><span class="dc-arr">v</span></div><div class="dc-body">'+(declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+btnI+btnD+rows+'</div>';c.appendChild(div);});}
+function renderEscala(){
+  var now=new Date();
+  document.getElementById('month-lbl').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+  var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);
+  document.getElementById('st-cultos').textContent=S.escala.length;
+  document.getElementById('st-membros').textContent=S.members.length;
+  document.getElementById('st-pend').textContent=pend;
+  var c=document.getElementById('escala-list');c.innerHTML='';
+  S.escala.forEach(function(day){
+    var declined=day.membros.filter(function(m){return m.status==='declined';});
+    var div=document.createElement('div');div.className='dc';
+    var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
+    var inscBtn='';
+    if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});
+      inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
+    div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
+      '<div><div class="dc-date">'+fmtDate(day.date)+abBadge+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
+      '<span class="dc-arr">&#9660;</span></div>'+
+      '<div class="dc-body">'+
+      (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+
+      inscBtn+
+      (day.membros.length?day.membros.map(function(m){
+        return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div>'+
+          '<span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+
+          (m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span></div>';
+      }).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
+      '</div>';
+    c.appendChild(div);
+  });
+}
 
-function renderMinha(){if(!CU)return;var md=[];S.escala.forEach(function(day){day.membros.forEach(function(m){if(m.id===CU.id)md.push({day:day,membro:m});});});document.getElementById('minha-lista').innerHTML=md.length?md.map(function(x){return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+' - '+x.day.label+'</div><div class="mr">'+x.membro.role+'</div></div><span class="sb '+(x.membro.status==='confirmed'?'sc':x.membro.status==='pending'?'sp':'sd')+'">'+(x.membro.status==='confirmed'?'Confirmado':x.membro.status==='pending'?'Pendente':'Recusado')+'</span></div>';}).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:14px;">Nenhum culto escalado.</p>';var pend=md.filter(function(x){return x.membro.status==='pending';});document.getElementById('minha-pend').innerHTML=pend.length?pend.map(function(x){return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+'</div><div class="mr">'+x.day.label+' - '+x.membro.role+'</div></div><div style="display:flex;gap:5px;"><button class="btn bgreen bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'confirmed\')">Sim</button><button class="btn bred bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'declined\')">Nao</button></div></div>';}).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:10px;">Nenhuma confirmacao pendente</p>';}
+function renderMinha(){
+  if(!CU)return;
+  var meusDias=[];
+  S.escala.forEach(function(day){day.membros.forEach(function(m){if(m.id===CU.id)meusDias.push({day:day,membro:m});});});
+  document.getElementById('minha-lista').innerHTML=meusDias.length?meusDias.map(function(x){
+    return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+' &#8212; '+x.day.label+'</div><div class="mr">'+x.membro.role+'</div></div>'+
+      '<span class="sb '+(x.membro.status==='confirmed'?'sc':x.membro.status==='pending'?'sp':'sd')+'">'+(x.membro.status==='confirmed'?'&#10003;':x.membro.status==='pending'?'Pendente':'&#10007;')+'</span></div>';
+  }).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:14px;">Nenhum culto escalado este mes.</p>';
+  var pend=meusDias.filter(function(x){return x.membro.status==='pending';});
+  document.getElementById('minha-pend').innerHTML=pend.length?pend.map(function(x){
+    return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+'</div><div class="mr">'+x.day.label+' &middot; '+x.membro.role+'</div></div>'+
+      '<div style="display:flex;gap:5px;"><button class="btn bgreen bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'confirmed\')">&#10003; Sim</button>'+
+      '<button class="btn bred bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'declined\')">&#10007; Nao</button></div></div>';
+  }).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:10px;">Nenhuma confirmacao pendente</p>';
+}
 
-function respPresenca(dayId,memId,status){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;m.status=status;S.notifs.unshift({id:Date.now(),icon:status==='confirmed'?'OK':'X',text:'<strong>'+CU.name+'</strong> '+(status==='confirmed'?'confirmou':'recusou')+' presenca em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast(status==='confirmed'?'Presenca confirmada!':'Recusado.');renderAll();if(status==='confirmed')autoCheckNotify(dayId);if(status==='declined'){setTimeout(function(){if(confirm('Vaga: '+m.role+' em '+fmtDate(day.date)+'\nNotificar grupo?'))waVaga(day.date,day.label,m.role);},200);}});}
+function respPresenca(dayId,memId,status){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
+  m.status=status;
+  S.notifs.unshift({id:Date.now(),icon:status==='confirmed'?'&#9989;':'&#10060;',
+    text:'<strong>'+CU.name+'</strong> '+(status==='confirmed'?'confirmou':'recusou')+' presenca em <strong>'+fmtDate(day.date)+'</strong>'+(status==='declined'?' &#8212; Vaga: '+m.role:'')+'.',
+    time:nowStr(),unread:true});
+  saveAll().then(function(){
+    toast(status==='confirmed'?'Presenca confirmada!':'Recusado.');renderAll();
+    if(status==='confirmed')autoCheckNotify(dayId);
+    if(status==='declined')setTimeout(function(){if(confirm('Vaga: '+m.role+'\nNotificar no WhatsApp?'))waVaga(day.date,day.label,m.role);},200);
+  });
+}
 
-function autoCheckNotify(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'OK',text:'<strong>Escala completa!</strong> Todos confirmaram para <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();setTimeout(function(){waNotifyCultoCompleto(day);},300);}if(S.escala.length>0&&S.escala.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});})){S.notifs.unshift({id:Date.now()+2,icon:'TOP',text:'<strong>Escala do mes completa!</strong>',time:nowStr(),unread:true});saveAll();updateBadge();setTimeout(function(){waNotifyEscalaTotal();},1500);}}
+function autoCheckNotify(dayId){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){
+    S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});
+    saveAll();updateBadge();setTimeout(function(){waNotifyCultoCompleto(day);},300);
+  }
+  if(S.escala.length>0&&S.escala.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';})})){
+    S.notifs.unshift({id:Date.now()+2,icon:'&#127942;',text:'<strong>Escala do mes completa!</strong>',time:nowStr(),unread:true});
+    saveAll();updateBadge();setTimeout(function(){waNotifyEscalaTotal();},1500);
+  }
+}
 
-function inscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day||day.membros.find(function(m){return m.id===CU.id;})){toast('Voce ja esta inscrito!');return;}day.membros.push({id:CU.id,name:CU.name,role:CU.role,status:'confirmed'});S.notifs.unshift({id:Date.now(),icon:'OK',text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscrito!');renderAll();autoCheckNotify(dayId);});}
-function desinscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;day.membros=day.membros.filter(function(m){return m.id!==CU.id;});saveAll().then(function(){toast('Inscricao cancelada.');renderAll();});}
+function inscreverCulto(dayId){
+  var day=S.escala.find(function(d){return d.id===dayId;});
+  if(!day||day.membros.find(function(m){return m.id===CU.id;})){toast('Voce ja esta inscrito!');return;}
+  day.membros.push({id:CU.id,name:CU.name,role:CU.role,status:'confirmed'});
+  S.notifs.unshift({id:Date.now(),icon:'&#128587;',text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('Inscricao confirmada!');renderAll();autoCheckNotify(dayId);});
+}
+function desinscreverCulto(dayId){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  day.membros=day.membros.filter(function(m){return m.id!==CU.id;});
+  S.notifs.unshift({id:Date.now(),icon:'&#8617;',text:'<strong>'+CU.name+'</strong> cancelou inscricao em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('Inscricao cancelada.');renderAll();});
+}
 
-function renderPedidos(){var c=document.getElementById('pedidos-list');if(!S.pedidos.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum pedido ainda.</p>';return;}var isL=CU&&CU.profile==='lider';c.innerHTML=S.pedidos.map(function(p,i){var stM={pending:'sp',approved:'sc',aguardando_sub:'sp',sub_recusou:'sd',denied:'sd'};var stT={pending:'Pendente',approved:'Aprovado',aguardando_sub:'Aguard. substituto',sub_recusou:'Sub recusou',denied:'Recusado'};var isSub=CU&&p.substitutoId&&String(p.substitutoId)===String(CU.id);var acts='';if(p.status==='pending'&&isL)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'approved\')">Aprovar</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">Recusar</button></div>';else if(p.status==='aguardando_sub'&&isSub)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="aceitarSub('+i+')">Aceito a troca</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="recusarSub('+i+')">Recuso</button></div>';else if(p.status==='aguardando_sub'&&isL)acts='<div style="margin-top:9px;"><button class="btn bgreen bsm" style="width:100%;justify-content:center;" onclick="respPedido('+i+',\'approved\')">Aprovar mesmo assim</button></div>';return '<div class="rcard '+(p.tipo==='sub'?'sub':'aus')+'"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><strong style="font-size:.84rem;">'+(p.tipo==='sub'?'Substituicao':'Ausencia')+' - '+p.solicitante+'</strong><span class="sb '+(stM[p.status]||'sp')+'">'+(stT[p.status]||p.status)+'</span></div><p style="font-size:.74rem;color:var(--cream2);opacity:.62;">'+p.culto+' - '+p.role+'</p>'+(p.substituto?'<p style="font-size:.72rem;color:var(--cream2);opacity:.52;margin-top:2px;">Substituto: '+p.substituto+'</p>':'')+'<p style="font-size:.71rem;color:var(--cream2);opacity:.46;margin-top:2px;">Motivo: '+(p.motivo||'-')+'</p>'+acts+'</div>';}).join('');}
+function renderPedidos(){
+  var c=document.getElementById('pedidos-list');
+  if(!S.pedidos.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum pedido ainda.</p>';return;}
+  var isL=CU&&CU.profile==='lider';
+  c.innerHTML=S.pedidos.map(function(p,i){
+    var stCls=p.status==='pending'?'sp':p.status==='approved'?'sc':p.status==='aguardando_sub'?'sp':'sd';
+    var stTxt=p.status==='pending'?'Pendente':p.status==='approved'?'Aprovado':p.status==='aguardando_sub'?'Aguard. sub':'Recusado';
+    var isSub=CU&&p.substitutoId&&String(p.substitutoId)===String(CU.id);
+    var acts='';
+    if(p.status==='pending'&&isL)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'approved\')">&#10003; Aprovar</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">&#10007; Recusar</button></div>';
+    else if(p.status==='aguardando_sub'&&isSub)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="aceitarSub('+i+')">&#10003; Aceito a troca</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="recusarSub('+i+')">&#10007; Recuso</button></div>';
+    return '<div class="rcard '+(p.tipo==='sub'?'sub':'aus')+'">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><strong style="font-size:.84rem;">'+(p.tipo==='sub'?'Substituicao':'Ausencia')+' &#8212; '+p.solicitante+'</strong><span class="sb '+stCls+'">'+stTxt+'</span></div>'+'<p style="font-size:.74rem;color:var(--cream2);opacity:.62;">'+p.culto+' &middot; '+p.role+'</p>'+(p.tipo==='sub'&&p.substituto?'<p style="font-size:.72rem;color:var(--cream2);opacity:.52;margin-top:2px;">Substituto: '+p.substituto+'</p>':'')+'<p style="font-size:.71rem;color:var(--cream2);opacity:.46;margin-top:2px;">Motivo: '+(p.motivo||'-')+'</p>'+acts+'</div>';
+  }).join('');
+}
 
-function respPedido(idx,resp){S.pedidos[idx].status=resp;S.notifs.unshift({id:Date.now(),icon:resp==='approved'?'OK':'X',text:'Pedido de <strong>'+S.pedidos[idx].solicitante+'</strong> foi <strong>'+(resp==='approved'?'aprovado':'recusado')+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast(resp==='approved'?'Aprovado!':'Recusado.');renderPedidos();updateBadge();});}
-function aceitarSub(idx){S.pedidos[idx].status='pending';S.pedidos[idx].subAceitou=true;S.notifs.unshift({id:Date.now(),icon:'OK',text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+S.pedidos[idx].solicitante+'</strong>. Aguardando lider.',time:nowStr(),unread:true});saveAll().then(function(){toast('Troca aceita! Lider sera notificado.');renderPedidos();updateBadge();});}
-function recusarSub(idx){S.pedidos[idx].status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'X',text:'<strong>'+CU.name+'</strong> recusou ser substituto de <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Troca recusada.');renderPedidos();updateBadge();});}
-function sendPedido(){var cEl=document.getElementById('ped-culto');var cTxt=cEl.options[cEl.selectedIndex]?cEl.options[cEl.selectedIndex].text:'-';var tipo=document.getElementById('ped-tipo').value;var mot=document.getElementById('ped-motivo').value.trim();var sEl=document.getElementById('ped-sub');var sId=sEl.value;var sNome=sEl.options[sEl.selectedIndex]?sEl.options[sEl.selectedIndex].text:'-';var pSt=(tipo==='sub'&&sId)?'aguardando_sub':'pending';S.pedidos.unshift({id:Date.now(),tipo:tipo,solicitante:CU.name,solicitanteId:CU.id,substitutoId:tipo==='sub'?sId:null,substituto:tipo==='sub'?sNome:null,culto:cTxt,role:CU.role,motivo:mot,status:pSt});S.notifs.unshift({id:Date.now()+1,icon:'TR',text:'<strong>'+CU.name+'</strong> pediu '+(tipo==='sub'?'substituicao':'ausencia')+' em <strong>'+cTxt+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){document.getElementById('ped-motivo').value='';toast(pSt==='aguardando_sub'?'Aguardando '+sNome+' confirmar.':'Pedido enviado!');renderPedidos();updateBadge();setTimeout(function(){if(confirm('Notificar grupo?')){var d=S.escala.find(function(x){return cTxt.indexOf(fmtDate(x.date))>=0;});waSubstituicao(CU.name,tipo==='sub'?sNome:null,d?d.date:'',d?d.label:cTxt,CU.role,mot);}},200);});}
+function respPedido(idx,resp){
+  var p=S.pedidos[idx];p.status=resp;
+  // Se aprovado e substituicao: troca o membro na escala automaticamente
+  if(resp==='approved'&&p.tipo==='sub'&&p.substitutoId){
+    S.escala.forEach(function(day){
+      // Identifica o culto pelo id salvo ou pelo nome
+      if(String(day.id)===String(p.cultoId)||fmtDate(day.date)+' \u2014 '+day.label===p.culto||(p.culto&&p.culto.indexOf(day.label)>=0)){
+        var mi=day.membros.findIndex(function(m){return String(m.id)===String(p.solicitanteId)||m.name===p.solicitante;});
+        if(mi>=0){
+          var sub=S.members.find(function(x){return String(x.id)===String(p.substitutoId);});
+          if(sub)day.membros[mi]={id:sub.id,name:sub.name,role:day.membros[mi].role,status:'confirmed'};
+        }
+      }
+    });
+  }
+  S.notifs.unshift({id:Date.now(),icon:resp==='approved'?'&#9989;':'&#10060;',
+    text:'Pedido de <strong>'+p.solicitante+'</strong> foi <strong>'+(resp==='approved'?'aprovado':'recusado')+'</strong>'+(resp==='approved'&&p.tipo==='sub'&&p.substituto?' &#8212; <strong>'+p.substituto+'</strong> entrou na escala no lugar de '+p.solicitante:'')+'.',
+    time:nowStr(),unread:true});
+  saveAll().then(function(){toast(resp==='approved'?'Aprovado! Escala atualizada.':'Recusado.');renderAll();updateBadge();});
+}
 
-function renderEquipe(){var isL=CU&&CU.profile==='lider';document.getElementById('equipe-list').innerHTML=S.members.map(function(m){return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div><div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?' [Lider]':'')+'</strong><span>'+m.role+'</span><span class="phone-txt">'+m.phone+'</span></div>'+(isL?'<button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')">Senha</button>':'')+'</div>';}).join('');}
+function aceitarSub(idx){
+  S.pedidos[idx].status='pending';S.pedidos[idx].subAceitou=true;
+  S.notifs.unshift({id:Date.now(),icon:'&#129309;',text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+S.pedidos[idx].solicitante+'</strong>. Aguardando aprovacao do lider.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('Troca aceita! Lider sera notificado.');renderPedidos();updateBadge();});
+}
+function recusarSub(idx){
+  S.pedidos[idx].status='sub_recusou';
+  S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou ser substituto de <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('Troca recusada.');renderPedidos();updateBadge();});
+}
 
-function renderNotifs(){var c=document.getElementById('notifs-list');if(!S.notifs.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum aviso ainda.</p>';return;}c.innerHTML=S.notifs.map(function(n){return '<div class="nitem"><div class="nicon" style="font-size:.9rem;min-width:24px;">'+n.icon+'</div><div style="flex:1;"><div class="ntxt">'+n.text+'</div><div class="ntime">'+n.time+'</div></div>'+(n.unread?'<div class="udot"></div>':'')+'</div>';}).join('');S.notifs=S.notifs.map(function(n){return Object.assign({},n,{unread:false});});saveAll();updateBadge();}
-function sendAviso(){var dEl=document.getElementById('notif-dest');var dest=dEl.options[dEl.selectedIndex]?dEl.options[dEl.selectedIndex].text:'Equipe';var msg=document.getElementById('notif-msg').value.trim();if(!msg){toast('Digite uma mensagem.');return;}S.notifs.unshift({id:Date.now(),icon:'AV',text:'<strong>Aviso para '+dest+':</strong> '+msg,time:nowStr(),unread:true});saveAll().then(function(){document.getElementById('notif-msg').value='';toast('Aviso enviado!');updateBadge();});}
+function sendPedido(){
+  var cultoEl=document.getElementById('ped-culto');
+  var cultoId=cultoEl.value;
+  var cultoTxt=cultoEl.options[cultoEl.selectedIndex]?cultoEl.options[cultoEl.selectedIndex].text:'-';
+  var tipo=document.getElementById('ped-tipo').value;
+  var motivo=document.getElementById('ped-motivo').value.trim();
+  var subEl=document.getElementById('ped-sub');
+  var subId=subEl.value;
+  var subNome=subEl.options[subEl.selectedIndex]?subEl.options[subEl.selectedIndex].text:'-';
+  var pedStatus=(tipo==='sub'&&subId)?'aguardando_sub':'pending';
+  S.pedidos.unshift({id:Date.now(),tipo:tipo,solicitante:CU.name,solicitanteId:CU.id,
+    substitutoId:tipo==='sub'?subId:null,substituto:tipo==='sub'?subNome:null,
+    cultoId:cultoId,culto:cultoTxt,role:CU.role,motivo:motivo,status:pedStatus});
+  S.notifs.unshift({id:Date.now()+1,icon:'&#128259;',
+    text:'<strong>'+CU.name+'</strong> pediu '+(tipo==='sub'?'substituicao':'ausencia')+' em <strong>'+cultoTxt+'</strong>'+(tipo==='sub'&&subNome?' &#8212; substituto indicado: <strong>'+subNome+'</strong>':'')+'.',
+    time:nowStr(),unread:true});
+  saveAll().then(function(){document.getElementById('ped-motivo').value='';toast(pedStatus==='aguardando_sub'?'Aguardando '+subNome+' confirmar.':'Pedido enviado!');renderPedidos();updateBadge();});
+}
 
-function addCulto(){var date=document.getElementById('nd-date').value;var label=document.getElementById('nd-label').value.trim();var modo=document.getElementById('nd-modo').value;if(!date||!label){toast('Preencha data e nome.');return;}var membrosEsc=[];if(modo==='fixo'||modo==='confirmado'){var checked=Array.from(document.querySelectorAll('#nd-checks input:checked'));if(!checked.length){toast('Selecione ao menos 1 membro.');return;}var st=modo==='confirmado'?'confirmed':'pending';membrosEsc=checked.map(function(cb){var m=S.members.find(function(x){return x.id==cb.value;});return {id:m.id,name:m.name,role:m.role,status:st};});}S.escala.push({id:Date.now(),date:date,label:label,membros:membrosEsc,aberto:modo==='aberto'});S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});S.notifs.unshift({id:Date.now()+1,icon:'CA',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+'.',time:nowStr(),unread:true});saveAll().then(function(){closeMo('mo-addday');document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-modo').value='fixo';toggleModo();toast('Culto adicionado!');renderAll();});}
+function renderEquipe(){
+  var isL=CU&&CU.profile==='lider';
+  document.getElementById('equipe-list').innerHTML=S.members.map(function(m){
+    return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div>'+
+      '<div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+'</strong>'+
+      '<span>'+m.role+'</span><span class="phone-txt">'+m.phone+'</span></div>'+
+      (isL?'<button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')" >&#128273;</button>':'')+
+      '</div>';
+  }).join('');
+}
 
-function addMembro(){var nome=document.getElementById('nm-nome').value.trim();var tel=document.getElementById('nm-tel').value.replace(/\D/g,'');var funcao=document.getElementById('nm-funcao').value;var perfil=document.getElementById('nm-perfil').value;if(!nome){toast('Informe o nome.');return;}if(tel.length<6){toast('Telefone invalido.');return;}if(S.members.find(function(m){return m.phone===tel;})){toast('Telefone ja cadastrado.');return;}S.members.push({id:Date.now(),name:nome,phone:tel,role:funcao,profile:perfil,pass:'12345'});saveAll().then(function(){closeMo('mo-addmem');document.getElementById('nm-nome').value='';document.getElementById('nm-tel').value='';toast(nome+' adicionado! Senha: 12345');renderAll();populateForms();});}
+function renderNotifs(){
+  var c=document.getElementById('notifs-list');
+  if(!S.notifs.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum aviso ainda.</p>';return;}
+  c.innerHTML=S.notifs.map(function(n){
+    return '<div class="nitem"><div class="nicon">'+n.icon+'</div>'+
+      '<div style="flex:1;"><div class="ntxt">'+n.text+'</div><div class="ntime">'+n.time+'</div></div>'+
+      (n.unread?'<div class="udot"></div>':'')+'</div>';
+  }).join('');
+  S.notifs=S.notifs.map(function(n){return Object.assign({},n,{unread:false});});
+  saveAll();updateBadge();
+}
+function sendAviso(){
+  var destEl=document.getElementById('notif-dest');
+  var dest=destEl.options[destEl.selectedIndex]?destEl.options[destEl.selectedIndex].text:'Equipe';
+  var msg=document.getElementById('notif-msg').value.trim();
+  if(!msg){toast('Digite uma mensagem.');return;}
+  S.notifs.unshift({id:Date.now(),icon:'&#128227;',text:'<strong>Aviso do Lider para '+dest+':</strong> '+msg,time:nowStr(),unread:true});
+  saveAll().then(function(){document.getElementById('notif-msg').value='';toast('Aviso enviado!');updateBadge();});
+}
+
+function addCulto(){
+  var date=document.getElementById('nd-date').value;
+  var label=document.getElementById('nd-label').value.trim();
+  var modo=document.getElementById('nd-modo').value;
+  if(!date||!label){toast('Preencha data e nome.');return;}
+  var membrosEsc=[];
+  if(modo==='fixo'||modo==='confirmado'){
+    var checked=Array.from(document.querySelectorAll('#nd-checks input:checked'));
+    if(!checked.length){toast('Selecione ao menos 1 membro.');return;}
+    var st=modo==='confirmado'?'confirmed':'pending';
+    membrosEsc=checked.map(function(cb){var m=S.members.find(function(x){return x.id==cb.value;});return{id:m.id,name:m.name,role:m.role,status:st};});
+  }
+  S.escala.push({id:Date.now(),date:date,label:label,membros:membrosEsc,aberto:modo==='aberto'});
+  S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
+  S.notifs.unshift({id:Date.now()+1,icon:'&#128197;',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+(modo==='aberto'?' &#8212; aberto para inscricao!':'.')+'',time:nowStr(),unread:true});
+  saveAll().then(function(){closeMo('mo-addday');document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-modo').value='fixo';toggleModo();toast('Culto adicionado!');renderAll();});
+}
+
+function addMembro(){
+  var nome=document.getElementById('nm-nome').value.trim();
+  var tel=document.getElementById('nm-tel').value.replace(/\D/g,'');
+  var funcao=document.getElementById('nm-funcao').value;
+  var perfil=document.getElementById('nm-perfil').value;
+  if(!nome){toast('Informe o nome.');return;}if(tel.length<8){toast('Telefone invalido.');return;}
+  if(S.members.find(function(m){return m.phone===tel;})){toast('Telefone ja cadastrado.');return;}
+  S.members.push({id:Date.now(),name:nome,phone:tel,role:funcao,profile:perfil,pass:'12345'});
+  saveAll().then(function(){closeMo('mo-addmem');document.getElementById('nm-nome').value='';document.getElementById('nm-tel').value='';toast(nome+' adicionado! Senha: 12345');renderAll();populateForms();});
+}
 
 function openResetPw(id,name){resetTargetId=id;document.getElementById('reset-nome').textContent=name;openMo('mo-resetpw');}
 function confirmReset(){var m=S.members.find(function(x){return x.id===resetTargetId;});if(m){m.pass='12345';saveAll().then(function(){closeMo('mo-resetpw');toast('Senha de '+m.name+' redefinida para 12345');});}}
-function changePass(){var old=document.getElementById('pw-old').value,nw=document.getElementById('pw-new').value,conf=document.getElementById('pw-conf').value;if(old!==CU.pass){toast('Senha atual incorreta.');return;}if(nw.length<5){toast('Minimo 5 caracteres.');return;}if(nw!==conf){toast('Senhas nao coincidem.');return;}var m=S.members.find(function(x){return x.id===CU.id;});if(m){m.pass=nw;CU.pass=nw;saveAll().then(function(){['pw-old','pw-new','pw-conf'].forEach(function(id){document.getElementById(id).value='';});toast('Senha alterada!');});}}
+function changePass(){
+  var old=document.getElementById('pw-old').value,nw=document.getElementById('pw-new').value,conf=document.getElementById('pw-conf').value;
+  if(old!==CU.pass){toast('Senha atual incorreta.');return;}if(nw.length<5){toast('Minimo 5 caracteres.');return;}if(nw!==conf){toast('Senhas nao coincidem.');return;}
+  var m=S.members.find(function(x){return x.id===CU.id;});
+  if(m){m.pass=nw;CU.pass=nw;saveAll().then(function(){['pw-old','pw-new','pw-conf'].forEach(function(id){document.getElementById(id).value='';});toast('Senha alterada!');});}
+}
 
-function checkVagas(){var vagas=[],abertos=[];S.escala.forEach(function(d){d.membros.forEach(function(m){if(m.status==='declined')vagas.push({day:d,m:m});});if(d.aberto)abertos.push(d);});if(!vagas.length&&!abertos.length){toast('Nenhuma vaga em aberto!');return;}var msg='';if(vagas.length){msg+='VAGAS POR RECUSA:\n';vagas.forEach(function(v){msg+='  '+fmtDate(v.day.date)+' - '+v.day.label+'\n  Funcao: '+v.m.role+'\n';});msg+='\n';}if(abertos.length){msg+='CULTOS COM INSCRICAO LIVRE:\n';abertos.forEach(function(d){msg+='  '+fmtDate(d.date)+' - '+d.label+'\n  '+d.membros.length+' inscrito(s)\n';});}if(confirm(msg+'\nNotificar no WhatsApp?')){vagas.forEach(function(v){waVaga(v.day.date,v.day.label,v.m.role);});if(abertos.length)waVagasAbertas(abertos);}}
+function checkVagas(){
+  var vagas=[],abertos=[];
+  S.escala.forEach(function(d){d.membros.forEach(function(m){if(m.status==='declined')vagas.push({day:d,m:m});});if(d.aberto)abertos.push(d);});
+  if(!vagas.length&&!abertos.length){toast('Nenhuma vaga em aberto!');return;}
+  var msg='';
+  if(vagas.length){msg+='VAGAS POR RECUSA:\n';vagas.forEach(function(v){msg+='- '+fmtDate(v.day.date)+' / '+v.day.label+'\n  Funcao: '+v.m.role+'\n';});msg+='\n';}
+  if(abertos.length){msg+='CULTOS ABERTOS:\n';abertos.forEach(function(d){msg+='- '+fmtDate(d.date)+' / '+d.label+' ('+d.membros.length+' inscritos)\n';});}
+  if(confirm(msg+'\nNotificar no WhatsApp?')){vagas.forEach(function(v){waVaga(v.day.date,v.day.label,v.m.role);});if(abertos.length)waVagasAbertas(abertos);}
+}
 
-function populateForms(){document.getElementById('ped-culto').innerHTML=S.escala.map(function(d){return '<option value="'+d.id+'">'+fmtDate(d.date)+' - '+d.label+'</option>';}).join('');document.getElementById('ped-sub').innerHTML=S.members.filter(function(m){return m.id!==(CU?CU.id:0);}).map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');document.getElementById('notif-dest').innerHTML='<option value="all">Toda a Equipe</option>'+S.members.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');}
+function fazerBackup(){
+  var data={versao:1,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);
+  document.getElementById('backup-alert').style.display='none';toast('Backup salvo!');
+}
+function restaurarBackup(input){
+  if(!input.files||!input.files[0])return;
+  if(!confirm('Restaurar vai substituir todos os dados atuais. Confirma?'))return;
+  var reader=new FileReader();
+  reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!data.members||!data.escala){toast('Arquivo invalido.');return;}S.members=data.members;S.escala=data.escala;S.notifs=data.notifs||[];S.pedidos=data.pedidos||[];saveAll().then(function(){toast('Backup restaurado!');renderAll();});}catch(err){toast('Erro ao ler o arquivo.');}};
+  reader.readAsText(input.files[0]);input.value='';
+}
 
-// ═══ PARSER DE ESCALA ═══
+function populateForms(){
+  document.getElementById('ped-culto').innerHTML=S.escala.map(function(d){return '<option value="'+d.id+'">'+fmtDate(d.date)+' &#8212; '+d.label+'</option>';}).join('');
+  document.getElementById('ped-sub').innerHTML=S.members.filter(function(m){return m.id!==(CU?CU.id:0);}).map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
+  document.getElementById('notif-dest').innerHTML='<option value="all">Toda a Equipe</option>'+S.members.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
+}
+
+// ============================================================
+// PARSER LOCAL ROBUSTO — le todos os formatos de escala
+// ============================================================
 function parsearEscala(texto) {
   var ano = new Date().getFullYear();
-  var mesesMap = {jan:1,fev:2,feb:2,mar:3,abr:4,apr:4,mai:5,may:5,jun:6,jul:7,ago:8,aug:8,set:9,sep:9,out:10,oct:10,nov:11,dez:12,dec:12};
+  var MESES = {jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
 
-  // Limpa o texto removendo emojis e asteriscos
-  var limpo = texto.replace(/[*]/g,'').replace(/[\u{1F300}-\u{1FFFF}]/gu,'').replace(/[✅⏳❌🎬📅🙋]/g,'').replace(/\|/g,' ');
+  // PASSO 1: Limpa emojis mas PRESERVA letras, numeros, pontuacao e travessao (—)
+  // Remove apenas caracteres Unicode acima de U+2BFF (emojis coloridos)
+  // O travessao — e U+2014, fica preservado
+  var limpo = texto
+    .replace(/\*/g, '')                          // asteriscos
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, ' ')    // emojis modernos (flags, objetos, rostos)
+    .replace(/[\u{2702}-\u{27B0}]/gu, ' ')      // dingbats coloridos
+    .replace(/\u23F3/g, ' ')                     // ⏳ especificamente
+    .replace(/\u2705/g, ' ')                     // ✅
+    .replace(/\u274C/g, ' ')                     // ❌
+    .replace(/\u231A/g, ' ')                     // outros simbolos
+    .replace(/\|/g, ' ');
+
   var linhas = limpo.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var cultos = [], atual = null;
 
-  var cultos = [];
-  var atual = null;
-
-  function parseData(str) {
-    str = (str||'').trim();
-    // formato dd/mm ou dd/mm/aaaa
-    var m = str.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+  function parseData(s) {
+    s = (s||'').trim();
+    var m = s.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
     if (m) {
-      var a = m[3] ? (m[3].length===2?'20'+m[3]:m[3]) : ano;
+      var a = m[3] ? (m[3].length===2?'20'+m[3]:m[3]) : String(ano);
       return a+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);
     }
-    // formato dd-Mmm ou dd Mmm (ex: 8-Mar, 12 Mar)
-    m = str.match(/(\d{1,2})\s*[-\s]\s*([a-zA-Z]{3,})/);
+    m = s.match(/(\d{1,2})\s*[-\s]\s*([a-zA-Z]{3,})/);
     if (m) {
-      var mes = mesesMap[m[2].toLowerCase().substring(0,3)];
-      if (mes) return ano+'-'+('0'+mes).slice(-2)+'-'+('0'+m[1]).slice(-2);
+      var mes = MESES[m[2].toLowerCase().substring(0,3)];
+      if (mes) return String(ano)+'-'+('0'+mes).slice(-2)+'-'+('0'+m[1]).slice(-2);
     }
     return null;
   }
 
-  function normLabel(str) {
-    str = (str||'').trim().toUpperCase();
-    if (/PROFET/.test(str))   return 'Quinta Profetica';
-    if (/CELEBR|DOMINGO/.test(str)) return 'Culto de Celebracao';
-    if (/BATISM/.test(str))   return 'Culto de Batismo';
-    if (/CONFER/.test(str))   return 'Conferencia';
-    if (/ENCONTRO|SERVO/.test(str)) return 'Encontro de Servos';
-    if (/FIRE|NIGHT|NIGTH/.test(str)) return 'Fire Night';
-    return str.charAt(0)+str.slice(1).toLowerCase();
+  function normLabel(s) {
+    s = (s||'').trim().toUpperCase();
+    if (/PROFET|PROFE/.test(s))    return 'Quinta Profetica';
+    if (/CELEBR|DOMIN/.test(s))    return 'Culto de Celebracao';
+    if (/BATISM/.test(s))          return 'Culto de Batismo';
+    if (/CONFER/.test(s))          return 'Conferencia';
+    if (/ENCONTRO|SERVO/.test(s))  return 'Encontro de Servos';
+    if (/FIRE|NIGHT|NIGTH/.test(s))return 'Fire Night';
+    if (s.length < 2) return '';
+    return s.charAt(0)+s.slice(1).toLowerCase();
   }
 
-  var IGNORAR_LABEL = /^(DOMINGO|SABADO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA|GRUPO\s|DE$|DO$|DA$|E$)/i;
-  var IGNORAR_NOME  = /^(GRUPO|FIRE|NIGHT|NIGTH|CELEBR|PROFET|BATISM|CONFER|ENCONTRO|SERVO|DOMINGO|SABADO|QUINTA|SEXTA|DE|DO|DA|E)$/i;
-
-  function ehNome(tok) {
-    tok = tok.trim();
-    return tok.length > 1 && /^[A-Z\xC0-\xFF]/.test(tok) && !IGNORAR_NOME.test(tok) && !/^\d/.test(tok);
+  var IGNORAR = /^(GRUPO|DOMINGO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA|CELEBR|PROFET|BATISM|CONFER|ENCONTRO|SERVO|FIRE|NIGHT|NIGTH|DE|DO|DA|E|A|ESCALA|MINISTERIO|MIDIA)$/i;
+  function ehNome(t) {
+    t=(t||'').trim();
+    return t.length>1 && /^[A-Z\xC0-\xFF]/.test(t) && !IGNORAR.test(t) && !/^\d/.test(t);
   }
 
   function extrairNomes(linha) {
-    // Remove funcao
-    var s = linha.replace(/\s*[-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();
-    // Separa por virgula ou " e "
+    // Remove funcao apos — ou - (travessao ou hifen)
+    var s = linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente|Projecao|Funcao).*/i,'').trim();
+    // Tambem remove se comeca com o nome direto (sem funcao)
     var nomes = [];
-    s.split(/,|\s+[Ee]\s+/).forEach(function(p){
-      p = p.trim();
-      if (ehNome(p)) nomes.push(p);
+    s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){
+      p=p.trim();
+      // Remove palavras de funcao sozinhas
+      p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();
+      if(ehNome(p)) nomes.push(p);
     });
     return nomes;
   }
 
   linhas.forEach(function(linha) {
-    var data = null, label = '';
+    var data=null, label='', nomesExtra=[];
 
-    // FORMATO 1: "qui., 26/03 - Quinta Profetica" (saida do app)
-    var m1 = linha.match(/(?:dom|seg|ter|qua|qui|sex|sab|sáb)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[-]+\s*(.+)/i);
-    if (m1) { data = parseData(m1[1]); label = normLabel(m1[2]); }
+    // FORMATO 1 — saida do app: "qui., 26/03 — Quinta Profetica"
+    // O — (U+2014) e preservado pelo cleanup acima
+    var m1 = linha.match(/(?:dom|seg|ter|qua|qui|sex|s[aá]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
+    if (m1) { data=parseData(m1[1]); label=normLabel(m1[2])||m1[2].trim(); }
 
-    // FORMATO 2: "8-Mar DOMINGO CELEBRACAO KAREN GRUPO B" (tabela)
+    // FORMATO 2 — tabela: "8-Mar DOMINGO CELEBRACAO KAREN GRUPO B"
     if (!data) {
-      var m2 = linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3})\w*\s+(?:DOMINGO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA)\s+(.*)/i);
+      var m2=linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3,})\s+(DOMINGO|SABADO|SÁBADO|QUINTA|SEXTA|SEGUNDA)\s*(.*)/i);
       if (m2) {
-        data = parseData(m2[1]+'-'+m2[2]);
+        data=parseData(m2[1]+'-'+m2[2]);
         if (data) {
-          // Separa label de nomes
-          var partes = m2[3].split(/\s{2,}|\t/);
-          var lparts=[], nparts=[];
-          // palavras que sao label vs nomes
-          var resto = m2[3];
-          var labelMatch = resto.match(/^([A-Z\s]+?(?:PROFET|CELEBR|BATISM|CONFER|ENCONTRO|FIRE|NIGHT|NIGTH|DOMINGO)[A-Z\s]*)/i);
-          if (labelMatch) {
-            label = normLabel(labelMatch[1]);
-            var semLabel = resto.slice(labelMatch[1].length).trim();
-            // nomes sao o que sobra (exceto GRUPO X)
-            semLabel.split(/\s+[Ee]\s+|,/).forEach(function(p){
-              p = p.trim().replace(/GRUPO\s+[A-Z]/i,'').trim();
-              if (ehNome(p) && !IGNORAR_NOME.test(p)) nparts.push(p);
-            });
+          var resto=m2[4];
+          var lm=resto.match(/^([A-Z\s]*?(?:CELEBR|PROFET|BATISM|CONFER|ENCONTRO|SERVO|FIRE|NIGHT|NIGTH|DOMINGO)[A-Z\s]*)/i);
+          if (lm) {
+            label=normLabel(lm[1]);
+            resto.slice(lm[1].length).replace(/GRUPO\s+[A-Z]/gi,'').split(/\s+[Ee]\s+|[,]/).forEach(function(p){p=p.trim();if(ehNome(p))nomesExtra.push(p);});
           } else {
-            label = normLabel(partes[0]||'');
-            partes.slice(1).forEach(function(p){if(ehNome(p)&&!IGNORAR_NOME.test(p))nparts.push(p);});
+            label=normLabel(resto.split(/\s+/)[0]||'');
+            resto.split(/\s+/).slice(1).forEach(function(p){if(ehNome(p))nomesExtra.push(p);});
           }
-          if (atual) cultos.push(atual);
-          atual = {date:data, label:label, membros:[]};
-          nparts.forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
-          return;
         }
       }
     }
 
-    // FORMATO 3: "Domingo 08/03" ou "Quinta 12/03"
+    // FORMATO 3 — "Domingo 08/03 Culto" ou "Quinta 12/03"
     if (!data) {
-      var m3 = linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})/i);
+      var m3=linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})(.*)/i);
       if (m3) {
-        data = parseData(m3[2]);
-        var resto3 = linha.replace(m3[0],'').replace(/[-]/,'').trim();
-        label = normLabel(resto3 || (m3[1].toLowerCase().includes('quinta')?'QUINTA PROFETICA':'CELEBRACAO'));
+        data=parseData(m3[2]);
+        var r3=m3[3].replace(/[\u2014\-]/,'').trim();
+        label=normLabel(r3)||(m3[1].toLowerCase().includes('quinta')?'Quinta Profetica':'Culto de Celebracao');
       }
     }
 
-    // FORMATO 4: "26/03 - Culto"
+    // FORMATO 4 — "26/03 - Culto de Celebracao"
     if (!data) {
-      var m4 = linha.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[-]\s*(.+)/);
-      if (m4) { data = parseData(m4[1]); label = normLabel(m4[2]); }
+      var m4=linha.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/);
+      if (m4) { data=parseData(m4[1]); label=normLabel(m4[2])||m4[2].trim(); }
     }
 
     if (data) {
       if (atual) cultos.push(atual);
-      atual = {date:data, label:label||'Culto', membros:[]};
+      atual={date:data,label:label||'Culto',membros:[]};
+      nomesExtra.forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
       return;
     }
 
-    // Linha de membros
-    if (atual && linha.length > 1) {
-      extrairNomes(linha).forEach(function(n){
-        if (atual.membros.indexOf(n) < 0) atual.membros.push(n);
-      });
+    // Linha de nomes (ex: "Karen Duque — Projecao" ou "NICOLE")
+    if (atual && linha.length>1) {
+      extrairNomes(linha).forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
     }
   });
 
@@ -529,75 +813,77 @@ function parsearEscala(texto) {
   return cultos.filter(function(c){return c.date;});
 }
 
-function importarEscala() {
+function importarEscala(){
   var status=document.getElementById('ia-status');
   var result=document.getElementById('ia-result');
   var btn=document.getElementById('ia-btn');
-  result.style.display='none';
-  status.style.display='block';
-  btn.disabled=true;
+  var texto=document.getElementById('ia-texto').value.trim();
+  if(!texto){toast('Cole o texto da escala.');return;}
+  result.style.display='none';status.style.display='block';btn.disabled=true;
 
-  try {
-    var texto=document.getElementById('ia-texto').value.trim();
-    if (!texto) {status.style.display='none';btn.disabled=false;toast('Cole o texto da escala.');return;}
+  var cultos=parsearEscala(texto);
 
-    var cultos = parsearEscala(texto);
-
-    if (!cultos.length) {
-      status.style.display='none';
-      result.style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;';
-      result.innerHTML='Nao consegui identificar datas. Certifique-se que o texto tem datas como "26/03", "8-Mar" ou "qui., 26/03 - Culto".';
-      btn.disabled=false;
-      return;
-    }
-
-    var adicionados=0;
-    cultos.forEach(function(c){
-      var membrosEsc=c.membros.map(function(nome){
-        var nl=nome.toLowerCase().trim();
-        var m=S.members.find(function(x){
-          var xn=x.name.toLowerCase();
-          var pn=nl.split(' ')[0];
-          return xn===nl||xn.indexOf(nl)>=0||nl.indexOf(xn.split(' ')[0])>=0||xn.split(' ')[0]===pn;
-        });
-        if(m)return {id:m.id,name:m.name,role:m.role,status:'pending'};
-        if(nome.length>1)return {id:Date.now()+Math.random(),name:nome,role:'Projecao',status:'pending'};
-        return null;
-      }).filter(Boolean);
-      S.escala.push({id:Date.now()+adicionados,date:c.date,label:c.label,membros:membrosEsc,aberto:false});
-      adicionados++;
-    });
-    S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
-    S.notifs.unshift({id:Date.now(),icon:'OK',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s) adicionado(s).',time:nowStr(),unread:true});
-
-    saveAll().then(function(){
-      status.style.display='none';
-      result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';
-      result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' - '+c.label+(c.membros.length?' ('+c.membros.length+' membros)':'');}).join('<br>');
-      btn.disabled=false;
-      document.getElementById('ia-texto').value='';
-      renderAll();
-    });
-  } catch(e) {
+  if(!cultos.length){
     status.style.display='none';
-    result.style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;';
-    result.innerHTML='Erro: '+e.message;
-    btn.disabled=false;
+    result.style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;line-height:1.6;';
+    result.innerHTML='Nao encontrei datas na escala.<br><small>Verifique se o texto tem datas como "26/03", "8-Mar" ou "qui., 26/03 &#8212; Culto".</small>';
+    btn.disabled=false;return;
   }
+
+  var adicionados=0;
+  cultos.forEach(function(c){
+    var membrosEsc=c.membros.map(function(nome){
+      var nl=nome.toLowerCase().trim();
+      var m=S.members.find(function(x){
+        var xn=x.name.toLowerCase();
+        var pn=nl.split(' ')[0];
+        return xn===nl||xn.indexOf(nl)>=0||nl.indexOf(xn.split(' ')[0])>=0||xn.split(' ')[0]===pn;
+      });
+      if(m)return{id:m.id,name:m.name,role:m.role,status:'pending'};
+      if(nome.length>1)return{id:Date.now()+Math.random(),name:nome,role:'Projecao',status:'pending'};
+      return null;
+    }).filter(Boolean);
+    S.escala.push({id:Date.now()+adicionados,date:c.date,label:c.label,membros:membrosEsc,aberto:false});
+    adicionados++;
+  });
+  S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
+  S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s) adicionado(s).',time:nowStr(),unread:true});
+
+  saveAll().then(function(){
+    status.style.display='none';
+    result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';
+    result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' &#8212; '+c.label+(c.membros.length?' ('+c.membros.length+' membros)':'');}).join('<br>');
+    btn.disabled=false;document.getElementById('ia-texto').value='';renderAll();
+  });
 }
 
-function waEscala(){var txt='ESCALA MINISTERIO DE MIDIA\n\n';S.escala.forEach(function(d){txt+=''+fmtDate(d.date)+' - '+d.label+'\n';d.membros.forEach(function(m){txt+=(m.status==='confirmed'?'[OK]':m.status==='declined'?'[X]':'[?]')+' '+m.name+' - '+m.role+'\n';});txt+='\n';});txt+='Confirme pelo app!';window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-function waVaga(date,label,role){window.open('https://wa.me/?text='+encodeURIComponent('MINISTERIO DE MIDIA - VAGA EM ABERTO\n\n'+fmtDate(date)+' - '+label+'\nFuncao: '+role+'\n\nAlguem pode cobrir?'),'_blank');}
-function waVagasAbertas(dias){var txt='MINISTERIO DE MIDIA - CULTOS COM INSCRICAO LIVRE\n\nEntrem no app:\n\n';dias.forEach(function(d){txt+=fmtDate(d.date)+' - '+d.label+'\n'+d.membros.length+' inscrito(s)\n\n';});txt+='https://elderduque.github.io/ministerio-midia';window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-function waSubstituicao(sol,sub,date,label,role,mot){window.open('https://wa.me/?text='+encodeURIComponent('MINISTERIO DE MIDIA - SUBSTITUICAO\n\n'+(date?fmtDate(date):'-')+' - '+label+'\n'+sol+' ('+role+') nao podera comparecer\n'+(sub?'Substituto: '+sub+'\n':'')+'Motivo: '+(mot||'-')),'_blank');}
-function waNotifyCultoCompleto(day){window.open('https://wa.me/?text='+encodeURIComponent('MINISTERIO DE MIDIA - ESCALA CONFIRMADA\n\n'+fmtDate(day.date)+' - '+day.label+'\n\n'+day.membros.map(function(m){return '[OK] '+m.name+' - '+m.role;}).join('\n')+'\n\nTodos confirmados!'),'_blank');}
-function waNotifyEscalaTotal(){var mes=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});var txt='MINISTERIO DE MIDIA - ESCALA DO MES COMPLETA\n\n'+mes+'\n\n';S.escala.forEach(function(d){txt+=fmtDate(d.date)+' - '+d.label+'\n';d.membros.forEach(function(m){txt+='[OK] '+m.name+' - '+m.role+'\n';});txt+='\n';});txt+='Todos confirmados!';window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+// WHATSAPP
+function waEscala(){
+  var txt='ESCALA MINISTERIO DE MIDIA\n\n';
+  S.escala.forEach(function(d){
+    txt+= fmtDate(d.date)+' \u2014 '+d.label+'\n';
+    d.membros.forEach(function(m){txt+=(m.status==='confirmed'?'\u2705':m.status==='declined'?'\u274c':'\u23f3')+' '+m.name+' \u2014 '+m.role+'\n';});
+    txt+='\n';
+  });
+  txt+='Confirme pelo app!';
+  window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+}
+function waVaga(date,label,role){window.open('https://wa.me/?text='+encodeURIComponent('MINISTERIO DE MIDIA \u2014 VAGA EM ABERTO\n\n'+fmtDate(date)+' \u2014 '+label+'\nFuncao: '+role+'\n\nAlguem pode cobrir?\nhttps://elderduque.github.io/ministerio-midia'),'_blank');}
+function waVagasAbertas(dias){var txt='MINISTERIO DE MIDIA \u2014 CULTOS DISPONIVEIS\n\n';dias.forEach(function(d){txt+=fmtDate(d.date)+' \u2014 '+d.label+' ('+d.membros.length+' inscritos)\n';});txt+='\nhttps://elderduque.github.io/ministerio-midia';window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+function waNotifyCultoCompleto(day){var txt='MINISTERIO DE MIDIA \u2014 ESCALA CONFIRMADA\n\n'+fmtDate(day.date)+' \u2014 '+day.label+'\n\n'+day.membros.map(function(m){return '\u2705 '+m.name+' \u2014 '+m.role;}).join('\n');window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+function waNotifyEscalaTotal(){var now=new Date(),mes=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});var txt='MINISTERIO DE MIDIA \u2014 ESCALA COMPLETA\n\n'+mes+'\n\n';S.escala.forEach(function(d){txt+=fmtDate(d.date)+' \u2014 '+d.label+'\n';d.membros.forEach(function(m){txt+='\u2705 '+m.name+' \u2014 '+m.role+'\n';});txt+='\n';});window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
 
+// INIT
 window.addEventListener('load',function(){
-  document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
   var saved=sessionStorage.getItem('mm_cu');
-  if(saved){try{var sid=JSON.parse(saved).id;loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.id===sid;});if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}});}catch(e){}}
-  else{loadFromCloud().then(function(){seedMembers();});}
+  if(saved){
+    try{var sid=JSON.parse(saved).id;
+      loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.id===sid;});
+        if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
+      });
+    }catch(e){}
+  }else{loadFromCloud().then(function(){seedMembers();});}
+  document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 });
 </script>
 </body>
