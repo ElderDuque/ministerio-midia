@@ -195,9 +195,15 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div id="admin-escala" style="display:none;">
       <div class="hdiv"></div>
       <p class="stitle">⚙ Ações do Líder</p>
+      <div id="backup-alert" style="display:none;background:rgba(192,57,43,.13);border:1px solid rgba(192,57,43,.4);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:.74rem;color:#ec7063;">
+        ⚠️ <strong>Dados alterados desde o último backup!</strong> Faça um backup agora.
+      </div>
       <button class="btn bgold bblock" onclick="openMo('mo-addday')">＋ Adicionar Culto</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">🤖 Importar Escala com IA</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">⚠️ Verificar Vagas em Aberto</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="fazerBackup()">💾 Fazer Backup</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="document.getElementById('backup-file').click()">📂 Restaurar Backup</button>
+      <input type="file" id="backup-file" accept=".json" style="display:none;" onchange="restaurarBackup(this)">
       <button class="wabtn" onclick="waEscala()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Enviar Escala no WhatsApp
@@ -281,7 +287,8 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebração">
     <label class="mfl">Modo do Culto</label>
     <select class="mfs" id="nd-modo" onchange="toggleModo()" style="margin-bottom:13px;">
-      <option value="fixo">👤 Membros fixos (líder escolhe)</option>
+      <option value="fixo">👤 Membros fixos — precisam confirmar</option>
+      <option value="confirmado">✅ Membros fixos — já confirmados</option>
       <option value="aberto">🙋 Inscrição livre (membros se inscrevem)</option>
     </select>
     <div id="nd-checks-wrap">
@@ -463,6 +470,7 @@ async function loadFromCloud() {
 
 async function saveAll() {
   await cloudSet({ members: S.members, escala: S.escala, notifs: S.notifs, pedidos: S.pedidos });
+  markDirty();
 }
 
 // ══════════════════════════════════
@@ -537,7 +545,7 @@ function autoLabel() {
 }
 function toggleModo() {
   const modo = document.getElementById('nd-modo').value;
-  document.getElementById('nd-checks-wrap').style.display = modo==='fixo' ? 'block' : 'none';
+  document.getElementById('nd-checks-wrap').style.display = (modo==='fixo'||modo==='confirmado') ? 'block' : 'none';
   document.getElementById('nd-aberto-info').style.display = modo==='aberto' ? 'block' : 'none';
 }
 
@@ -740,9 +748,11 @@ function renderPedidos() {
   if (!S.pedidos.length) { c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum pedido ainda.</p>'; return; }
   const isL = CU && CU.profile==='lider';
   c.innerHTML = S.pedidos.map(function(p,i) {
-    const stCls = p.status==='pending'?'sp':p.status==='approved'?'sc':'sd';
-    const stTxt = p.status==='pending'?'⏳ Pendente':p.status==='approved'?'✓ Aprovado':'✗ Recusado';
-    const acts = p.status==='pending' && isL
+    const stCls = p.status==='pending'?'sp':p.status==='approved'?'sc':p.status==='aguardando_sub'?'sp':'sd';
+    const stTxt = p.status==='pending'?'⏳ Pendente':p.status==='approved'?'✓ Aprovado':p.status==='aguardando_sub'?'⏳ Aguard. substituto':'✗ Recusado';
+    // Show accept button to the indicated substituto
+    const isSubstituto = CU && p.substitutoId && String(p.substitutoId)===String(CU.id);
+    const acts = (p.status==='pending' && isL) || (p.status==='aguardando_sub' && isL)
       ? '<div style="display:flex;gap:7px;margin-top:9px;">' +
         '<button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'approved\')">✓ Aprovar</button>' +
         '<button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">✗ Recusar</button></div>' : '';
@@ -771,20 +781,25 @@ function sendPedido() {
   const tipo   = document.getElementById('ped-tipo').value;
   const motivo = document.getElementById('ped-motivo').value.trim();
   const subEl  = document.getElementById('ped-sub');
-  const sub    = subEl.options[subEl.selectedIndex] ? subEl.options[subEl.selectedIndex].text : '—';
-  S.pedidos.unshift({id:Date.now(), tipo:tipo, solicitante:CU.name, substituto:tipo==='sub'?sub:null,
-    culto:cultoTxt, role:CU.role, motivo:motivo, status:'pending'});
+  const subId  = subEl.value;
+  const subNome= subEl.options[subEl.selectedIndex] ? subEl.options[subEl.selectedIndex].text : '—';
+  // 2-step: status aguardando_substituto se tiver substituto indicado
+  const pedStatus = (tipo==='sub' && subId) ? 'aguardando_sub' : 'pending';
+  const pedId = Date.now();
+  S.pedidos.unshift({id:pedId, tipo:tipo, solicitante:CU.name, solicitanteId:CU.id,
+    substitutoId: tipo==='sub'?subId:null, substituto:tipo==='sub'?subNome:null,
+    culto:cultoTxt, role:CU.role, motivo:motivo, status:pedStatus});
   S.notifs.unshift({id:Date.now()+1, icon:'🔁',
-    text:'<strong>'+CU.name+'</strong> enviou pedido de '+(tipo==='sub'?'substituição':'ausência')+' em <strong>'+cultoTxt+'</strong>.',
+    text:'<strong>'+CU.name+'</strong> pediu '+(tipo==='sub'?'substituição':'ausência')+' em <strong>'+cultoTxt+'</strong>'+(tipo==='sub'&&subNome?' — substituto indicado: <strong>'+subNome+'</strong>':'')+'.',
     time:nowStr(), unread:true});
   saveAll().then(function() {
     document.getElementById('ped-motivo').value='';
-    toast('✅ Pedido enviado!');
+    toast(pedStatus==='aguardando_sub' ? '✅ Pedido enviado! Aguardando '+subNome+' confirmar.' : '✅ Pedido enviado!');
     renderPedidos(); updateBadge();
     setTimeout(function(){
       if (confirm('Pedido registrado!\n\nNotificar o grupo no WhatsApp?')) {
         const d = S.escala.find(function(x){return cultoTxt.indexOf(fmtDate(x.date))>=0;});
-        waSubstituicao(CU.name, tipo==='sub'?sub:null, d?d.date:'', d?d.label:cultoTxt, CU.role, motivo);
+        waSubstituicao(CU.name, tipo==='sub'?subNome:null, d?d.date:'', d?d.label:cultoTxt, CU.role, motivo);
       }
     }, 200);
   });
@@ -842,9 +857,10 @@ function addCulto() {
   if (modo === 'fixo') {
     const checked = Array.from(document.querySelectorAll('#nd-checks input:checked'));
     if (!checked.length) { toast('⚠️ Selecione ao menos 1 membro.'); return; }
+    var statusInicial = modo === 'confirmado' ? 'confirmed' : 'pending';
     membrosEsc = checked.map(function(cb) {
       const m = S.members.find(function(x){return x.id==cb.value;});
-      return {id:m.id, name:m.name, role:m.role, status:'pending'};
+      return {id:m.id, name:m.name, role:m.role, status:statusInicial};
     });
   }
   S.escala.push({id:Date.now(), date:date, label:label, membros:membrosEsc, aberto: modo==='aberto'});
@@ -943,6 +959,25 @@ function desinscreverCulto(dayId) {
 }
 
 // ══════════════════════════════════
+//  TROCA EM 2 ETAPAS
+// ══════════════════════════════════
+function aceitarSub(idx) {
+  S.pedidos[idx].status = 'pending'; // agora vai pro líder aprovar
+  S.pedidos[idx].subAceitou = true;
+  S.notifs.unshift({id:Date.now(), icon:'🤝',
+    text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+S.pedidos[idx].solicitante+'</strong>. Aguardando aprovação do líder.',
+    time:nowStr(), unread:true});
+  saveAll().then(function(){ toast('✅ Troca aceita! Líder será notificado.'); renderPedidos(); updateBadge(); });
+}
+function recusarSub(idx) {
+  S.pedidos[idx].status = 'sub_recusou';
+  S.notifs.unshift({id:Date.now(), icon:'❌',
+    text:'<strong>'+CU.name+'</strong> recusou ser substituto de <strong>'+S.pedidos[idx].solicitante+'</strong>.',
+    time:nowStr(), unread:true});
+  saveAll().then(function(){ toast('Troca recusada.'); renderPedidos(); updateBadge(); });
+}
+
+// ══════════════════════════════════
 //  VAGAS
 // ══════════════════════════════════
 function checkVagas() {
@@ -1036,6 +1071,61 @@ function waNotifyEscalaTotal() {
 //  INIT
 // ══════════════════════════════════
 // ══════════════════════════════════
+//  BACKUP
+// ══════════════════════════════════
+var backupDirty = false;
+
+function markDirty() {
+  backupDirty = true;
+  const el = document.getElementById('backup-alert');
+  if (el) el.style.display = 'block';
+}
+
+function fazerBackup() {
+  const data = {
+    versao: 1,
+    data: new Date().toISOString(),
+    members: S.members,
+    escala:  S.escala,
+    notifs:  S.notifs,
+    pedidos: S.pedidos
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'backup-ministerio-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  backupDirty = false;
+  const el = document.getElementById('backup-alert');
+  if (el) el.style.display = 'none';
+  toast('💾 Backup salvo com sucesso!');
+}
+
+function restaurarBackup(input) {
+  if (!input.files || !input.files[0]) return;
+  if (!confirm('⚠️ Restaurar o backup vai substituir todos os dados atuais. Confirma?')) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.members || !data.escala) { toast('❌ Arquivo inválido.'); return; }
+      S.members = data.members;
+      S.escala  = data.escala;
+      S.notifs  = data.notifs || [];
+      S.pedidos = data.pedidos || [];
+      saveAll().then(function() {
+        toast('✅ Backup restaurado com sucesso!');
+        renderAll();
+      });
+    } catch(err) { toast('❌ Erro ao ler o arquivo.'); }
+  };
+  reader.readAsText(input.files[0]);
+  input.value = '';
+}
+
+// ══════════════════════════════════
 //  IA — IMPORTAR ESCALA
 // ══════════════════════════════════
 function iaTab(tab) {
@@ -1067,22 +1157,20 @@ async function importarComIA() {
   btn.disabled = true;
 
   const membrosNomes = S.members.map(function(m){ return m.name; }).join(', ');
+  const hoje = new Date().toISOString().split('T')[0];
   const prompt = `Você é um assistente que lê escalas de ministério de mídia de igrejas.
 Analise a escala abaixo e retorne APENAS um JSON válido com este formato:
-[
-  {
-    "date": "2026-03-08",
-    "label": "Culto de Celebração",
-    "membros": ["Nome1", "Nome2"]
-  }
-]
-Regras:
-- date deve ser no formato YYYY-MM-DD
-- label é o nome do culto
-- membros é lista de nomes encontrados na escala
-- Se não encontrar data clara, use o próximo domingo/quinta mais próximo de hoje (${new Date().toISOString().split('T')[0]})
-- Retorne SOMENTE o JSON, sem explicações
-- Membros cadastrados no sistema: ${membrosNomes}`;
+[{"date":"2026-03-08","label":"Culto de Celebração","membros":["Nome1","Nome2"]}]
+
+REGRAS IMPORTANTES:
+- date no formato YYYY-MM-DD
+- Reconheça formatos como "dom., 08/03", "Domingo 08/03", "📅 dom., 08/03" — todos são datas válidas
+- label é o nome do culto (ex: "Culto de Celebração", "Quinta Profética")
+- membros: lista de nomes. Ignore emojis como ✅ ⏳ ❌ antes dos nomes
+- O app envia escalas no formato: "📅 *data — label*\n✅ Nome — Função". Reconheça esse padrão.
+- Se não encontrar data clara, use próximo domingo após ${hoje}
+- Retorne SOMENTE o JSON, sem explicações, sem markdown
+- Membros cadastrados: ${membrosNomes}`;
 
   try {
     let messages;
