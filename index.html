@@ -158,12 +158,10 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div id="admin-escala" style="display:none;">
       <div class="hdiv"></div>
       <p class="stitle">Acoes do Lider</p>
-      <div id="backup-alert" style="display:none;background:rgba(192,57,43,.13);border:1px solid rgba(192,57,43,.4);border-radius:8px;padding:9px 12px;margin-bottom:9px;font-size:.74rem;color:#ec7063;">&#9888; Dados alterados! Faca um backup.</div>
       <button class="btn bgold bblock" onclick="openMo('mo-addday')">+ Adicionar Culto</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">&#129302; Importar Escala</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">&#9888; Verificar Vagas</button>
-      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="fazerBackup()">&#128190; Backup</button>
-      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(88,214,141,.4);color:#58d68d;" onclick="document.getElementById('backup-file').click()">&#128194; Restaurar</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(100,100,255,.4);color:#aab4ff;" onclick="openMo('mo-backup')">&#128190; Backup e Restauracao</button>
       <input type="file" id="backup-file" accept=".json" style="display:none;" onchange="restaurarBackup(this)">
       <button class="wabtn" onclick="abrirWaEscala()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -340,6 +338,48 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <button class="btn" style="flex:1;justify-content:center;background:#25D366;color:#fff;border:none;" onclick="enviarWaEscala()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Enviar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BACKUP -->
+<div class="mo" id="mo-backup" onclick="closeMo('mo-backup')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#128190; Backup e Restauracao</div>
+
+    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:10px;padding:13px;margin-bottom:14px;">
+      <p style="font-size:.78rem;color:var(--gold);font-weight:700;margin-bottom:4px;">&#128190; Fazer Backup</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Salva todos os dados atuais em um arquivo JSON no seu celular.</p>
+      <div id="backup-status" style="font-size:.72rem;margin-bottom:8px;"></div>
+      <button class="btn bgold" style="width:100%;justify-content:center;" onclick="fazerBackupSeguro()">&#128190; Baixar Backup Agora</button>
+    </div>
+
+    <div style="background:rgba(100,100,255,.06);border:1px solid rgba(100,100,255,.2);border-radius:10px;padding:13px;">
+      <p style="font-size:.78rem;color:#aab4ff;font-weight:700;margin-bottom:4px;">&#128194; Restaurar Backup</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Substitui todos os dados pelo arquivo de backup. Use com cuidado!</p>
+      <button class="btn" style="width:100%;justify-content:center;background:rgba(100,100,255,.2);color:#aab4ff;border:1px solid rgba(100,100,255,.35);" onclick="document.getElementById('backup-file').click()">&#128194; Escolher Arquivo de Backup</button>
+    </div>
+
+    <div class="macts" style="margin-top:18px;">
+      <button class="btn bout" style="width:100%;justify-content:center;" onclick="closeMo('mo-backup')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR NOTIFICACAO -->
+<div class="mo" id="mo-confirm-notif" onclick="closeMo('mo-confirm-notif')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#128242; Notificar pelo WhatsApp?</div>
+    <p id="confirm-notif-txt" style="font-size:.82rem;color:var(--cream2);line-height:1.6;margin-bottom:18px;"></p>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <button class="btn bgreen" style="width:100%;justify-content:center;" onclick="executarNotificacao()">
+        &#128242; Sim, avisar agora
+      </button>
+      <button class="btn bout" style="width:100%;justify-content:center;color:var(--cream2);border-color:rgba(255,255,255,.2);" onclick="closeMo('mo-confirm-notif')">
+        &#128683; Nao notificar agora
       </button>
     </div>
   </div>
@@ -684,9 +724,7 @@ function addCulto(){
     toast('Culto adicionado!');renderAll();
     if(membrosEsc.length>0&&modo!=='aberto'){
       setTimeout(function(){
-        if(confirm('Avisar os '+membrosEsc.length+' membro(s) escalado(s) pelo WhatsApp?')){
-          notificarMembrosEscalados(membrosEsc,date,label);
-        }
+        abrirConfirmNotificacao(membrosEsc,date,label);
       },400);
     }
   });
@@ -733,11 +771,29 @@ function checkVagas(){
   var msg='VAGAS POR RECUSA:\n';vagas.forEach(function(v){msg+='- '+fmtDate(v.day.date)+' / '+v.day.label+'\n  Funcao: '+v.m.role+'\n';});
   if(confirm(msg+'\nNotificar no WhatsApp?')){vagas.forEach(function(v){waVaga(v.day.date,v.day.label,v.m.role);});}
 }
-function fazerBackup(){
+function fazerBackupSeguro(){
+  var st=document.getElementById('backup-status');
+  // SEGURANCA: nao deixa fazer backup com dados vazios ou incompletos
+  if(!S.members||S.members.length===0){
+    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: lista de membros vazia! O backup nao foi salvo para evitar perda de dados. Aguarde o app carregar completamente.</span>';
+    return;
+  }
+  if(!S.escala){
+    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: escala nao carregada.</span>';
+    return;
+  }
+  st.innerHTML='<span style="color:#58d68d;">&#10003; '+S.members.length+' membros e '+S.escala.length+' cultos encontrados. Salvando...</span>';
   var data={versao:1,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos};
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url);
-  document.getElementById('backup-alert').style.display='none';toast('Backup salvo!');
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup salvo! '+S.members.length+' membros, '+S.escala.length+' cultos.');
 }
+function fazerBackup(){fazerBackupSeguro();}
 function restaurarBackup(input){
   if(!input.files||!input.files[0])return;if(!confirm('Substituir todos os dados atuais?'))return;
   var reader=new FileReader();reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!data.members||!data.escala){toast('Arquivo invalido.');return;}S.members=data.members;S.escala=data.escala;S.notifs=data.notifs||[];S.pedidos=data.pedidos||[];saveAll().then(function(){toast('Backup restaurado!');renderAll();});}catch(err){toast('Erro ao ler arquivo.');}};reader.readAsText(input.files[0]);input.value='';
@@ -830,9 +886,8 @@ function importarEscala(){
     var lista=Object.values(todosMembros);
     if(lista.length>0){
       setTimeout(function(){
-        if(confirm('Avisar cada membro escalado pelo WhatsApp? ('+lista.length+' mensagens)')){
-          notificarTodosImportados(lista);
-        }
+        pendingNotifLista=lista;
+        abrirConfirmNotificacaoImport(lista.length);
       },600);
     }
   });
@@ -875,6 +930,35 @@ function doLoginNome(){
     document.getElementById('app').style.display='block';
     updateHeader();renderAll();startPolling();
   });
+}
+
+var pendingNotifMembros=null,pendingNotifDate=null,pendingNotifLabel=null,pendingNotifLista=null,pendingNotifMode=null;
+
+function abrirConfirmNotificacao(membros,date,label){
+  pendingNotifMembros=membros;pendingNotifDate=date;pendingNotifLabel=label;pendingNotifMode='single';
+  document.getElementById('confirm-notif-txt').innerHTML=
+    'Deseja enviar uma mensagem de WhatsApp para cada membro escalado?<br><br>'+
+    '<strong style="color:var(--gold);">'+membros.length+' membro(s)</strong> serao notificados sobre:<br>'+
+    '<strong>'+fmtDate(date)+' — '+label+'</strong>';
+  openMo('mo-confirm-notif');
+}
+
+function abrirConfirmNotificacaoImport(total){
+  pendingNotifMode='import';
+  document.getElementById('confirm-notif-txt').innerHTML=
+    'Deseja notificar cada membro escalado pelo WhatsApp?<br><br>'+
+    '<strong style="color:var(--gold);">'+total+' membro(s)</strong> receberao sua escala individual com todos os cultos que participam.';
+  openMo('mo-confirm-notif');
+}
+
+function executarNotificacao(){
+  closeMo('mo-confirm-notif');
+  if(pendingNotifMode==='single'&&pendingNotifMembros){
+    notificarMembrosEscalados(pendingNotifMembros,pendingNotifDate,pendingNotifLabel);
+  } else if(pendingNotifMode==='import'&&pendingNotifLista){
+    notificarTodosImportados(pendingNotifLista);
+  }
+  pendingNotifMembros=null;pendingNotifDate=null;pendingNotifLabel=null;pendingNotifLista=null;pendingNotifMode=null;
 }
 
 window.addEventListener('load',function(){
