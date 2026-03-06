@@ -118,6 +118,14 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <button class="btn-login" onclick="doLogin()">ENTRAR</button>
     <div class="login-err" id="li-err"></div>
     <p class="login-hint">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
+    <div style="margin-top:16px;border-top:1px solid rgba(201,168,76,.15);padding-top:14px;">
+      <p style="font-size:.65rem;color:var(--cream2);opacity:.5;text-align:center;margin-bottom:8px;">ACESSO DE EMERGENCIA</p>
+      <select class="fi" id="li-nome" style="margin-bottom:8px;background:rgba(255,255,255,.05);">
+        <option value="">Selecione seu nome...</option>
+      </select>
+      <input class="fi" id="li-pass2" type="password" placeholder="Senha" style="margin-bottom:8px;">
+      <button class="btn-login" style="background:linear-gradient(135deg,#5A3E0A,#3A2508);font-size:.78rem;" onclick="doLoginNome()">ENTRAR PELO NOME</button>
+    </div>
   </div>
 </div>
 <div id="app">
@@ -354,6 +362,13 @@ function showSync(v){document.getElementById('sync-banner').style.display=v?'fle
 async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;}showSync(false);}
 async function saveAll(){await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos});document.getElementById('backup-alert').style.display='block';}
 
+function populateNomeSelect(){
+  var sel=document.getElementById('li-nome');
+  if(!sel)return;
+  sel.innerHTML='<option value="">Selecione seu nome...</option>'+
+    S.members.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
+}
+
 function seedMembers(){
   if(!S.members.length)S.members=[
     {id:1,name:'Pastor Matheus Maia',phone:'99422976',role:'Lider',profile:'lider',pass:'12345'},
@@ -390,7 +405,7 @@ function doLogin(){
   err.textContent='Conectando...';
   if(!phone||!pass){err.textContent='Preencha telefone e senha.';return;}
   loadFromCloud().then(function(){
-    seedMembers();
+    seedMembers();populateNomeSelect();
     // Tenta match exato primeiro
     var m=S.members.find(function(x){return x.phone===phone&&x.pass===pass;});
     // Se nao achou, tenta match parcial do telefone (ultimos 8 digitos)
@@ -843,10 +858,29 @@ function notificarTodosImportados(lista){
   next();
 }
 
+function doLoginNome(){
+  var nome=document.getElementById('li-nome').value;
+  var pass=document.getElementById('li-pass2').value;
+  var err=document.getElementById('li-err');
+  if(!nome){err.textContent='Selecione seu nome.';return;}
+  if(!pass){err.textContent='Digite a senha.';return;}
+  err.textContent='Conectando...';
+  loadFromCloud().then(function(){
+    seedMembers();
+    var m=S.members.find(function(x){return String(x.id)===String(nome)&&x.pass===pass;});
+    if(!m){err.textContent='Senha incorreta.';return;}
+    CU=m;
+    sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    updateHeader();renderAll();startPolling();
+  });
+}
+
 window.addEventListener('load',function(){
   var saved=sessionStorage.getItem('mm_cu');
   if(saved){try{var sid=JSON.parse(saved).id;loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.id===sid;});if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}});}catch(e){}}
-  else{loadFromCloud().then(function(){seedMembers();});}
+  else{loadFromCloud().then(function(){seedMembers();populateNomeSelect();});}
   document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 });
 </script>
