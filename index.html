@@ -352,6 +352,29 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 
 <div id="toast"></div>
 
+<!-- MODAL EDITAR MEMBRO -->
+<div class="mo" id="mo-editmem" onclick="closeMo('mo-editmem')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#9999; Editar Integrante</div>
+    <label class="mfl">Nome Completo</label><input type="text" class="mfi" id="em-nome" placeholder="Nome completo">
+    <label class="mfl">Telefone (login e WhatsApp)</label>
+    <input type="tel" class="mfi" id="em-tel" placeholder="Somente numeros, ex: 93912345678" inputmode="numeric">
+    <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin-bottom:12px;">Use o numero completo com DDD, ex: <strong style="color:var(--gold);">93912345678</strong></p>
+    <label class="mfl">Funcao</label>
+    <select class="mfs" id="em-funcao">
+      <option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option>
+      <option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option>
+    </select>
+    <label class="mfl">Perfil</label>
+    <select class="mfs" id="em-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-editmem')">Cancelar</button>
+      <button class="btn bgold" onclick="salvarEdicaoMembro()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
 var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
@@ -525,7 +548,17 @@ function sendPedido(){
 
 function renderEquipe(){
   var isL=CU&&CU.profile==='lider';
-  document.getElementById('equipe-list').innerHTML=S.members.map(function(m){return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div><div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+'</strong><span>'+m.role+'</span><span class="phone-txt">'+m.phone+'</span></div>'+(isL?'<button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')" >&#128273;</button>':'')+'</div>';}).join('');
+  document.getElementById('equipe-list').innerHTML=S.members.map(function(m){
+    return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div>'+
+      '<div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+' </strong>'+
+      '<span>'+m.role+'</span>'+
+      '<span class="phone-txt">&#128241; '+m.phone+'</span></div>'+
+      (isL?'<div style="display:flex;gap:5px;">'+
+        '<button class="btn bout bsm" onclick="openEditMem('+m.id+')" title="Editar">&#9999;</button>'+
+        '<button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')" title="Redefinir senha">&#128273;</button>'+
+        '</div>':'')+
+      '</div>';
+  }).join('');
 }
 
 function renderNotifs(){
@@ -685,6 +718,44 @@ function importarEscala(){
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
   S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s) adicionado(s).',time:nowStr(),unread:true});
   saveAll().then(function(){status.style.display='none';result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' &#8212; '+c.label+(c.membros.length?' ('+c.membros.length+' membros)':'');}).join('<br>');btn.disabled=false;document.getElementById('ia-texto').value='';renderAll();});
+}
+
+var editMemId = null;
+
+function openEditMem(id){
+  var m=S.members.find(function(x){return x.id===id;});
+  if(!m)return;
+  editMemId=id;
+  document.getElementById('em-nome').value=m.name;
+  document.getElementById('em-tel').value=m.phone;
+  document.getElementById('em-funcao').value=m.role;
+  document.getElementById('em-perfil').value=m.profile;
+  openMo('mo-editmem');
+}
+
+function salvarEdicaoMembro(){
+  var nome=document.getElementById('em-nome').value.trim();
+  var tel=document.getElementById('em-tel').value.replace(/\D/g,'');
+  var funcao=document.getElementById('em-funcao').value;
+  var perfil=document.getElementById('em-perfil').value;
+  if(!nome){toast('Informe o nome.');return;}
+  if(tel.length<8){toast('Telefone invalido. Use DDD + numero, ex: 93912345678');return;}
+  // Verifica duplicata de telefone (exceto o proprio membro)
+  var dup=S.members.find(function(m){return m.phone===tel&&m.id!==editMemId;});
+  if(dup){toast('Telefone ja usado por '+dup.name+'.');return;}
+  var m=S.members.find(function(x){return x.id===editMemId;});
+  if(!m)return;
+  var nomeAntigo=m.name;
+  m.name=nome; m.phone=tel; m.role=funcao; m.profile=perfil;
+  // Atualiza nome nos cultos da escala tambem
+  S.escala.forEach(function(day){
+    day.membros.forEach(function(mem){
+      if(mem.id===editMemId){mem.name=nome;mem.role=funcao;}
+    });
+  });
+  // Atualiza CU se for o proprio usuario
+  if(CU&&CU.id===editMemId){CU.name=nome;CU.role=funcao;CU.profile=perfil;updateHeader();}
+  saveAll().then(function(){closeMo('mo-editmem');toast('Dados de '+nome+' atualizados!');renderAll();});
 }
 
 window.addEventListener('load',function(){
