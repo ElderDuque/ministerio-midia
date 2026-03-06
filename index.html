@@ -389,7 +389,30 @@ function doLogin(){
   var err=document.getElementById('li-err');
   err.textContent='Conectando...';
   if(!phone||!pass){err.textContent='Preencha telefone e senha.';return;}
-  loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.phone===phone&&x.pass===pass;});if(!m){err.textContent='Telefone ou senha incorretos.';return;}CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();});
+  loadFromCloud().then(function(){
+    seedMembers();
+    // Tenta match exato primeiro
+    var m=S.members.find(function(x){return x.phone===phone&&x.pass===pass;});
+    // Se nao achou, tenta match parcial do telefone (ultimos 8 digitos)
+    if(!m&&phone.length>=8){
+      var sufixo=phone.slice(-8);
+      m=S.members.find(function(x){
+        return x.phone.slice(-8)===sufixo && x.pass===pass;
+      });
+    }
+    // Tambem tenta sem o nono digito
+    if(!m&&phone.length===9){
+      var semNove=phone.slice(0,2)+phone.slice(3);
+      m=S.members.find(function(x){return x.phone===semNove&&x.pass===pass;});
+    }
+    if(!m){err.textContent='Telefone ou senha incorretos.';return;}
+    // Atualiza telefone no cadastro se veio diferente
+    if(m.phone!==phone&&phone.length>=10){m.phone=phone;saveAll();}
+    CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    updateHeader();renderAll();startPolling();
+  });
 }
 function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
