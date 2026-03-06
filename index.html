@@ -2,937 +2,2566 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>Ministerio de Midia</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="M de Mídia">
+<meta name="application-name" content="M de Mídia">
+<meta name="theme-color" content="#0a0e12">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>GestãoClub — Mensalidades</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#C9A84C;--gold-l:#F0D080;--gold-d:rgba(201,168,76,.15);--dark:#0F0D07;--d2:#1C1608;--d3:#251D0A;--cream:#FAF3E0;--cream2:#D4C9A8;--red:#C0392B;--green:#1E8449;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Nunito',sans-serif;background:var(--dark);color:var(--cream);min-height:100vh;}
-#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:30px 20px;background:radial-gradient(ellipse at 50% 0%,#2C1F0A,#0F0D07 65%);}
-.login-icon{font-size:3rem;margin-bottom:6px;}
-.login-title{font-family:'Cinzel',serif;font-size:1.55rem;color:var(--gold);text-align:center;}
-.login-sub{font-size:.73rem;color:var(--cream2);opacity:.55;margin:5px 0 26px;letter-spacing:1.2px;text-transform:uppercase;}
-.login-box{width:100%;max-width:360px;background:linear-gradient(145deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:26px 22px;}
-.login-box h2{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);margin-bottom:18px;text-align:center;}
-.fl{display:block;font-size:.68rem;font-weight:700;color:var(--gold);letter-spacing:.9px;text-transform:uppercase;margin-bottom:5px;}
-.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.22);border-radius:8px;padding:11px 13px;color:var(--cream);font-size:.86rem;font-family:'Nunito',sans-serif;outline:none;}
-.fi:focus{border-color:var(--gold);} .fi::placeholder{color:rgba(255,255,255,.22);}
-.fg{margin-bottom:14px;}
-.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,#C9A84C,#A07830);border:none;border-radius:10px;color:var(--dark);font-family:'Cinzel',serif;font-size:.93rem;font-weight:700;cursor:pointer;margin-top:4px;}
-.login-err{color:#e74c3c;font-size:.76rem;text-align:center;margin-top:9px;min-height:17px;}
-.login-hint{font-size:.68rem;color:var(--cream2);opacity:.42;text-align:center;margin-top:14px;line-height:1.6;}
-#sync-banner{display:none;background:#1A4F7A;padding:7px 16px;font-size:.72rem;color:#add8f7;align-items:center;justify-content:center;gap:7px;}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.spin{animation:spin 1s linear infinite;display:inline-block;}
-#app{display:none;}
-header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px solid var(--gold);padding:12px 15px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.hdr-title{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);}
-.hdr-right{display:flex;align-items:center;gap:8px;}
-.hdr-av{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7A5A10);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.78rem;color:var(--dark);font-weight:700;}
-.hdr-name{font-size:.72rem;color:var(--cream2);}
-.hdr-badge{font-size:.56rem;background:var(--gold-d);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 5px;border-radius:7px;display:inline-block;}
-.btn-out{background:transparent;border:1px solid rgba(255,255,255,.13);border-radius:6px;padding:5px 8px;color:rgba(255,255,255,.38);font-size:.63rem;cursor:pointer;font-family:'Nunito',sans-serif;}
-.tabs{display:flex;background:var(--d2);border-bottom:1px solid rgba(201,168,76,.18);overflow-x:auto;scrollbar-width:none;}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{flex:1;min-width:60px;padding:10px 4px;text-align:center;font-size:.58rem;font-weight:700;text-transform:uppercase;color:var(--cream2);opacity:.4;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
-.tab.active{opacity:1;color:var(--gold);border-bottom-color:var(--gold);}
-.nbadge{display:inline-block;background:var(--red);color:#fff;border-radius:50%;width:13px;height:13px;font-size:.52rem;line-height:13px;text-align:center;margin-left:2px;vertical-align:middle;}
-.page{display:none;padding:16px 14px 100px;} .page.active{display:block;}
-.card{background:linear-gradient(135deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:15px;margin-bottom:13px;}
-.card-title{font-family:'Cinzel',serif;font-size:.88rem;color:var(--gold);margin-bottom:11px;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
-.sbox{background:linear-gradient(135deg,var(--d3),var(--dark));border:1px solid rgba(201,168,76,.16);border-radius:10px;padding:11px 5px;text-align:center;}
-.snum{font-family:'Cinzel',serif;font-size:1.65rem;color:var(--gold);line-height:1;}
-.slbl{font-size:.58rem;color:var(--cream2);opacity:.52;margin-top:2px;text-transform:uppercase;}
-.mhdr{text-align:center;margin-bottom:16px;} .mhdr h2{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold);} .mhdr p{font-size:.72rem;color:var(--cream2);opacity:.5;margin-top:2px;}
-.dc{background:linear-gradient(135deg,#1C1608,#0F0D07);border:1px solid rgba(201,168,76,.16);border-radius:10px;margin-bottom:9px;overflow:hidden;}
-.dc-head{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;}
-.dc-date{font-weight:700;font-size:.86rem;color:var(--gold-l);}
-.dc-lbl{font-size:.69rem;color:var(--cream2);opacity:.52;}
-.dc-arr{font-size:.72rem;color:var(--gold);transition:transform .2s;flex-shrink:0;margin-left:6px;}
-.dc.open .dc-arr{transform:rotate(180deg);}
-.dc-body{display:none;padding:9px 13px;} .dc.open .dc-body{display:block;}
-.miss-alert{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.28);border-radius:6px;padding:6px 9px;margin-bottom:7px;font-size:.7rem;color:#e74c3c;}
-.mrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
-.mrow:last-child{border-bottom:none;}
-.mn{font-size:.81rem;color:var(--cream);} .mr{font-size:.65rem;color:var(--gold);opacity:.68;}
-.sb{font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:18px;text-transform:uppercase;white-space:nowrap;}
-.sc{background:rgba(30,132,73,.22);color:#58d68d;border:1px solid #1E8449;}
-.sp{background:rgba(201,168,76,.1);color:var(--gold-l);border:1px solid rgba(201,168,76,.28);}
-.sd{background:rgba(192,57,43,.22);color:#ec7063;border:1px solid var(--red);}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 15px;border-radius:8px;font-size:.77rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:'Nunito',sans-serif;}
-.bgold{background:linear-gradient(135deg,#C9A84C,#A07830);color:var(--dark);}
-.bout{background:transparent;color:var(--gold);border:1px solid rgba(201,168,76,.45);}
-.bgreen{background:var(--green);color:#fff;} .bred{background:var(--red);color:#fff;}
-.bblock{display:flex;width:100%;justify-content:center;margin-top:7px;}
-.bsm{padding:5px 9px;font-size:.68rem;}
-.fg2{margin-bottom:13px;}
-.fl2{display:block;font-size:.66rem;font-weight:700;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
-.fi2,.fs2{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;color:var(--cream);font-size:.82rem;font-family:'Nunito',sans-serif;outline:none;}
-.fi2::placeholder{color:rgba(255,255,255,.2);} .fs2 option{background:var(--d3);}
-.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.76);z-index:200;align-items:flex-end;justify-content:center;}
-.mo.open{display:flex;}
-.modal{background:linear-gradient(145deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.26);border-radius:20px 20px 0 0;padding:20px 17px 38px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease;}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mhandle{width:34px;height:4px;background:rgba(201,168,76,.22);border-radius:2px;margin:0 auto 16px;}
-.mtitle{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:15px;}
-.macts{display:flex;gap:9px;margin-top:14px;} .macts .btn{flex:1;justify-content:center;}
-.mfi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;color:var(--cream);font-size:.82rem;font-family:'Nunito',sans-serif;outline:none;margin-bottom:13px;}
-.mfi::placeholder{color:rgba(255,255,255,.2);}
-.mfs{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;color:var(--cream);font-size:.82rem;font-family:'Nunito',sans-serif;outline:none;margin-bottom:13px;}
-.mfs option{background:var(--d3);}
-.mfl{display:block;font-size:.66rem;font-weight:700;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;}
-.stitle{font-size:.61rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);opacity:.52;margin:16px 0 9px;}
-.hdiv{border:none;border-top:1px solid rgba(201,168,76,.1);margin:14px 0;}
-.mcard{display:flex;align-items:center;gap:11px;padding:10px 11px;background:rgba(255,255,255,.025);border:1px solid rgba(201,168,76,.11);border-radius:10px;margin-bottom:8px;}
-.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#5A3E0A);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.85rem;color:var(--dark);font-weight:700;flex-shrink:0;}
-.minfo strong{font-size:.83rem;color:var(--cream);display:block;} .minfo span{font-size:.66rem;color:var(--gold);opacity:.72;}
-.lbadge{font-size:.53rem;background:rgba(201,168,76,.16);color:var(--gold);border:1px solid rgba(201,168,76,.32);padding:1px 5px;border-radius:7px;margin-left:4px;}
-.phone-txt{font-size:.63rem;color:var(--cream2);opacity:.45;display:block;margin-top:1px;}
-.nitem{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
-.nicon{font-size:1.25rem;flex-shrink:0;} .ntxt{font-size:.78rem;color:var(--cream2);line-height:1.4;} .ntxt strong{color:var(--gold-l);}
-.ntime{font-size:.63rem;color:rgba(255,255,255,.26);margin-top:2px;}
-.udot{width:7px;height:7px;background:var(--gold);border-radius:50%;margin-top:5px;flex-shrink:0;}
-.rcard{border-radius:10px;padding:12px;margin-bottom:9px;}
-.rcard.sub{background:rgba(26,82,118,.11);border:1px solid rgba(26,82,118,.32);}
-.rcard.aus{background:rgba(192,57,43,.09);border:1px solid rgba(192,57,43,.28);}
-.wabtn{display:flex;align-items:center;justify-content:center;gap:7px;background:#25D366;color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:9px;font-family:'Nunito',sans-serif;}
-#toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--d3);border:1px solid var(--gold);border-radius:10px;padding:9px 16px;font-size:.78rem;color:var(--cream);z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.pw-box{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.13);border-radius:10px;padding:13px;margin-top:10px;}
-.del-btn{background:rgba(192,57,43,.18);border:1px solid rgba(192,57,43,.4);color:#ec7063;border-radius:6px;padding:3px 9px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:6px;font-family:'Nunito',sans-serif;}
-.fone-card{display:flex;align-items:center;gap:11px;padding:12px 13px;background:linear-gradient(135deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.15);border-radius:10px;margin-bottom:8px;cursor:pointer;active:opacity:.8;}
-.fone-card:active{opacity:.75;}
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface2: #1a1f2b;
+    --border: #252b38;
+    --accent: #00e5a0;
+    --accent2: #ff6b6b;
+    --accent3: #ffd93d;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 32px;
+    background: rgba(18,21,28,0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; }
+  .logo span { color: var(--accent); }
+  .month-selector {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 16px;
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    color: var(--text); cursor: pointer;
+  }
+  .month-selector select {
+    background: transparent; border: none; color: var(--accent);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    cursor: pointer; outline: none;
+  }
+  .month-selector select option { background: var(--surface2); color: var(--text); }
+
+  /* NAV */
+  .nav {
+    display: flex; gap: 4px;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .nav-btn {
+    padding: 14px 20px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.5px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s; text-transform: uppercase;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN */
+  .main { padding: 28px 32px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; }
+  .stat-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; }
+  .stat-val.green { color: var(--accent); }
+  .stat-val.red { color: var(--accent2); }
+  .stat-val.yellow { color: var(--accent3); }
+
+  /* SECTIONS */
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTION HEADER */
+  .section-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+
+  /* BTN */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 20px; border-radius: 10px; border: none;
+    cursor: pointer; font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 13px; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00c98a; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(255,107,107,0.15); color: var(--accent2); border: 1px solid rgba(255,107,107,0.3); }
+  .btn-danger:hover { background: rgba(255,107,107,0.25); }
+
+  /* TABLE */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; overflow-y: visible; }
+  table { width: 100%; border-collapse: collapse; min-width: 600px; }
+  thead th {
+    padding: 14px 18px; text-align: left;
+    font-family: 'Syne', sans-serif; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted);
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 14px 18px; font-size: 14px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .badge-ok { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+  .badge-late { background: rgba(255,107,107,0.12); color: var(--accent2); border: 1px solid rgba(255,107,107,0.2); }
+  .badge-pending { background: rgba(255,217,61,0.12); color: var(--accent3); border: 1px solid rgba(255,217,61,0.2); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; width: 100%;
+    max-width: 480px; animation: fadeIn 0.25s ease;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 20px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 7px; }
+  .form-control {
+    width: 100%; padding: 11px 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    transition: border-color 0.2s; outline: none;
+  }
+  .form-control:focus { border-color: var(--accent); }
+  .form-control option { background: var(--surface2); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* EXTRATO */
+  .extrato-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .extrato-preview {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; margin: 16px 0;
+    font-family: 'DM Mono', monospace, 'DM Sans', sans-serif;
+    font-size: 13px; line-height: 1.8; white-space: pre-wrap;
+    color: #a8b4c8;
+    max-height: 340px; overflow-y: auto;
+  }
+  .parse-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-top: 20px;
+  }
+  .parse-section textarea {
+    width: 100%; min-height: 120px; resize: vertical;
+  }
+  .parse-result {
+    margin-top: 12px; padding: 14px;
+    background: var(--surface2); border-radius: 10px;
+    border-left: 3px solid var(--accent);
+    font-size: 13px; line-height: 1.7;
+    display: none;
+  }
+  .parse-result.visible { display: block; }
+
+  /* ACTIONS in table */
+  .action-row { display: flex; gap: 6px; }
+  .icon-btn {
+    width: 30px; height: 30px; border-radius: 7px; border: none;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: all 0.15s;
+  }
+  .icon-btn.pay { background: rgba(0,229,160,0.15); color: var(--accent); }
+  .icon-btn.pay:hover { background: rgba(0,229,160,0.3); }
+  .icon-btn.edit { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+  .icon-btn.edit:hover { color: var(--text); }
+  .icon-btn.del { background: rgba(255,107,107,0.1); color: var(--accent2); }
+  .icon-btn.del:hover { background: rgba(255,107,107,0.25); }
+
+  .search-bar {
+    width: 100%; padding: 10px 14px; margin-bottom: 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+  }
+  .search-bar:focus { border-color: var(--accent); }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .filter-btn {
+    padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); cursor: pointer;
+    font-size: 12px; font-weight: 600; transition: all 0.15s;
+  }
+  .filter-btn.active, .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.07); }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .header { padding: 14px 16px; }
+    .nav { padding: 0 16px; overflow-x: auto; }
+    .main { padding: 16px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
 </style>
 </head>
 <body>
-<div id="login-screen">
-  <div class="login-icon">&#127916;</div>
-  <h1 class="login-title">Ministerio de Midia</h1>
-  <p class="login-sub">Escala Mensal da Equipe</p>
-  <div class="login-box">
-    <h2>ENTRAR</h2>
-    <div class="fg"><label class="fl">Telefone</label><input class="fi" id="li-phone" type="tel" placeholder="Somente numeros" inputmode="numeric"></div>
-    <div class="fg"><label class="fl">Senha</label><input class="fi" id="li-pass" type="password" placeholder="Senha"></div>
-    <button class="btn-login" onclick="doLogin()">ENTRAR</button>
-    <div class="login-err" id="li-err"></div>
-    <p class="login-hint">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
+
+<!-- SPLASH SCREEN -->
+<div id="splashScreen" style="
+  position:fixed; inset:0; z-index:9999;
+  background:#0a0c10;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif;
+  overflow:hidden;
+">
+  <!-- background glow blobs -->
+  <div style="position:absolute;top:-180px;left:-180px;width:520px;height:520px;background:radial-gradient(circle,rgba(0,229,160,0.09) 0%,transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-200px;right:-150px;width:480px;height:480px;background:radial-gradient(circle,rgba(0,180,255,0.07) 0%,transparent 70%);pointer-events:none"></div>
+
+  <!-- logo mark -->
+  <div id="splashLogo" style="
+    width:90px; height:90px; border-radius:24px;
+    background:linear-gradient(135deg,#00e5a0 0%,#00b4d8 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:42px; margin-bottom:28px;
+    box-shadow:0 0 60px rgba(0,229,160,0.35);
+    opacity:0; transform:scale(0.7);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.34,1.56,.64,1);
+  ">💰</div>
+
+  <!-- title -->
+  <div id="splashTitle" style="
+    font-size:clamp(22px,5vw,36px); font-weight:800; letter-spacing:-0.5px;
+    color:#e8eaf0; text-align:center; line-height:1.2;
+    opacity:0; transform:translateY(18px);
+    transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+    max-width:500px; padding:0 24px;
+  ">
+    Controle Financeiro<br>
+    <span style="color:#00e5a0">M de Mídia</span>
+  </div>
+
+  <!-- subtitle -->
+  <div id="splashSub" style="
+    margin-top:12px; font-size:13px; letter-spacing:2px;
+    text-transform:uppercase; color:#6b7280;
+    opacity:0; transform:translateY(12px);
+    transition: opacity 0.5s ease 0.4s, transform 0.5s ease 0.4s;
+  ">Gestão de Mensalidades</div>
+
+  <!-- divider -->
+  <div id="splashLine" style="
+    width:0; height:1px; background:linear-gradient(90deg,transparent,#00e5a0,transparent);
+    margin:32px 0;
+    transition: width 0.7s ease 0.5s;
+  "></div>
+
+  <!-- password field -->
+  <div id="splashPwd" style="
+    opacity:0; transform:translateY(10px);
+    transition: opacity 0.5s ease 0.6s, transform 0.5s ease 0.6s;
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    width:100%; max-width:280px;
+  ">
+    <div style="position:relative;width:100%">
+      <input id="senhaInput" type="password" placeholder="Digite a senha"
+        style="width:100%;box-sizing:border-box;padding:14px 48px 14px 18px;border-radius:14px;border:1px solid rgba(0,229,160,0.25);background:rgba(255,255,255,0.05);color:#e8eaf0;font-size:16px;font-family:'Syne',sans-serif;outline:none;letter-spacing:2px"
+        onkeydown="if(event.key==='Enter') verificarSenha()"
+      />
+      <span onclick="toggleSenha()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;opacity:0.6" id="olhoSenha">👁️</span>
+    </div>
+    <div id="erroSenha" style="color:#ff6b6b;font-size:12px;min-height:16px"></div>
+    <button onclick="verificarSenha()" style="
+      background:linear-gradient(135deg,#00e5a0,#00b4d8);
+      border:none; border-radius:14px; padding:14px 40px;
+      font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+      color:#000; cursor:pointer; letter-spacing:0.5px; width:100%;
+      box-shadow:0 4px 24px rgba(0,229,160,0.3);
+    ">Entrar →</button>
   </div>
 </div>
-<div id="app">
-  <div id="sync-banner"><span class="spin">&#8635;</span> Sincronizando...</div>
-  <header>
-    <div><div class="hdr-title">&#127916; Ministerio de Midia</div><div id="hdr-online" style="font-size:.55rem;margin-top:1px;color:rgba(255,255,255,.3);">&#9679; carregando</div></div>
-    <div class="hdr-right">
-      <div style="text-align:right;"><div class="hdr-name" id="hdr-name">-</div><span class="hdr-badge" id="hdr-badge">-</span></div>
-      <div class="hdr-av" id="hdr-av">?</div>
-      <button class="btn-out" onclick="doLogout()">Sair</button>
+
+<script>
+// Animate splash in
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splashLogo').style.opacity = '1';
+    document.getElementById('splashLogo').style.transform = 'scale(1)';
+    document.getElementById('splashTitle').style.opacity = '1';
+    document.getElementById('splashTitle').style.transform = 'translateY(0)';
+    document.getElementById('splashSub').style.opacity = '1';
+    document.getElementById('splashSub').style.transform = 'translateY(0)';
+    document.getElementById('splashLine').style.width = '200px';
+    document.getElementById('splashPwd').style.opacity = '1';
+    document.getElementById('splashPwd').style.transform = 'translateY(0)';
+  }, 80);
+});
+
+const SENHA_APP = 'mmidia2024';
+
+function verificarSenha() {
+  const input = document.getElementById('senhaInput');
+  const erro = document.getElementById('erroSenha');
+  if (input.value === SENHA_APP) {
+    entrarApp();
+  } else {
+    erro.textContent = 'Senha incorreta!';
+    input.style.borderColor = 'rgba(255,107,107,0.6)';
+    input.value = '';
+    setTimeout(() => {
+      erro.textContent = '';
+      input.style.borderColor = 'rgba(0,229,160,0.25)';
+    }, 2000);
+  }
+}
+
+function toggleSenha() {
+  const input = document.getElementById('senhaInput');
+  const olho = document.getElementById('olhoSenha');
+  if (input.type === 'password') { input.type = 'text'; olho.textContent = '🙈'; }
+  else { input.type = 'password'; olho.textContent = '👁️'; }
+}
+
+function entrarApp() {
+  const splash = document.getElementById('splashScreen');
+  splash.style.transition = 'opacity 0.5s ease';
+  splash.style.opacity = '0';
+  setTimeout(() => splash.style.display = 'none', 500);
+}
+</script>
+
+
+  <div class="logo" style="display:flex;align-items:center;gap:8px">Gestão<span>Club</span>
+    <span id="cloudStatus" title="Status da nuvem" style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.08);color:#6b7280;font-family:sans-serif;font-weight:500;letter-spacing:0">⏳ sync</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn btn-secondary" onclick="exportarExcel()" title="Salvar todos os dados em Excel" style="font-size:12px;padding:8px 14px">💾 Salvar Excel</button>
+    <button class="btn btn-secondary" onclick="abrirConfigApi()" title="Configurar chave da API" id="btnApiStatus" style="font-size:12px;padding:8px 14px">⚙️ API</button>
+    <label class="btn btn-secondary" style="font-size:12px;padding:8px 14px;cursor:pointer;margin:0" title="Carregar dados de um arquivo Excel salvo anteriormente">
+      📂 Carregar Excel
+      <input type="file" accept=".xlsx" onchange="importarExcel(this)" style="display:none">
+    </label>
+    <div class="month-selector">
+    📅
+    <select id="mesSelect">
+      <option value="0">Janeiro</option>
+      <option value="1">Fevereiro</option>
+      <option value="2">Março</option>
+      <option value="3">Abril</option>
+      <option value="4">Maio</option>
+      <option value="5">Junho</option>
+      <option value="6">Julho</option>
+      <option value="7">Agosto</option>
+      <option value="8">Setembro</option>
+      <option value="9">Outubro</option>
+      <option value="10">Novembro</option>
+      <option value="11">Dezembro</option>
+    </select>
+    <select id="anoSelect" style="margin-left:4px"></select>
+  </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('membros',this)">👥 Membros</button>
+  <button class="nav-btn" onclick="switchTab('pagamentos',this)">💳 Pagamentos</button>
+  <button class="nav-btn" onclick="switchTab('extrato',this)">📤 Extrato</button>
+  <button class="nav-btn" onclick="switchTab('importar',this)">📥 Importar Extrato</button>
+  <button class="nav-btn" onclick="switchTab('editar',this)">✏️ Editar Membros</button>
+  <button class="nav-btn" onclick="switchTab('caixa',this)">💰 Caixa</button>
+</nav>
+
+<div class="main">
+
+  <!-- STATS -->
+  <div class="stats" id="statsBar">
+    <div class="stat-card">
+      <div class="stat-label">Total Membros</div>
+      <div class="stat-val" id="statTotal">0</div>
     </div>
-  </header>
-  <div class="tabs">
-    <div class="tab active" onclick="goPage('escala',this)">&#128197; Escala</div>
-    <div class="tab" onclick="goPage('minha',this)">&#128587; Minha</div>
-    <div class="tab" onclick="goPage('pedidos',this)">&#128259; Pedidos</div>
-    <div class="tab" onclick="goPage('equipe',this)">&#128101; Equipe</div>
-    <div class="tab" onclick="goPage('fones',this)">&#128241; Fones</div>
-    <div class="tab" onclick="goPage('notifs',this)" id="tab-notifs">&#128276; Avisos</div>
+    <div class="stat-card">
+      <div class="stat-label">Em Dia</div>
+      <div class="stat-val green" id="statOk">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pendentes</div>
+      <div class="stat-val yellow" id="statPending">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Arrecadado no Mês</div>
+      <div class="stat-val green" id="statVal">R$ 0</div>
+    </div>
   </div>
 
-  <div id="page-escala" class="page active">
-    <div class="mhdr"><h2 id="month-lbl">-</h2><p>Escala Geral do Ministerio de Midia</p></div>
-    <div class="stats">
-      <div class="sbox"><div class="snum" id="st-cultos">0</div><div class="slbl">Cultos</div></div>
-      <div class="sbox"><div class="snum" id="st-membros">0</div><div class="slbl">Membros</div></div>
-      <div class="sbox"><div class="snum" id="st-pend">0</div><div class="slbl">Pendentes</div></div>
+  <!-- MEMBROS -->
+  <div class="section active" id="tab-membros">
+    <div class="section-top">
+      <div class="section-title">Membros Cadastrados</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnOrdem" class="btn btn-secondary" onclick="toggleOrdem()" title="Ordenar por nome">🔤 A→Z</button>
+        <button class="btn btn-primary" onclick="openModal('membro')">+ Novo Membro</button>
+      </div>
     </div>
-    <div id="escala-list"></div>
-    <div id="admin-escala" style="display:none;">
-      <div class="hdiv"></div>
-      <p class="stitle">Acoes do Lider</p>
-      <button class="btn bgold bblock" onclick="openMo('mo-addday')">+ Adicionar Culto</button>
-      <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">&#129302; Importar Escala</button>
-      <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">&#9888; Verificar Vagas</button>
-      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(100,100,255,.4);color:#aab4ff;" onclick="openMo('mo-backup')">&#128190; Backup e Restauracao</button>
-      <input type="file" id="backup-file" accept=".json" style="display:none;" onchange="restaurarBackup(this)">
-      <button class="wabtn" onclick="abrirWaEscala()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Enviar Escala no WhatsApp
-      </button>
+    <input class="search-bar" id="searchMembro" placeholder="🔍  Buscar membro..." oninput="renderMembros()">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Contato</th>
+            <th>Mensalidade</th>
+            <th>Desde</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaMembros"></tbody>
+      </table>
     </div>
-  </div>
 
-  <div id="page-minha" class="page">
-    <div class="card"><div class="card-title">&#128203; Meus Cultos este Mes</div><div id="minha-lista"></div></div>
-    <div class="card">
-      <div class="card-title">&#9989; Confirmar / Recusar</div>
-      <p style="font-size:.77rem;color:var(--cream2);opacity:.58;margin-bottom:11px;">Confirme sua presenca nos cultos pendentes.</p>
-      <div id="minha-pend"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">&#128273; Alterar Minha Senha</div>
-      <div class="pw-box">
-        <div class="fg2"><label class="fl2">Senha Atual</label><input class="fi2" id="pw-old" type="password" placeholder="Senha atual"></div>
-        <div class="fg2"><label class="fl2">Nova Senha</label><input class="fi2" id="pw-new" type="password" placeholder="Minimo 5 caracteres"></div>
-        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Confirmar</label><input class="fi2" id="pw-conf" type="password" placeholder="Repita a nova senha"></div>
-        <button class="btn bgold bblock" style="margin-top:12px;" onclick="changePass()">Salvar Nova Senha</button>
+    <!-- ASSIDUIDADE -->
+    <div style="margin-top:32px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px">📊 Assiduidade</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Histórico de pagamentos por membro</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--muted)">Exibir:</span>
+          <select id="assiduidadeMeses" onchange="renderAssiduidade()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 10px;font-size:12px;outline:none">
+            <option value="3">3 meses</option>
+            <option value="6" selected>6 meses</option>
+            <option value="12">12 meses</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap" style="overflow-x:auto">
+        <div id="tabelaAssiduidade" style="min-width:500px"></div>
+      </div>
+      <!-- Legenda -->
+      <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><span style="width:14px;height:14px;border-radius:4px;background:rgba(0,229,160,0.7);display:inline-block"></span> Pago</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><span style="width:14px;height:14px;border-radius:4px;background:rgba(255,107,107,0.6);display:inline-block"></span> Atrasado</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><span style="width:14px;height:14px;border-radius:4px;background:rgba(255,217,61,0.4);display:inline-block"></span> Pendente</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><span style="width:14px;height:14px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);display:inline-block"></span> Sem registro</div>
       </div>
     </div>
   </div>
 
-  <div id="page-pedidos" class="page">
-    <p class="stitle">Pedidos Recebidos</p>
-    <div id="pedidos-list"></div>
-    <div class="hdiv"></div>
-    <p class="stitle">Fazer Pedido de Troca</p>
-    <div class="card">
-      <div class="fg2"><label class="fl2">Culto</label><select class="fs2" id="ped-culto"></select></div>
-      <div class="fg2"><label class="fl2">Tipo</label>
-        <select class="fs2" id="ped-tipo" onchange="toggleSubField()">
-          <option value="sub">Pedir Substituto</option>
-          <option value="aus">Informar Ausencia</option>
+  <!-- PAGAMENTOS -->
+  <div class="section" id="tab-pagamentos">
+    <div class="section-top">
+      <div class="section-title">Pagamentos do Mês</div>
+      <button class="btn btn-primary" onclick="openModal('pagamento')">+ Registrar Pagamento</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('pago', this)">✅ Em Dia</button>
+      <button class="filter-btn" onclick="setFilter('pendente', this)">⏳ Pendentes</button>
+      <button class="filter-btn" onclick="setFilter('atrasado', this)">❌ Negligentes</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Membro</th>
+            <th>Mês/Ano</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Data Pgto</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaPagamentos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EXTRATO -->
+  <div class="section" id="tab-extrato">
+    <div class="section-top">
+      <div class="section-title">📤 Extrato</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary" onclick="copiarExtrato()">📋 Copiar</button>
+        <button class="btn btn-primary" onclick="compartilharExtrato()">📤 Compartilhar</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+      <button id="extModoBtn_mes" onclick="setExtModo('mes')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--accent);background:rgba(0,229,160,0.1);color:var(--accent);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;min-width:120px">📅 Mês Selecionado</button>
+      <button id="extModoBtn_historico" onclick="setExtModo('historico')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;min-width:120px">📊 Histórico Mensal</button>
+    </div>
+
+    <div id="extrato-modo-mes">
+      <div class="extrato-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px">Prévia para WhatsApp</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px">Baseado no mês selecionado no topo</div>
+          </div>
+          <button class="btn btn-secondary" onclick="gerarExtrato()">🔄 Gerar</button>
+        </div>
+        <div class="extrato-preview" id="extratoPreview">Clique em "Gerar" para criar o extrato.</div>
+      </div>
+    </div>
+
+    <div id="extrato-modo-historico" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div style="font-size:13px;color:var(--muted)">Clique em um mês para expandir os detalhes</div>
+        <select id="extHistoricoQtd" onchange="renderHistorico()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 12px;font-size:12px;outline:none">
+          <option value="3">Últimos 3 meses</option>
+          <option value="6" selected>Últimos 6 meses</option>
+          <option value="12">Últimos 12 meses</option>
         </select>
       </div>
-      <div id="ped-sub-wrap" class="fg2"><label class="fl2">Substituto Indicado</label><select class="fs2" id="ped-sub"></select></div>
-      <div class="fg2"><label class="fl2">Motivo</label><input class="fi2" id="ped-motivo" placeholder="Ex: Viagem, compromisso..."></div>
-      <button class="btn bgold bblock" onclick="sendPedido()">Enviar Pedido</button>
+      <div id="historicoContainer"></div>
     </div>
   </div>
 
-  <div id="page-equipe" class="page">
-    <p class="stitle">Equipe do Ministerio</p>
-    <div id="equipe-list"></div>
-    <div id="admin-equipe" style="display:none;">
-      <div class="hdiv"></div>
-      <button class="btn bgold bblock" onclick="openMo('mo-addmem')">+ Adicionar Membro</button>
+  <!-- IMPORTAR EXTRATO -->
+  <div class="section" id="tab-importar">
+    <div class="section-title" style="margin-bottom:20px">Importar & Analisar Extrato</div>
+
+    <!-- Upload PDF -->
+    <div class="parse-section" style="margin-bottom:0">
+      <div style="margin-bottom:14px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px">📎 Anexar PDF do Extrato</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">O Claude lê o PDF e identifica automaticamente os pagamentos</div>
+      </div>
+      <label id="pdfDropZone" for="pdfInput" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 20px;border:2px dashed var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;background:var(--surface2);margin-bottom:12px"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(0,229,160,0.05)'"
+        ondragleave="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'"
+        ondrop="handlePdfDrop(event)">
+        <div style="font-size:40px">📄</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--text)">Clique ou arraste o PDF aqui</div>
+        <div style="font-size:12px;color:var(--muted)">Extrato bancário, comprovante PIX ou qualquer PDF com pagamentos</div>
+        <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="lerPdfExtrato(this)">
+      </label>
+      <div id="pdfStatus" style="display:none;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:4px"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">ou cole o texto</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <div class="parse-section">
+      <div class="section-top" style="margin-bottom:14px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px">📝 Colar Texto do Extrato</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Cole o texto do extrato do grupo e identifique automaticamente os pagadores</div>
+        </div>
+      </div>
+      <textarea class="form-control" id="extratoInput" placeholder="Cole aqui o extrato bancário ou mensagem do grupo...&#10;&#10;Ex:&#10;03/03 João Silva - R$ 50,00&#10;04/03 Maria Souza pagou mensalidade&#10;05/03 PIX recebido de Carlos - 50 reais"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" onclick="analisarExtrato()">🔍 Analisar Extrato</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('extratoInput').value=''">🗑️ Limpar</button>
+      </div>
+      <div class="parse-result" id="parseResult"></div>
+    </div>
+    <div class="parse-section" style="margin-top:0">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:14px">Registros Identificados</div>
+      <div id="registrosIdentificados"><div style="color:var(--muted);font-size:13px">Nenhum registro analisado ainda.</div></div>
     </div>
   </div>
 
-  <div id="page-fones" class="page">
-    <div class="mhdr"><h2 style="font-size:1.1rem;">&#128241; Telefones da Equipe</h2><p>Toque no numero para editar</p></div>
-    <div id="fones-list"></div>
+  <!-- EDITAR MEMBROS -->
+  <div class="section" id="tab-editar">
+    <div class="section-top">
+      <div class="section-title">Editar Dados dos Membros</div>
+      <button class="btn btn-primary" onclick="openModal('membro')">+ Novo Membro</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Edite os campos diretamente na tabela e clique em <strong style="color:var(--accent)">💾 Salvar</strong> para confirmar cada alteração.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Contato</th>
+            <th>Mensalidade (R$)</th>
+            <th>Data de Entrada</th>
+            <th>Observações</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaEditar"></tbody>
+      </table>
+    </div>
   </div>
 
-  <div id="page-notifs" class="page">
-    <p class="stitle">Avisos e Notificacoes</p>
-    <div id="notifs-list"></div>
-    <div id="admin-notifs" style="display:none;">
-      <div class="hdiv"></div>
-      <p class="stitle">Enviar Aviso</p>
-      <div class="card">
-        <div class="fg2"><label class="fl2">Destinatario</label><select class="fs2" id="notif-dest"></select></div>
-        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Mensagem</label><input class="fi2" id="notif-msg" placeholder="Digite o aviso..."></div>
-        <button class="btn bgold bblock" style="margin-top:12px;" onclick="sendAviso()">Enviar Aviso</button>
+  <!-- CAIXA -->
+  <div class="section" id="tab-caixa">
+    <!-- Cards de saldo -->
+    <div class="stats" style="margin-bottom:16px" id="caixaStats">
+      <div class="stat-card">
+        <div class="stat-label">Total Arrecadado</div>
+        <div class="stat-val green" id="caixaEntradas">R$ 0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Gasto</div>
+        <div class="stat-val red" id="caixaSaidas">R$ 0</div>
+      </div>
+      <div class="stat-card" style="grid-column:span 2">
+        <div class="stat-label">Saldo Calculado pelo App</div>
+        <div class="stat-val" id="caixaSaldo" style="font-size:32px">R$ 0</div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- MODAIS -->
-<div class="mo" id="mo-addday" onclick="closeMo('mo-addday')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">+ Novo Culto na Escala</div>
-    <label class="mfl">Data</label><input type="date" class="mfi" id="nd-date" onchange="autoLabel()">
-    <label class="mfl">Nome do Culto</label><input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebracao">
-    <label class="mfl">Modo</label>
-    <select class="mfs" id="nd-modo" onchange="toggleModo()">
-      <option value="fixo">Membros fixos - precisam confirmar</option>
-      <option value="confirmado">Membros fixos - ja confirmados</option>
-      <option value="aberto">Inscricao livre</option>
-    </select>
-    <div id="nd-checks-wrap"><label class="mfl">Membros Escalados</label><div id="nd-checks" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div></div>
-    <div id="nd-aberto-info" style="display:none;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.76rem;color:var(--cream2);">Culto aberto para inscricao livre.</div>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-addday')">Cancelar</button><button class="btn bgold" onclick="addCulto()">Adicionar</button></div>
-  </div>
-</div>
+    <!-- Card Saldo Bancário -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px">
+      <div style="margin-bottom:16px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:4px">🏦 Saldo do Banco</div>
+        <div style="font-size:12px;color:var(--muted)">Informe o saldo real da conta para comparar com o app</div>
+      </div>
 
-<div class="mo" id="mo-addmem" onclick="closeMo('mo-addmem')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">Novo Membro</div>
-    <label class="mfl">Nome Completo</label><input type="text" class="mfi" id="nm-nome" placeholder="Nome completo">
-    <label class="mfl">Telefone com DDD</label><input type="tel" class="mfi" id="nm-tel" placeholder="Ex: 93991234567" inputmode="numeric">
-    <label class="mfl">Funcao</label>
-    <select class="mfs" id="nm-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
-    <label class="mfl">Perfil</label>
-    <select class="mfs" id="nm-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
-    <p style="font-size:.69rem;color:var(--cream2);opacity:.45;margin-bottom:4px;">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-addmem')">Cancelar</button><button class="btn bgold" onclick="addMembro()">Adicionar</button></div>
-  </div>
-</div>
+      <!-- Entrada manual do saldo -->
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px">
+        <div style="flex:1;min-width:150px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Saldo atual da conta (R$)</label>
+          <input class="form-control" id="bancoSaldoInput" type="number" step="0.01" min="0" placeholder="Ex: 211,98" style="font-size:18px;font-weight:700">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+              <input type="radio" name="bancoModo" value="definir" checked> Definir saldo total
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+              <input type="radio" name="bancoModo" value="somar"> Somar ao saldo atual
+            </label>
+          </div>
+        </div>
+        <div style="flex:1;min-width:130px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Data de referência</label>
+          <input class="form-control" id="bancoDataInput" type="date">
+        </div>
+        <button class="btn btn-primary" onclick="definirSaldoBancoManual()" style="height:42px;white-space:nowrap;padding:0 20px">✅ Sincronizar</button>
+        <label for="pdfBancoInput" style="display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap">
+          📎 PDF
+          <input type="file" id="pdfBancoInput" accept=".pdf" style="display:none" onchange="lerPdfBanco(this)">
+        </label>
+      </div>
 
-<div class="mo" id="mo-resetpw" onclick="closeMo('mo-resetpw')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">Redefinir Senha</div>
-    <p style="font-size:.82rem;color:var(--cream2);margin-bottom:14px;">Senha de <strong id="reset-nome" style="color:var(--gold-l);">-</strong> sera redefinida para <strong style="color:var(--gold);">12345</strong>.</p>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-resetpw')">Cancelar</button><button class="btn bgold" onclick="confirmReset()">Redefinir</button></div>
-  </div>
-</div>
+      <!-- Comparativo -->
+      <div id="bancoPainelVazio" style="padding:14px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed var(--border);border-radius:10px">
+        Digite o saldo da conta acima e clique em <strong>✅ Sincronizar</strong>.
+      </div>
+      <div id="bancoPainel" style="display:none">
+        <div class="stats" style="margin-bottom:16px;grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card">
+            <div class="stat-label">Saldo no Banco</div>
+            <div class="stat-val" id="bancoSaldoVal" style="font-size:24px;color:#7dd3fc">R$ —</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px" id="bancoDataRef"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Saldo no App</div>
+            <div class="stat-val" id="bancoSaldoApp" style="font-size:24px">R$ —</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Diferença</div>
+            <div class="stat-val" id="bancoDiferenca" style="font-size:24px">R$ —</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px" id="bancoDifDesc"></div>
+          </div>
+        </div>
+        <!-- Diagnóstico detalhado -->
+        <details style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+          <summary style="padding:12px 16px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:600;font-size:13px;background:var(--surface2);user-select:none">
+            🔍 Ver diagnóstico detalhado (composição do saldo)
+          </summary>
+          <div id="bancoDiagnostico" style="padding:16px"></div>
+        </details>
+      </div>
+      <div id="bancoStatus" style="display:none;margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px"></div>
+    </div>
 
-<div class="mo" id="mo-editmem" onclick="closeMo('mo-editmem')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#9999; Editar Integrante</div>
-    <label class="mfl">Nome</label><input type="text" class="mfi" id="em-nome" placeholder="Nome completo">
-    <label class="mfl">Telefone com DDD</label>
-    <input type="tel" class="mfi" id="em-tel" placeholder="Ex: 93991234567" inputmode="numeric">
-    <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin-bottom:12px;margin-top:-8px;">Exemplo: <strong style="color:var(--gold);">93991234567</strong></p>
-    <label class="mfl">Funcao</label>
-    <select class="mfs" id="em-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
-    <label class="mfl">Perfil</label>
-    <select class="mfs" id="em-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-editmem')">Cancelar</button><button class="btn bgold" onclick="salvarEdicaoMembro()">Salvar</button></div>
-  </div>
-</div>
+    <!-- Registrar gasto -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:16px">➕ Registrar Gasto</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex:2;min-width:160px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Descrição</label>
+          <input class="form-control" id="gastoDesc" placeholder="Ex: Compra de equipamento...">
+        </div>
+        <div style="flex:1;min-width:110px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Valor (R$)</label>
+          <input class="form-control" id="gastoValor" type="number" step="0.01" min="0" placeholder="0,00">
+        </div>
+        <div style="flex:1;min-width:130px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Data</label>
+          <input class="form-control" id="gastoData" type="date">
+        </div>
+        <div style="flex:1;min-width:130px">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Categoria</label>
+          <select class="form-control" id="gastoCategoria">
+            <option value="equipamento">🔧 Equipamento</option>
+            <option value="evento">🎉 Evento</option>
+            <option value="material">📦 Material</option>
+            <option value="servico">🛠️ Serviço</option>
+            <option value="outro">📌 Outro</option>
+          </select>
+        </div>
+        <button class="btn btn-danger" onclick="registrarGasto()" style="height:42px;white-space:nowrap">➖ Deduzir</button>
+      </div>
+    </div>
 
-<div class="mo" id="mo-edit-fone" onclick="closeMo('mo-edit-fone')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#128241; Editar Telefone</div>
-    <p style="font-size:.88rem;color:var(--gold-l);font-weight:700;margin-bottom:14px;" id="ef-nome">-</p>
-    <label class="mfl">Numero com DDD</label>
-    <input type="tel" class="mfi" id="ef-tel" placeholder="Ex: 93991234567" inputmode="numeric">
-    <p style="font-size:.7rem;color:var(--cream2);opacity:.55;margin-bottom:14px;margin-top:-8px;">&#128161; DDD + 9 digitos. Ex: <strong style="color:var(--gold);">93991234567</strong></p>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-edit-fone')">Cancelar</button><button class="btn bgold" onclick="salvarFone()">&#10003; Salvar</button></div>
+    <!-- Histórico de movimentações -->
+    <div class="section-top" style="margin-bottom:12px">
+      <div class="section-title">Movimentações</div>
+      <div style="display:flex;gap:8px">
+        <button class="filter-btn active" id="filtCaixa_todos" onclick="setFiltCaixa('todos',this)">Todas</button>
+        <button class="filter-btn" id="filtCaixa_entrada" onclick="setFiltCaixa('entrada',this)">✅ Entradas</button>
+        <button class="filter-btn" id="filtCaixa_saida" onclick="setFiltCaixa('saida',this)">➖ Saídas</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaCaixa"></tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<div class="mo" id="mo-ia" onclick="closeMo('mo-ia')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#129302; Importar Escala</div>
-    <p style="font-size:.76rem;color:var(--cream2);opacity:.7;margin-bottom:10px;">Cole o texto da escala copiado do WhatsApp:</p>
-    <label class="mfl">Texto da Escala</label>
-    <textarea id="ia-texto" class="mfi" rows="7" placeholder="Cole aqui..." style="height:130px;resize:vertical;"></textarea>
-    <div id="ia-status" style="display:none;font-size:.75rem;color:var(--gold);text-align:center;padding:10px;"><span class="spin">&#8635;</span> Processando...</div>
-    <div id="ia-result" style="display:none;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;line-height:1.6;"></div>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button><button class="btn bgold" id="ia-btn" onclick="importarEscala()">Importar</button></div>
-  </div>
 </div>
-
-<div class="mo" id="mo-wa-escala" onclick="closeMo('mo-wa-escala')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#128242; Enviar Escala no WhatsApp</div>
-    <p style="font-size:.78rem;color:var(--cream2);opacity:.7;margin-bottom:14px;">Escolha para quem enviar:</p>
-    <label class="mfl">Destinatario</label>
-    <select class="mfs" id="wa-dest-select" onchange="toggleWaDest()">
-      <option value="all">&#128226; Grupo todo</option>
-      <option value="one">&#128100; Um integrante especifico</option>
-    </select>
-    <div id="wa-membro-wrap" style="display:none;"><label class="mfl">Membro</label><select class="mfs" id="wa-membro-select" onchange="atualizarPreviewWa()"></select></div>
-    <label class="mfl">Preview</label>
-    <div id="wa-preview" style="background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.25);border-radius:10px;padding:11px;margin-bottom:14px;font-size:.69rem;color:var(--cream2);line-height:1.75;max-height:200px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;"></div>
-    <div class="macts">
-      <button class="btn bout" onclick="closeMo('mo-wa-escala')">Cancelar</button>
-      <button class="btn" style="flex:1;justify-content:center;background:#25D366;color:#fff;border:none;" onclick="enviarWaEscala()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Enviar
-      </button>
+<div class="modal-overlay" id="modalMembro">
+  <div class="modal">
+    <h3 id="modalMembroTitle">Novo Membro</h3>
+    <div class="form-group">
+      <label>Nome Completo</label>
+      <input class="form-control" id="membroNome" placeholder="Ex: João da Silva">
+    </div>
+    <div class="form-group">
+      <label>Contato (WhatsApp / Email)</label>
+      <input class="form-control" id="membroContato" placeholder="(00) 00000-0000">
+    </div>
+    <div class="form-group">
+      <label>Valor da Mensalidade (R$)</label>
+      <input class="form-control" id="membroValor" type="number" placeholder="50.00" min="0" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>Data de Entrada</label>
+      <input class="form-control" id="membroData" type="date">
+    </div>
+    <div class="form-group">
+      <label>Observações</label>
+      <input class="form-control" id="membroObs" placeholder="Opcional...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('membro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarMembro()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL BACKUP -->
-<div class="mo" id="mo-backup" onclick="closeMo('mo-backup')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#128190; Backup e Restauracao</div>
-
-    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:10px;padding:13px;margin-bottom:14px;">
-      <p style="font-size:.78rem;color:var(--gold);font-weight:700;margin-bottom:4px;">&#128190; Fazer Backup</p>
-      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Salva todos os dados atuais em um arquivo JSON no seu celular.</p>
-      <div id="backup-status" style="font-size:.72rem;margin-bottom:8px;"></div>
-      <button class="btn bgold" style="width:100%;justify-content:center;" onclick="fazerBackupSeguro()">&#128190; Baixar Backup Agora</button>
+<!-- MODAL PAGAMENTO -->
+<div class="modal-overlay" id="modalPagamento">
+  <div class="modal">
+    <h3>Registrar Pagamento</h3>
+    <div class="form-group">
+      <label>Membro</label>
+      <select class="form-control" id="pgtoMembro"></select>
     </div>
 
-    <div style="background:rgba(100,100,255,.06);border:1px solid rgba(100,100,255,.2);border-radius:10px;padding:13px;">
-      <p style="font-size:.78rem;color:#aab4ff;font-weight:700;margin-bottom:4px;">&#128194; Restaurar Backup</p>
-      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Substitui todos os dados pelo arquivo de backup. Use com cuidado!</p>
-      <button class="btn" style="width:100%;justify-content:center;background:rgba(100,100,255,.2);color:#aab4ff;border:1px solid rgba(100,100,255,.35);" onclick="document.getElementById('backup-file').click()">&#128194; Escolher Arquivo de Backup</button>
+    <!-- Tipo: mês atual ou retroativo -->
+    <div class="form-group">
+      <label>Tipo de Lançamento</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="button" id="btnTipoAtual" onclick="setTipoPgto('atual')" style="flex:1;padding:10px;border-radius:10px;border:2px solid var(--accent);background:rgba(0,229,160,0.1);color:var(--accent);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer">
+          📅 Mês Atual
+        </button>
+        <button type="button" id="btnTipoRetro" onclick="setTipoPgto('retroativo')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer">
+          🕐 Mês Retroativo
+        </button>
+      </div>
     </div>
 
-    <div class="macts" style="margin-top:18px;">
-      <button class="btn bout" style="width:100%;justify-content:center;" onclick="closeMo('mo-backup')">Fechar</button>
+    <!-- Referência do mês (sempre visível) -->
+    <div style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1">
+        <label>Mês de Referência</label>
+        <select class="form-control" id="pgtoMes">
+          <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+          <option value="2">Março</option><option value="3">Abril</option>
+          <option value="4">Maio</option><option value="5">Junho</option>
+          <option value="6">Julho</option><option value="7">Agosto</option>
+          <option value="8">Setembro</option><option value="9">Outubro</option>
+          <option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:100px">
+        <label>Ano</label>
+        <input class="form-control" id="pgtoAno" type="number" value="2026">
+      </div>
+    </div>
+
+    <!-- Banner info retroativo -->
+    <div id="retroBanner" style="display:none;margin-bottom:16px;padding:12px 14px;background:rgba(255,217,61,0.08);border:1px solid rgba(255,217,61,0.25);border-radius:10px;font-size:12px;color:var(--accent3);line-height:1.6">
+      ⏪ <strong>Pagamento retroativo</strong> — selecione o mês e ano que já foi quitado anteriormente. O status será marcado como <strong>Pago</strong> automaticamente.
+    </div>
+
+    <div class="form-group">
+      <label>Valor Pago (R$)</label>
+      <input class="form-control" id="pgtoValor" type="number" placeholder="50.00" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>Data do Pagamento</label>
+      <input class="form-control" id="pgtoData" type="date">
+    </div>
+    <div class="form-group" id="pgtoStatusGroup">
+      <label>Status</label>
+      <select class="form-control" id="pgtoStatus">
+        <option value="pago">✅ Pago / Em Dia</option>
+        <option value="pendente">⏳ Pendente</option>
+        <option value="atrasado">❌ Atrasado / Negligente</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Observação</label>
+      <input class="form-control" id="pgtoObs" placeholder="Opcional...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('pagamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarPagamento()">💾 Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL CONFIRMAR NOTIFICACAO -->
-<div class="mo" id="mo-confirm-notif" onclick="closeMo('mo-confirm-notif')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="mhandle"></div>
-    <div class="mtitle">&#128242; Notificar pelo WhatsApp?</div>
-    <p id="confirm-notif-txt" style="font-size:.82rem;color:var(--cream2);line-height:1.6;margin-bottom:18px;"></p>
-    <div style="display:flex;flex-direction:column;gap:9px;">
-      <button class="btn bgreen" style="width:100%;justify-content:center;" onclick="executarNotificacao()">
-        &#128242; Sim, avisar agora
-      </button>
-      <button class="btn bout" style="width:100%;justify-content:center;color:var(--cream2);border-color:rgba(255,255,255,.2);" onclick="closeMo('mo-confirm-notif')">
-        &#128683; Nao notificar agora
-      </button>
-    </div>
-  </div>
-</div>
 
-<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
-var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
-var APP_URL='https://elderduque.github.io/ministerio-midia';
+// ========== STATE ==========
+let membros = [];
+let pagamentos = [];
+let gastos = [];
+let filtCaixa = 'todos';
+let saldoBanco = null; // saldo lido do PDF
+let editingMembroId = null;
+let filterStatus = 'todos';
+let _storageReady = false;
 
-function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
-async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
-async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});setOnline(r.ok);}catch(e){setOnline(false);}}
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-var S={members:[],escala:[],notifs:[],pedidos:[]};
-var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
-
-function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
-async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;}showSync(false);}
-async function saveAll(){await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos});document.getElementById('backup-alert').style.display='block';}
-
-function seedMembers(){
-  if(!S.members.length)S.members=[
-    {id:1,name:'Pastor Matheus Maia',phone:'99422976',role:'Lider',profile:'lider',pass:'12345'},
-    {id:2,name:'Jeniffer Limao',phone:'89800898',role:'Projecao',profile:'lider',pass:'12345'},
-    {id:3,name:'Nicole',phone:'98071171',role:'Projecao',profile:'lider',pass:'12345'},
-    {id:4,name:'Elder',phone:'93800471',role:'Projecao',profile:'lider',pass:'12345'},
-    {id:5,name:'Anna Lucia',phone:'82258674',role:'Projecao',profile:'membro',pass:'12345'},
-    {id:6,name:'Karen Duque',phone:'93800472',role:'Projecao',profile:'membro',pass:'12345'},
-    {id:7,name:'Douglas',phone:'82561012',role:'Projecao',profile:'membro',pass:'12345'},
-    {id:8,name:'Calebe',phone:'84703842',role:'Projecao',profile:'membro',pass:'12345'},
-    {id:9,name:'Rafael Camba',phone:'73363378',role:'Projecao',profile:'membro',pass:'12345'},
-  ];
-  if(!S.notifs.length)S.notifs=[{id:1,icon:'&#127916;',text:'<strong>Bem-vindos!</strong> Lider ira montar a escala.',time:'Agora',unread:true}];
+function fmtData(d) {
+  if (!d || d === '—') return '—';
+  // Convert YYYY-MM-DD to DD/MM/YYYY
+  if (d.includes('-')) {
+    const p = d.split('-');
+    if (p.length === 3) return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  return d;
 }
 
-function startPolling(){setInterval(async function(){if(!CU)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();}},8000);}
+// ========== JSONBIN - BANCO DE DADOS NA NUVEM ==========
+const JSONBIN_ID = '69aaf87ed0ea881f40f5d018';
+const JSONBIN_KEY = '$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
 
-function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
-function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
-function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
-function openMo(id){
-  if(id==='mo-addday'){document.getElementById('nd-checks').innerHTML=S.members.map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;"><input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+' <span style="color:var(--gold);font-size:.65rem;opacity:.7;">('+m.role+')</span></label>';}).join('');}
-  document.getElementById(id).classList.add('open');
-}
-function closeMo(id){document.getElementById(id).classList.remove('open');}
-function autoLabel(){var v=document.getElementById('nd-date').value;if(!v)return;var d=new Date(v+'T12:00:00').getDay();document.getElementById('nd-label').value=d===0?'Culto de Celebracao':d===4?'Quinta Profetica':'';}
-function toggleModo(){var m=document.getElementById('nd-modo').value;document.getElementById('nd-checks-wrap').style.display=(m==='fixo'||m==='confirmado')?'block':'none';document.getElementById('nd-aberto-info').style.display=m==='aberto'?'block':'none';}
-function toggleSubField(){document.getElementById('ped-sub-wrap').style.display=document.getElementById('ped-tipo').value==='sub'?'block':'none';}
-
-function doLogin(){
-  var phone=document.getElementById('li-phone').value.replace(/\D/g,'').trim();
-  var pass=document.getElementById('li-pass').value;
-  var err=document.getElementById('li-err');
-  err.textContent='Conectando...';
-  if(!phone||!pass){err.textContent='Preencha telefone e senha.';return;}
-  loadFromCloud().then(function(){
-    seedMembers();
-    // Tenta match exato primeiro
-    var m=S.members.find(function(x){return x.phone===phone&&x.pass===pass;});
-    // Se nao achou, tenta match parcial do telefone (ultimos 8 digitos)
-    if(!m&&phone.length>=8){
-      var sufixo=phone.slice(-8);
-      m=S.members.find(function(x){
-        return x.phone.slice(-8)===sufixo && x.pass===pass;
+let _saveTimer = null;
+function save() {
+  // Salva local imediatamente
+  try {
+    localStorage.setItem('mmidia_dados', JSON.stringify({ membros, pagamentos, gastos, saldoBanco, savedAt: new Date().toISOString() }));
+  } catch(e) {}
+  // Salva na nuvem com debounce de 1.5s
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(async function() {
+    try {
+      setCloudStatus('saving');
+      await fetch(JSONBIN_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+        body: JSON.stringify({ membros, pagamentos, gastos, saldoBanco })
       });
-    }
-    // Tambem tenta sem o nono digito
-    if(!m&&phone.length===9){
-      var semNove=phone.slice(0,2)+phone.slice(3);
-      m=S.members.find(function(x){return x.phone===semNove&&x.pass===pass;});
-    }
-    if(!m){err.textContent='Telefone ou senha incorretos.';return;}
-    // Atualiza telefone no cadastro se veio diferente
-    if(m.phone!==phone&&phone.length>=10){m.phone=phone;saveAll();}
-    CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    updateHeader();renderAll();startPolling();
+      setCloudStatus('ok');
+    } catch(e) { console.warn('Erro ao salvar na nuvem:', e); setCloudStatus('error'); }
+  }, 1500);
+}
+
+function carregarLocal() {
+  try {
+    const json = localStorage.getItem('mmidia_dados');
+    if (!json) return null;
+    const d = JSON.parse(json);
+    if (d.membros && d.membros.length > 0) membros = d.membros;
+    if (d.pagamentos && d.pagamentos.length > 0) pagamentos = d.pagamentos;
+    if (d.gastos) gastos = d.gastos;
+    if (d.saldoBanco) saldoBanco = d.saldoBanco;
+    return d.savedAt ? new Date(d.savedAt) : null;
+  } catch(e) { return null; }
+}
+
+function setCloudStatus(status) {
+  const el = document.getElementById('cloudStatus');
+  if (!el) return;
+  if (status === 'ok') { el.textContent = '☁️ online'; el.style.color = '#00e5a0'; el.style.background = 'rgba(0,229,160,0.1)'; }
+  else if (status === 'saving') { el.textContent = '⬆️ salvando'; el.style.color = '#f0a500'; el.style.background = 'rgba(240,165,0,0.1)'; }
+  else if (status === 'error') { el.textContent = '📵 offline'; el.style.color = '#ff6b6b'; el.style.background = 'rgba(255,107,107,0.1)'; }
+  else { el.textContent = '⏳ sync'; el.style.color = '#6b7280'; el.style.background = 'rgba(255,255,255,0.08)'; }
+}
+
+async function carregarNuvem() {
+  try {
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) { setCloudStatus('error'); return false; }
+    const json = await res.json();
+    const d = json.record;
+    if (d.membros && d.membros.length > 0) membros = d.membros;
+    if (d.pagamentos && d.pagamentos.length > 0) pagamentos = d.pagamentos;
+    if (d.gastos && d.gastos.length > 0) gastos = d.gastos;
+    if (d.saldoBanco) saldoBanco = d.saldoBanco;
+    try { localStorage.setItem('mmidia_dados', JSON.stringify({ membros, pagamentos, gastos, saldoBanco, savedAt: new Date().toISOString() })); } catch(e) {}
+    setCloudStatus('ok');
+    return true;
+  } catch(e) { console.warn('Erro ao carregar nuvem:', e); setCloudStatus('error'); return false; }
+}
+
+// ========== INIT ==========
+function init() {
+  const ano = new Date().getFullYear();
+  const anoSel = document.getElementById('anoSelect');
+  for (let y = ano - 2; y <= ano + 1; y++) {
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    if (y === ano) o.selected = true;
+    anoSel.appendChild(o);
+  }
+  document.getElementById('mesSelect').value = new Date().getMonth();
+  document.getElementById('pgtoAno').value = ano;
+  document.getElementById('pgtoMes').value = new Date().getMonth();
+  document.getElementById('membroData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pgtoData').value = new Date().toISOString().split('T')[0];
+  const gastoDataEl = document.getElementById('gastoData');
+  if (gastoDataEl) gastoDataEl.value = new Date().toISOString().split('T')[0];
+  const bancoDataEl = document.getElementById('bancoDataInput');
+  if (bancoDataEl) bancoDataEl.value = new Date().toISOString().split('T')[0];
+
+  const savedAt = carregarLocal();
+  renderAll();
+  atualizarBotaoApi();
+  mostrarToast('Sincronizando com a nuvem...');
+  carregarNuvem().then(function(ok) {
+    if (ok) { renderAll(); mostrarToast('Dados sincronizados da nuvem!'); }
+    else if (!savedAt) { mostrarToast('Bem-vindo! Carregue seu Excel.'); }
+    else { mostrarToast('Dados locais carregados.'); }
   });
 }
-function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
-function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
-function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
-function renderAll(){renderEscala();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
-function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
-function excluirCulto(dayId,event){
-  event.stopPropagation();
-  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
-  if(!confirm('Excluir "'+day.label+'" de '+fmtDate(day.date)+'?\nEssa acao nao pode ser desfeita.'))return;
-  S.escala=S.escala.filter(function(d){return d.id!==dayId;});
-  S.notifs.unshift({id:Date.now(),icon:'&#128465;',text:'<strong>Culto excluido:</strong> '+day.label+' de '+fmtDate(day.date)+'.',time:nowStr(),unread:false});
-  saveAll().then(function(){toast('Culto excluido.');renderAll();});
+function mostrarToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a2332;border:1px solid rgba(0,229,160,0.3);color:#e8f0fe;padding:12px 20px;border-radius:12px;font-size:13px;z-index:9999;max-width:90vw;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:opacity 0.3s';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.style.opacity = '0'; setTimeout(function(){ t.style.display='none'; }, 300); }, 3000);
 }
 
-function renderEscala(){
-  var now=new Date();
-  document.getElementById('month-lbl').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-  var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);
-  document.getElementById('st-cultos').textContent=S.escala.length;
-  document.getElementById('st-membros').textContent=S.members.length;
-  document.getElementById('st-pend').textContent=pend;
-  var c=document.getElementById('escala-list');c.innerHTML='';
-  var isL=CU&&CU.profile==='lider';
-  S.escala.forEach(function(day){
-    var declined=day.membros.filter(function(m){return m.status==='declined';});
-    var div=document.createElement('div');div.className='dc';
-    var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
-    var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button>':'';
-    var inscBtn='';
-    if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
-    div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
-      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+abBadge+'</span>'+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
-      '<span class="dc-arr">&#9660;</span></div>'+
-      '<div class="dc-body">'+
-      (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+
-      (day.membros.length?day.membros.map(function(m){return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span></div>';}).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
-      '</div>';
-    c.appendChild(div);
-  });
+function getSelectedMes() { return parseInt(document.getElementById('mesSelect').value); }
+function getSelectedAno() { return parseInt(document.getElementById('anoSelect').value); }
+
+document.getElementById('mesSelect').addEventListener('change', renderAll);
+document.getElementById('anoSelect').addEventListener('change', renderAll);
+
+// ========== TABS ==========
+function switchTab(tab, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (el) el.classList.add('active');
+  if (tab === 'extrato') { setExtModo('historico'); }
+  if (tab === 'caixa') { renderCaixa(); }
+  renderAll();
 }
 
-function renderMinha(){
-  if(!CU)return;
-  var meusDias=[];
-  S.escala.forEach(function(day){day.membros.forEach(function(m){if(m.id===CU.id)meusDias.push({day:day,membro:m});});});
-  document.getElementById('minha-lista').innerHTML=meusDias.length?meusDias.map(function(x){return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+' &#8212; '+x.day.label+'</div><div class="mr">'+x.membro.role+'</div></div><span class="sb '+(x.membro.status==='confirmed'?'sc':x.membro.status==='pending'?'sp':'sd')+'">'+(x.membro.status==='confirmed'?'&#10003;':x.membro.status==='pending'?'Pendente':'&#10007;')+'</span></div>';}).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:14px;">Nenhum culto escalado.</p>';
-  var pend=meusDias.filter(function(x){return x.membro.status==='pending';});
-  document.getElementById('minha-pend').innerHTML=pend.length?pend.map(function(x){return '<div class="mrow"><div><div class="mn">'+fmtDate(x.day.date)+'</div><div class="mr">'+x.day.label+' &middot; '+x.membro.role+'</div></div><div style="display:flex;gap:5px;"><button class="btn bgreen bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'confirmed\')">&#10003; Sim</button><button class="btn bred bsm" onclick="respPresenca('+x.day.id+','+x.membro.id+',\'declined\')">&#10007; Nao</button></div></div>';}).join(''):'<p style="font-size:.78rem;opacity:.42;text-align:center;padding:10px;">Nenhuma pendente</p>';
+// ========== RENDER ALL ==========
+function renderAll() {
+  renderStats();
+  renderMembros();
+  renderPagamentos();
+  renderEditar();
+  renderAssiduidade();
+  renderCaixa();
 }
 
-function respPresenca(dayId,memId,status){
-  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
-  var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
-  m.status=status;
-  S.notifs.unshift({id:Date.now(),icon:status==='confirmed'?'&#9989;':'&#10060;',text:'<strong>'+CU.name+'</strong> '+(status==='confirmed'?'confirmou':'recusou')+' presenca em <strong>'+fmtDate(day.date)+'</strong>'+(status==='declined'?' &#8212; Vaga: '+m.role:'')+'.',time:nowStr(),unread:true});
-  saveAll().then(function(){toast(status==='confirmed'?'Presenca confirmada!':'Recusado.');renderAll();if(status==='confirmed')autoCheckNotify(dayId);if(status==='declined')setTimeout(function(){if(confirm('Vaga: '+m.role+'\nNotificar no WhatsApp?'))waVaga(day.date,day.label,m.role);},200);});
+// ========== STATS ==========
+function renderStats() {
+  const mes = getSelectedMes(), ano = getSelectedAno();
+  const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+  const pagos = pgMes.filter(p => p.status === 'pago');
+  const pendentes = membros.length - pagos.length;
+  const total = pagos.reduce((s, p) => s + parseFloat(p.valor || 0), 0);
+  document.getElementById('statTotal').textContent = membros.length;
+  document.getElementById('statOk').textContent = pagos.length;
+  document.getElementById('statPending').textContent = Math.max(0, pendentes);
+  document.getElementById('statVal').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
 }
-function autoCheckNotify(dayId){
-  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
-  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();}
-}
-function inscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day||day.membros.find(function(m){return m.id===CU.id;})){toast('Ja inscrito!');return;}day.membros.push({id:CU.id,name:CU.name,role:CU.role,status:'confirmed'});S.notifs.unshift({id:Date.now(),icon:'&#128587;',text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao confirmada!');renderAll();});}
-function desinscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;day.membros=day.membros.filter(function(m){return m.id!==CU.id;});S.notifs.unshift({id:Date.now(),icon:'&#8617;',text:'<strong>'+CU.name+'</strong> cancelou inscricao em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao cancelada.');renderAll();});}
 
-function renderPedidos(){
-  var c=document.getElementById('pedidos-list');
-  if(!S.pedidos.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum pedido ainda.</p>';return;}
-  var isL=CU&&CU.profile==='lider';
-  c.innerHTML=S.pedidos.map(function(p,i){
-    var stCls=p.status==='pending'?'sp':p.status==='approved'?'sc':p.status==='aguardando_sub'?'sp':'sd';
-    var stTxt=p.status==='pending'?'Pendente':p.status==='approved'?'Aprovado':p.status==='aguardando_sub'?'Aguard. sub':'Recusado';
-    var isSub=CU&&p.substitutoId&&String(p.substitutoId)===String(CU.id);
-    var acts='';
-    if(p.status==='pending'&&isL)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'approved\')">&#10003; Aprovar</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">&#10007; Recusar</button></div>';
-    else if(p.status==='aguardando_sub'&&isSub)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="aceitarSub('+i+')">&#10003; Aceito</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="recusarSub('+i+')">&#10007; Recuso</button></div>';
-    return '<div class="rcard '+(p.tipo==='sub'?'sub':'aus')+'">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><strong style="font-size:.84rem;">'+(p.tipo==='sub'?'Substituicao':'Ausencia')+' &#8212; '+p.solicitante+'</strong><span class="sb '+stCls+'">'+stTxt+'</span></div>'+'<p style="font-size:.74rem;color:var(--cream2);opacity:.62;">'+p.culto+' &middot; '+p.role+'</p>'+(p.tipo==='sub'&&p.substituto?'<p style="font-size:.72rem;opacity:.52;margin-top:2px;">Substituto: '+p.substituto+'</p>':'')+'<p style="font-size:.71rem;opacity:.46;margin-top:2px;">Motivo: '+(p.motivo||'-')+'</p>'+acts+'</div>';
+// ========== MEMBROS ==========
+let ordemAlfabetica = false;
+
+function toggleOrdem() {
+  ordemAlfabetica = !ordemAlfabetica;
+  const btn = document.getElementById('btnOrdem');
+  if (btn) btn.textContent = ordemAlfabetica ? '🔤 A→Z ✓' : '🔤 A→Z';
+  renderMembros();
+  renderAssiduidade();
+}
+
+// ========== MEMBROS ==========
+function renderMembros() {
+  const q = document.getElementById('searchMembro').value.toLowerCase();
+  let lista = membros.filter(m => m.nome.toLowerCase().includes(q));
+  if (ordemAlfabetica) lista = [...lista].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  const tbody = document.getElementById('tabelaMembros');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">👥</div><p>Nenhum membro encontrado</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map((m, i) => {
+    const val = parseFloat(m.valor||0).toFixed(2).replace('.',',');
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td><strong>${m.nome}</strong>${m.obs ? '<br><span style="font-size:11px;color:var(--muted)">'+m.obs+'</span>' : ''}</td>
+      <td style="color:var(--muted)">${m.contato || '—'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <strong style="color:var(--accent)">R$ ${val}</strong>
+          <button onclick="editarValorRapido('${m.id}')" title="Alterar valor mensal" style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.25);border-radius:6px;color:var(--accent);font-size:10px;padding:2px 6px;cursor:pointer;font-weight:700;line-height:1.4">✏️</button>
+        </div>
+      </td>
+      <td style="color:var(--muted);font-size:12px">${m.data || '—'}</td>
+      <td>
+        <div class="action-row">
+          <button class="btn btn-secondary" style="font-size:11px;padding:6px 12px" data-id="${m.id}" onclick="editarMembroBtn(this)">✏️ Editar</button>
+          <button class="icon-btn del" data-id="${m.id}" onclick="deletarMembroBtn(this)" title="Remover">🗑️</button>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
-function respPedido(idx,resp){
-  var p=S.pedidos[idx];p.status=resp;
-  if(resp==='approved'&&p.tipo==='sub'&&p.substitutoId){
-    S.escala.forEach(function(day){
-      if(String(day.id)===String(p.cultoId)||fmtDate(day.date)+' \u2014 '+day.label===p.culto||(p.culto&&p.culto.indexOf(day.label)>=0)){
-        var mi=day.membros.findIndex(function(m){return String(m.id)===String(p.solicitanteId)||m.name===p.solicitante;});
-        if(mi>=0){var sub=S.members.find(function(x){return String(x.id)===String(p.substitutoId);});if(sub)day.membros[mi]={id:sub.id,name:sub.name,role:day.membros[mi].role,status:'confirmed'};}
+
+function editarValorRapido(id) {
+  const m = membros.find(x => x.id === id);
+  if (!m) return;
+  const atual = parseFloat(m.valor||0).toFixed(2).replace('.',',');
+  const novo = prompt('Novo valor de mensalidade para ' + m.nome + ':\n(atual: R$ ' + atual + ')', atual);
+  if (novo === null) return;
+  const val = parseFloat(String(novo).replace(',','.'));
+  if (isNaN(val) || val < 0) return alert('Valor inválido!');
+  const idx = membros.findIndex(x => x.id === id);
+  membros[idx].valor = val.toFixed(2);
+  save();
+  renderAll();
+}
+
+function renderAssiduidade() {
+  const container = document.getElementById('tabelaAssiduidade');
+  if (!container) return;
+
+  const qtd = parseInt(document.getElementById('assiduidadeMeses')?.value || 6);
+  const hoje = new Date();
+
+  const mesesCols = [];
+  for (let i = qtd - 1; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    mesesCols.push({ mes: d.getMonth(), ano: d.getFullYear() });
+  }
+
+  const q = document.getElementById('searchMembro')?.value.toLowerCase() || '';
+  const lista = membros.filter(m => m.nome.toLowerCase().includes(q));
+
+  if (!lista.length) {
+    container.innerHTML = `<div style="padding:50px 20px;text-align:center;color:var(--muted)">
+      <div style="font-size:36px;margin-bottom:10px">👥</div>
+      <div style="font-size:13px">Nenhum membro cadastrado ainda.<br>Adicione membros para ver a assiduidade.</div>
+    </div>`;
+    return;
+  }
+
+  let html = `<table style="width:100%;border-collapse:collapse;table-layout:auto">
+    <thead><tr>
+      <th style="padding:12px 16px;text-align:left;font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap">Nome</th>
+      <th style="padding:12px 10px;text-align:center;font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap">%</th>
+      ${mesesCols.map(c => {
+        const isAtual = c.mes === hoje.getMonth() && c.ano === hoje.getFullYear();
+        return `<th style="padding:12px 8px;text-align:center;font-family:'Syne',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:${isAtual ? 'var(--accent)' : 'var(--muted)'};background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;min-width:58px">
+          ${MESES[c.mes].substring(0,3)}<br><span style="font-size:9px;opacity:0.6">${String(c.ano).substring(2)}</span>
+        </th>`;
+      }).join('')}
+    </tr></thead>
+    <tbody>`;
+
+  lista.forEach((m, idx) => {
+    let pagos = 0;
+    const isLast = idx === lista.length - 1;
+
+    const cells = mesesCols.map(c => {
+      const pg = pagamentos.find(p =>
+        p.membroId === m.id && parseInt(p.mes) === c.mes && parseInt(p.ano) === c.ano
+      );
+      const isAtual = c.mes === hoje.getMonth() && c.ano === hoje.getFullYear();
+
+      let bg, icon, cursor, onclick;
+      if (!pg) {
+        bg = isAtual ? 'rgba(255,217,61,0.15)' : 'rgba(255,255,255,0.03)';
+        icon = `<span style="color:var(--muted);font-size:16px">+</span>`;
+        cursor = 'pointer';
+        onclick = `abrirModalCelula('${m.id}','${c.mes}','${c.ano}',null)`;
+      } else if (pg.status === 'pago') {
+        bg = 'rgba(0,229,160,0.2)';
+        icon = `<span style="color:var(--accent);font-size:15px;font-weight:700">✓</span>`;
+        cursor = 'pointer';
+        onclick = `abrirModalCelula('${m.id}','${c.mes}','${c.ano}','${pg.id}')`;
+        pagos++;
+      } else if (pg.status === 'atrasado') {
+        bg = 'rgba(255,107,107,0.2)';
+        icon = `<span style="color:var(--accent2);font-size:14px">✕</span>`;
+        cursor = 'pointer';
+        onclick = `abrirModalCelula('${m.id}','${c.mes}','${c.ano}','${pg.id}')`;
+      } else {
+        bg = 'rgba(255,217,61,0.15)';
+        icon = `<span style="font-size:12px">⏳</span>`;
+        cursor = 'pointer';
+        onclick = `abrirModalCelula('${m.id}','${c.mes}','${c.ano}','${pg.id}')`;
+      }
+
+      return `<td style="padding:8px 6px;text-align:center;border-bottom:${isLast ? 'none' : '1px solid var(--border)'}">
+        <div onclick="${onclick}" style="width:38px;height:34px;border-radius:8px;background:${bg};display:inline-flex;align-items:center;justify-content:center;font-size:13px;cursor:${cursor};transition:opacity 0.15s" onmouseover="this.style.opacity='0.75'" onmouseout="this.style.opacity='1'">${icon}</div>
+      </td>`;
+    });
+
+    const pct = mesesCols.length ? Math.round((pagos / mesesCols.length) * 100) : 0;
+    const pctColor = pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--accent3)' : 'var(--accent2)';
+
+    html += `<tr onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <td style="padding:12px 16px;font-size:14px;border-bottom:${isLast ? 'none' : '1px solid var(--border)'};white-space:nowrap">
+        <strong>${m.nome}</strong>
+        ${m.contato ? `<br><span style="font-size:11px;color:var(--muted)">${m.contato}</span>` : ''}
+      </td>
+      <td style="padding:12px 10px;text-align:center;border-bottom:${isLast ? 'none' : '1px solid var(--border)'}">
+        <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:${pctColor}">${pct}%</span>
+      </td>
+      ${cells.join('')}
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ========== MODAL DE CÉLULA DA ASSIDUIDADE ==========
+function abrirModalCelula(membroId, mes, ano, pgId) {
+  const m = membros.find(x => x.id === membroId);
+  if (!m) return;
+  mes = parseInt(mes); ano = parseInt(ano);
+
+  const pg = pgId ? pagamentos.find(p => p.id === pgId) : null;
+  const mesNome = MESES[mes] + ' ' + ano;
+
+  // Remove modal anterior se existir
+  const old = document.getElementById('modalCelula');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'modalCelula';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  const valorPadrao = m.valor || '';
+  const dataPadrao = pg ? pg.data : new Date().toISOString().split('T')[0];
+  const valorAtual = pg ? pg.valor : valorPadrao;
+  const statusAtual = pg ? pg.status : 'pago';
+  const obsAtual = pg ? (pg.obs || '') : '';
+
+  overlay.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;width:100%;max-width:420px;animation:fadeIn 0.2s ease">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px">${m.nome}</div>
+          <div style="font-size:12px;color:var(--accent);margin-top:2px">📅 ${mesNome}</div>
+        </div>
+        <button onclick="document.getElementById('modalCelula').remove()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);width:32px;height:32px;cursor:pointer;font-size:16px">✕</button>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Status</label>
+        <div style="display:flex;gap:8px">
+          <button id="cBtn_pago" onclick="setCelulaStatus('pago')" style="flex:1;padding:9px 4px;border-radius:9px;border:2px solid ${statusAtual==='pago'?'var(--accent)':'var(--border)'};background:${statusAtual==='pago'?'rgba(0,229,160,0.12)':'var(--surface2)'};color:${statusAtual==='pago'?'var(--accent)':'var(--muted)'};font-family:'Syne',sans-serif;font-weight:600;font-size:11px;cursor:pointer">✅ Pago</button>
+          <button id="cBtn_pendente" onclick="setCelulaStatus('pendente')" style="flex:1;padding:9px 4px;border-radius:9px;border:2px solid ${statusAtual==='pendente'?'var(--accent3)':'var(--border)'};background:${statusAtual==='pendente'?'rgba(255,217,61,0.1)':'var(--surface2)'};color:${statusAtual==='pendente'?'var(--accent3)':'var(--muted)'};font-family:'Syne',sans-serif;font-weight:600;font-size:11px;cursor:pointer">⏳ Pendente</button>
+          <button id="cBtn_atrasado" onclick="setCelulaStatus('atrasado')" style="flex:1;padding:9px 4px;border-radius:9px;border:2px solid ${statusAtual==='atrasado'?'var(--accent2)':'var(--border)'};background:${statusAtual==='atrasado'?'rgba(255,107,107,0.1)':'var(--surface2)'};color:${statusAtual==='atrasado'?'var(--accent2)':'var(--muted)'};font-family:'Syne',sans-serif;font-weight:600;font-size:11px;cursor:pointer">❌ Atrasado</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Valor (R$)</label>
+          <input id="cValor" type="number" step="0.01" value="${valorAtual}" placeholder="${valorPadrao||'0,00'}" style="width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;outline:none">
+        </div>
+        <div style="flex:1">
+          <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Data</label>
+          <input id="cData" type="date" value="${dataPadrao}" style="width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;outline:none">
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <label style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px">Observação</label>
+        <input id="cObs" type="text" value="${obsAtual}" placeholder="Opcional..." style="width:100%;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;outline:none">
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        ${pg ? `<button onclick="deletarCelulaPgto('${pgId}')" style="padding:10px 16px;border-radius:9px;border:1px solid rgba(255,107,107,0.3);background:rgba(255,107,107,0.1);color:var(--accent2);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer">🗑️ Remover</button>` : ''}
+        <button onclick="salvarCelula('${membroId}','${mes}','${ano}','${pgId||''}')" style="padding:10px 20px;border-radius:9px;border:none;background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer">💾 Salvar</button>
+      </div>
+    </div>`;
+
+  // Guarda status selecionado
+  overlay.dataset.statusSel = statusAtual;
+  document.body.appendChild(overlay);
+}
+
+function setCelulaStatus(status) {
+  const overlay = document.getElementById('modalCelula');
+  if (!overlay) return;
+  overlay.dataset.statusSel = status;
+  const cores = { pago: ['var(--accent)', 'rgba(0,229,160,0.12)'], pendente: ['var(--accent3)', 'rgba(255,217,61,0.1)'], atrasado: ['var(--accent2)', 'rgba(255,107,107,0.1)'] };
+  ['pago','pendente','atrasado'].forEach(s => {
+    const btn = document.getElementById('cBtn_' + s);
+    if (!btn) return;
+    const ativo = s === status;
+    btn.style.border = `2px solid ${ativo ? cores[s][0] : 'var(--border)'}`;
+    btn.style.background = ativo ? cores[s][1] : 'var(--surface2)';
+    btn.style.color = ativo ? cores[s][0] : 'var(--muted)';
+  });
+}
+
+function salvarCelula(membroId, mes, ano, pgId) {
+  mes = parseInt(mes); ano = parseInt(ano);
+  const overlay = document.getElementById('modalCelula');
+  const status = overlay ? overlay.dataset.statusSel : 'pago';
+  const valor = document.getElementById('cValor').value;
+  const data = document.getElementById('cData').value;
+  const obs = document.getElementById('cObs').value;
+
+  // Remove existente
+  pagamentos = pagamentos.filter(p => !(p.membroId === membroId && parseInt(p.mes) === mes && parseInt(p.ano) === ano));
+  pagamentos.push({
+    id: Date.now().toString(),
+    membroId, mes, ano,
+    valor: valor || '0',
+    status, data, obs
+  });
+  save();
+  overlay.remove();
+  renderAll();
+}
+
+function deletarCelulaPgto(pgId) {
+  if (!confirm('Remover este pagamento?')) return;
+  pagamentos = pagamentos.filter(p => p.id !== pgId);
+  save();
+  const overlay = document.getElementById('modalCelula');
+  if (overlay) overlay.remove();
+  renderAll();
+}
+
+function setTipoPgto(tipo) {
+  const isRetro = tipo === 'retroativo';
+  const btnAtual = document.getElementById('btnTipoAtual');
+  const btnRetro = document.getElementById('btnTipoRetro');
+  const banner = document.getElementById('retroBanner');
+  const statusGroup = document.getElementById('pgtoStatusGroup');
+
+  if (isRetro) {
+    btnRetro.style.border = '2px solid var(--accent3)';
+    btnRetro.style.background = 'rgba(255,217,61,0.1)';
+    btnRetro.style.color = 'var(--accent3)';
+    btnAtual.style.border = '1px solid var(--border)';
+    btnAtual.style.background = 'var(--surface2)';
+    btnAtual.style.color = 'var(--muted)';
+    banner.style.display = 'block';
+    statusGroup.style.display = 'none';
+    document.getElementById('pgtoStatus').value = 'pago';
+    // Sugere mês anterior
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    document.getElementById('pgtoMes').value = d.getMonth();
+    document.getElementById('pgtoAno').value = d.getFullYear();
+  } else {
+    btnAtual.style.border = '2px solid var(--accent)';
+    btnAtual.style.background = 'rgba(0,229,160,0.1)';
+    btnAtual.style.color = 'var(--accent)';
+    btnRetro.style.border = '1px solid var(--border)';
+    btnRetro.style.background = 'var(--surface2)';
+    btnRetro.style.color = 'var(--muted)';
+    banner.style.display = 'none';
+    statusGroup.style.display = 'block';
+    document.getElementById('pgtoMes').value = new Date().getMonth();
+    document.getElementById('pgtoAno').value = new Date().getFullYear();
+  }
+}
+
+function openModal(tipo) {
+  if (tipo === 'membro') {
+    const modal = document.getElementById('modalMembro');
+    modal.dataset.editingId = '';
+    document.getElementById('modalMembroTitle').textContent = 'Novo Membro';
+    document.getElementById('membroNome').value = '';
+    document.getElementById('membroContato').value = '';
+    document.getElementById('membroValor').value = '';
+    document.getElementById('membroData').value = new Date().toISOString().split('T')[0];
+    document.getElementById('membroObs').value = '';
+    modal.classList.add('open');
+  } else {
+    populateMembrosSelect();
+    setTipoPgto('atual');
+    document.getElementById('pgtoData').value = new Date().toISOString().split('T')[0];
+    document.getElementById('pgtoValor').value = '';
+    document.getElementById('pgtoObs').value = '';
+    document.getElementById('modalPagamento').classList.add('open');
+  }
+}
+
+function closeModal(tipo) {
+  const el = document.getElementById('modal' + (tipo === 'membro' ? 'Membro' : 'Pagamento'));
+  if (tipo === 'membro') el.dataset.editingId = '';
+  el.classList.remove('open');
+}
+
+function salvarMembro() {
+  const nome = document.getElementById('membroNome').value.trim();
+  if (!nome) return alert('Nome obrigatório!');
+  const modal = document.getElementById('modalMembro');
+  const currentId = modal.dataset.editingId || null;
+
+  if (currentId) {
+    const idx = membros.findIndex(x => x.id === currentId);
+    if (idx === -1) return alert('Erro: membro não encontrado.');
+    membros[idx].nome = nome;
+    membros[idx].contato = document.getElementById('membroContato').value;
+    membros[idx].valor = document.getElementById('membroValor').value;
+    membros[idx].data = document.getElementById('membroData').value;
+    membros[idx].obs = document.getElementById('membroObs').value;
+  } else {
+    membros.push({
+      id: Date.now().toString(),
+      nome,
+      contato: document.getElementById('membroContato').value,
+      valor: document.getElementById('membroValor').value,
+      data: document.getElementById('membroData').value,
+      obs: document.getElementById('membroObs').value,
+    });
+  }
+  modal.dataset.editingId = '';
+   closeModal('membro'); renderAll();
+}
+
+function editarMembroBtn(btn) { editarMembro(btn.dataset.id); }
+function deletarMembroBtn(btn) { deletarMembro(btn.dataset.id); }
+
+// ========== EDITAR MEMBROS (aba inline) ==========
+function renderEditar() {
+  const tbody = document.getElementById('tabelaEditar');
+  if (!tbody) return;
+  if (!membros.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">✏️</div><p>Nenhum membro cadastrado</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = membros.map((m, i) => `
+    <tr id="edit-row-${m.id}">
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td><input class="form-control" style="min-width:140px" id="edit-nome-${m.id}" value="${escHtml(m.nome||'')}"></td>
+      <td><input class="form-control" style="min-width:130px" id="edit-contato-${m.id}" value="${escHtml(m.contato||'')}"></td>
+      <td><input class="form-control" style="min-width:90px" type="number" step="0.01" min="0" id="edit-valor-${m.id}" value="${m.valor||''}"></td>
+      <td><input class="form-control" type="date" id="edit-data-${m.id}" value="${m.data||''}"></td>
+      <td><input class="form-control" style="min-width:120px" id="edit-obs-${m.id}" value="${escHtml(m.obs||'')}"></td>
+      <td>
+        <div class="action-row">
+          <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" onclick="salvarEdicaoInline('${m.id}')">💾 Salvar</button>
+          <button class="icon-btn del" onclick="deletarMembro('${m.id}')" title="Remover">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function salvarEdicaoInline(id) {
+  const idx = membros.findIndex(x => x.id === id);
+  if (idx === -1) return alert('Membro não encontrado!');
+  const nome = document.getElementById('edit-nome-'+id).value.trim();
+  if (!nome) return alert('Nome não pode ser vazio!');
+  membros[idx].nome = nome;
+  membros[idx].contato = document.getElementById('edit-contato-'+id).value;
+  membros[idx].valor = document.getElementById('edit-valor-'+id).value;
+  membros[idx].data = document.getElementById('edit-data-'+id).value;
+  membros[idx].obs = document.getElementById('edit-obs-'+id).value;
+  
+  renderAll();
+  const row = document.getElementById('edit-row-'+id);
+  if (row) { row.style.background = 'rgba(0,229,160,0.1)'; setTimeout(()=>row.style.background='',800); }
+}
+
+function editarMembro(id) {
+  const m = membros.find(x => x.id === id);
+  if (!m) return alert('Membro não encontrado!');
+  const modal = document.getElementById('modalMembro');
+  modal.dataset.editingId = id;
+  document.getElementById('modalMembroTitle').textContent = 'Editar Membro';
+  document.getElementById('membroNome').value = m.nome;
+  document.getElementById('membroContato').value = m.contato || '';
+  document.getElementById('membroValor').value = m.valor || '';
+  document.getElementById('membroData').value = m.data || '';
+  document.getElementById('membroObs').value = m.obs || '';
+  modal.classList.add('open');
+}
+
+function deletarMembro(id) {
+  if (!confirm('Remover membro? Seus pagamentos serão mantidos.')) return;
+  membros = membros.filter(m => m.id !== id);
+   renderAll();
+}
+
+// ========== PAGAMENTOS ==========
+function populateMembrosSelect() {
+  const sel = document.getElementById('pgtoMembro');
+  sel.innerHTML = membros.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+}
+
+function setFilter(f, btn) {
+  filterStatus = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPagamentos();
+}
+
+function renderPagamentos() {
+  const mes = getSelectedMes(), ano = getSelectedAno();
+  // Build full list: all membros + any pagamentos do mês
+  const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+  
+  let rows = membros.map(m => {
+    const pg = pgMes.find(p => p.membroId === m.id);
+    return {
+      membroNome: m.nome,
+      membroId: m.id,
+      mes, ano,
+      valor: pg ? pg.valor : m.valor,
+      status: pg ? pg.status : 'pendente',
+      data: pg ? pg.data : '—',
+      obs: pg ? pg.obs : '',
+      pgId: pg ? pg.id : null,
+    };
+  });
+  // Add pagamentos that might not match a current membro (deleted)
+  pgMes.forEach(pg => {
+    if (!membros.find(m => m.id === pg.membroId)) {
+      rows.push({ membroNome: '(Removido)', membroId: pg.membroId, mes, ano, valor: pg.valor, status: pg.status, data: pg.data, obs: pg.obs, pgId: pg.id });
+    }
+  });
+
+  if (filterStatus !== 'todos') rows = rows.filter(r => r.status === filterStatus);
+
+  const tbody = document.getElementById('tabelaPagamentos');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">💳</div><p>Nenhum registro</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const badge = r.status === 'pago'
+      ? `<span class="badge badge-ok"><span class="dot"></span>Em Dia</span>`
+      : r.status === 'atrasado'
+      ? `<span class="badge badge-late"><span class="dot"></span>Negligente</span>`
+      : `<span class="badge badge-pending"><span class="dot"></span>Pendente</span>`;
+    return `
+      <tr>
+        <td><strong>${r.membroNome}</strong></td>
+        <td>${MESES[r.mes]} ${r.ano}</td>
+        <td>R$ ${parseFloat(r.valor||0).toFixed(2).replace('.',',')}</td>
+        <td>${badge}</td>
+        <td style="font-size:12px;color:var(--muted)">${r.data}</td>
+        <td>
+          <div class="action-row">
+            ${r.status !== 'pago' ? `<button class="icon-btn pay" onclick="marcarPago('${r.membroId}','${r.mes}','${r.ano}')" title="Marcar como pago">✅</button>` : ''}
+            ${r.pgId ? `<button class="icon-btn del" onclick="deletarPagamento('${r.pgId}')" title="Remover">🗑️</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function salvarPagamento() {
+  const membroId = document.getElementById('pgtoMembro').value;
+  if (!membroId) return alert('Selecione um membro!');
+  const mes = document.getElementById('pgtoMes').value;
+  const ano = document.getElementById('pgtoAno').value;
+  const valor = document.getElementById('pgtoValor').value;
+  const status = document.getElementById('pgtoStatus').value;
+  const data = document.getElementById('pgtoData').value;
+  const obs = document.getElementById('pgtoObs').value;
+
+  // Verifica se já existe pagamento neste mês
+  const existentes = pagamentos.filter(p => p.membroId === membroId && p.mes == mes && p.ano == ano);
+
+  if (existentes.length > 0) {
+    // Pergunta se quer somar ou substituir
+    const valorExistente = existentes.reduce((s, p) => s + parseFloat(p.valor || 0), 0);
+    const novoValor = parseFloat(valor || 0);
+    const totalFinal = valorExistente + novoValor;
+    const m = membros.find(x => x.id === membroId);
+    const nomeMes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][parseInt(mes)];
+    const msg = (m ? m.nome : 'Membro') + ' ja tem R$ ' + valorExistente.toFixed(2).replace('.',',') + ' em ' + nomeMes + '/' + ano + '. OK = Somar (total: R$ ' + totalFinal.toFixed(2).replace('.',',') + '). Cancelar = Substituir.';
+    const confirma = confirm(msg);
+    if (confirma) {
+      // Somar — adiciona novo registro parcial
+      pagamentos.push({ id: Date.now().toString(), membroId, mes: parseInt(mes), ano: parseInt(ano), valor: String(novoValor), status, data, obs: obs || 'Pagamento parcial' });
+    } else {
+      // Substituir — remove antigos e adiciona novo
+      pagamentos = pagamentos.filter(p => !(p.membroId === membroId && p.mes == mes && p.ano == ano));
+      pagamentos.push({ id: Date.now().toString(), membroId, mes: parseInt(mes), ano: parseInt(ano), valor, status, data, obs });
+    }
+  } else {
+    pagamentos.push({ id: Date.now().toString(), membroId, mes: parseInt(mes), ano: parseInt(ano), valor, status, data, obs });
+  }
+  save();
+  closeModal('pagamento'); renderAll();
+}
+
+function marcarPago(membroId, mes, ano) {
+  const m = membros.find(x => x.id === membroId);
+  pagamentos = pagamentos.filter(p => !(p.membroId === membroId && p.mes == mes && p.ano == ano));
+  pagamentos.push({
+    id: Date.now().toString(),
+    membroId, mes: parseInt(mes), ano: parseInt(ano),
+    valor: m ? m.valor : 0,
+    status: 'pago',
+    data: new Date().toISOString().split('T')[0],
+    obs: 'Registrado via ação rápida',
+  });
+   renderAll();
+}
+
+function deletarPagamento(id) {
+  pagamentos = pagamentos.filter(p => p.id !== id);
+   renderAll();
+}
+
+// ========== EXTRATO ==========
+// ========== EXTRATO ==========
+function setExtModo(modo) {
+  const isMes = modo === 'mes';
+  document.getElementById('extrato-modo-mes').style.display = isMes ? 'block' : 'none';
+  document.getElementById('extrato-modo-historico').style.display = isMes ? 'none' : 'block';
+  const btnMes = document.getElementById('extModoBtn_mes');
+  const btnHist = document.getElementById('extModoBtn_historico');
+  if (isMes) {
+    btnMes.style.border = '2px solid var(--accent)'; btnMes.style.background = 'rgba(0,229,160,0.1)'; btnMes.style.color = 'var(--accent)';
+    btnHist.style.border = '1px solid var(--border)'; btnHist.style.background = 'var(--surface2)'; btnHist.style.color = 'var(--muted)';
+    gerarExtrato();
+  } else {
+    btnHist.style.border = '2px solid var(--accent)'; btnHist.style.background = 'rgba(0,229,160,0.1)'; btnHist.style.color = 'var(--accent)';
+    btnMes.style.border = '1px solid var(--border)'; btnMes.style.background = 'var(--surface2)'; btnMes.style.color = 'var(--muted)';
+    renderHistorico();
+  }
+}
+
+function gerarExtrato() {
+  const mes = getSelectedMes(), ano = getSelectedAno();
+  const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+  const pagos = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+  const pendentes = membros.filter(m => !pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+  // Total: um valor por membro (sem duplicatas)
+  const total = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago')).reduce((s, m) => {
+    const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+    return s + parseFloat(pg ? pg.valor || 0 : 0);
+  }, 0);
+
+  // Acumulado de todos os meses
+  const totalAcumulado = (() => { const ch = new Set(); let s = 0; pagamentos.filter(p => p.status === 'pago').forEach(p => { const k = p.membroId+'_'+p.mes+'_'+p.ano; if (!ch.has(k)) { ch.add(k); s += parseFloat(p.valor||0); } }); return s; })();
+  const totalGastos = gastos.reduce((s,g) => s + parseFloat(g.valor||0), 0);
+  const linhas = [
+    `📊 *EXTRATO — ${MESES[mes].toUpperCase()} ${ano}*`,
+    `- - - - - - - - - - -`,
+    ``,
+    `✅ *EM DIA (${pagos.length})*`,
+    ...pagos.map(m => {
+      const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+      return `  • ${m.nome} — R$ ${parseFloat(pg.valor||0).toFixed(2).replace('.',',')} (${fmtData(pg.data)})`;
+    }),
+    ``,
+    `❌ *PENDENTES / NEGLIGENTES (${pendentes.length})*`,
+    ...pendentes.map(m => `  • ${m.nome}`),
+    ``,
+    `- - - - - - - - - - -`,
+    ``,
+    `┌─────────────────────────┐`,
+    `│ 💰 TOTAL DO MÊS         │`,
+    `│ R$ ${total.toFixed(2).replace('.',',').padStart(18)} │`,
+    `└─────────────────────────┘`,
+    ``,
+    `📈 *ACUMULADO GERAL*`,
+    `  Total arrecadado: R$ ${totalAcumulado.toFixed(2).replace('.',',')}`,
+    `  Total de gastos:   R$ ${totalGastos.toFixed(2).replace('.',',')}`,
+    `  Saldo disponível:  R$ ${(totalAcumulado - totalGastos).toFixed(2).replace('.',',')}`,
+    `👥 *Total de membros: ${membros.length}*`,
+    `📅 Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+  ];
+  document.getElementById('extratoPreview').textContent = linhas.join('\n');
+}
+
+function renderHistorico() {
+  const container = document.getElementById('historicoContainer');
+  if (!container) return;
+  const qtd = parseInt(document.getElementById('extHistoricoQtd')?.value || 6);
+  const hoje = new Date();
+
+  const meses = [];
+  for (let i = qtd - 1; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    meses.push({ mes: d.getMonth(), ano: d.getFullYear() });
+  }
+
+  let html = '';
+  meses.forEach(({ mes, ano }) => {
+    const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+    // Para cada membro, pega apenas o pagamento mais recente daquele mês
+    const pagos = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+    const pendentes = membros.filter(m => !pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+    // Total: soma um valor por membro (evita duplicatas)
+    const total = pagos.reduce((s, m) => {
+      const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+      return s + parseFloat(pg ? pg.valor || 0 : 0);
+    }, 0);
+    const isAtual = mes === hoje.getMonth() && ano === hoje.getFullYear();
+    const id = `hist_${mes}_${ano}`;
+
+    html += `
+    <div style="background:var(--surface);border:1px solid ${isAtual ? 'var(--accent)' : 'var(--border)'};border-radius:14px;margin-bottom:12px;overflow:hidden">
+      <div onclick="toggleHist('${id}')" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;user-select:none">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:${isAtual ? 'var(--accent)' : 'var(--text)'}">${MESES[mes]} ${ano} ${isAtual ? '<span style="font-size:10px;background:rgba(0,229,160,0.15);color:var(--accent);padding:2px 8px;border-radius:10px;letter-spacing:1px">ATUAL</span>' : ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <span style="font-size:12px;color:var(--accent)">✅ ${pagos.length}</span>
+          <span style="font-size:12px;color:var(--accent3)">⏳ ${pendentes.length}</span>
+          <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--accent)">R$ ${total.toFixed(2).replace('.',',')}</span>
+          <span id="${id}_chevron" style="color:var(--muted);font-size:12px;transition:transform 0.2s">▼</span>
+        </div>
+      </div>
+      <div id="${id}" style="display:none;border-top:1px solid var(--border);padding:0 20px 16px">
+        <div style="display:flex;gap:24px;margin:16px 0 12px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--muted)">👥 <strong style="color:var(--text)">${membros.length}</strong> membros</div>
+          <div style="font-size:12px;color:var(--muted)">✅ <strong style="color:var(--accent)">${pagos.length}</strong> pagos</div>
+          <div style="font-size:12px;color:var(--muted)">⏳ <strong style="color:var(--accent3)">${pendentes.length}</strong> pendentes</div>
+          <div style="font-size:12px;color:var(--muted)">💰 <strong style="color:var(--accent)">R$ ${total.toFixed(2).replace('.',',')}</strong> arrecadado</div>
+        </div>
+
+        ${pagos.length ? `
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">✅ Pagaram</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+          ${pagos.map(m => {
+            const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+            return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:rgba(0,229,160,0.07);border-radius:9px;border:1px solid rgba(0,229,160,0.15)">
+              <span style="font-size:13px;font-weight:500">${m.nome}</span>
+              <div style="display:flex;gap:12px;align-items:center">
+                <span style="font-size:11px;color:var(--muted)">${pg.data || '—'}</span>
+                <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--accent)">R$ ${parseFloat(pg.valor||0).toFixed(2).replace('.',',')}</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
+
+        ${pendentes.length ? `
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">❌ Pendentes</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${pendentes.map(m => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:rgba(255,107,107,0.06);border-radius:9px;border:1px solid rgba(255,107,107,0.15)">
+              <span style="font-size:13px;color:var(--muted)">${m.nome}</span>
+              <span style="font-size:11px;color:var(--accent2)">Sem registro</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+        <div style="margin-top:14px;display:flex;justify-content:flex-end">
+          <button onclick="copiarExtratoMes(${mes},${ano})" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer">📋 Copiar extrato deste mês</button>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--muted)">Nenhum dado encontrado.</div>';
+  // Auto-expand current month
+  const hoje2 = new Date();
+  const autoId = `hist_${hoje2.getMonth()}_${hoje2.getFullYear()}`;
+  const autoEl = document.getElementById(autoId);
+  if (autoEl) {
+    autoEl.style.display = 'block';
+    const ch = document.getElementById(autoId + '_chevron');
+    if (ch) ch.style.transform = 'rotate(180deg)';
+  }
+}
+
+function toggleHist(id) {
+  const el = document.getElementById(id);
+  const ch = document.getElementById(id + '_chevron');
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  if (ch) ch.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function copiarExtratoMes(mes, ano) {
+  const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+  const pagos = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+  const pendentes = membros.filter(m => !pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+  // Total: um valor por membro (sem duplicatas)
+  const total = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago')).reduce((s, m) => {
+    const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+    return s + parseFloat(pg ? pg.valor || 0 : 0);
+  }, 0);
+  const totalAcum = (() => { const ch = new Set(); let s = 0; pagamentos.filter(p => p.status === 'pago').forEach(p => { const k = p.membroId+'_'+p.mes+'_'+p.ano; if (!ch.has(k)) { ch.add(k); s += parseFloat(p.valor||0); } }); return s; })();
+  const totalGast = gastos.reduce((s,g) => s + parseFloat(g.valor||0), 0);
+  const linhas = [
+    `📊 *EXTRATO — ${MESES[mes].toUpperCase()} ${ano}*`,
+    `- - - - - - - - - - -`,
+    ``, `✅ *EM DIA (${pagos.length})*`,
+    ...pagos.map(m => {
+      const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+      return `  • ${m.nome} — R$ ${parseFloat(pg.valor||0).toFixed(2).replace('.',',')} (${fmtData(pg.data)})`;
+    }),
+    ``, `❌ *PENDENTES (${pendentes.length})*`,
+    ...pendentes.map(m => `  • ${m.nome}`),
+    ``, `- - - - - - - - - - -`,
+    ``,
+    `┌─────────────────────────┐`,
+    `│ 💰 TOTAL DO MÊS         │`,
+    `│ R$ ${total.toFixed(2).replace('.',',').padStart(18)} │`,
+    `└─────────────────────────┘`,
+    ``,
+    `📈 *ACUMULADO GERAL*`,
+    `  Total arrecadado: R$ ${totalAcum.toFixed(2).replace('.',',')}`,
+    `  Total de gastos:   R$ ${totalGast.toFixed(2).replace('.',',')}`,
+    `  Saldo disponível:  R$ ${(totalAcum - totalGast).toFixed(2).replace('.',',')}`,
+  ];
+  navigator.clipboard.writeText(linhas.join('\n')).then(() => alert(`✅ Extrato de ${MESES[mes]} ${ano} copiado!`));
+}
+
+function copiarExtrato() {
+  const modo = document.getElementById('extrato-modo-historico')?.style.display !== 'none' ? 'historico' : 'mes';
+  if (modo === 'mes') {
+    const txt = document.getElementById('extratoPreview').textContent;
+    navigator.clipboard.writeText(txt).then(() => alert('✅ Extrato copiado!'));
+  } else {
+    alert('Use o botão "Copiar extrato deste mês" dentro do mês desejado.');
+  }
+}
+
+function compartilharExtrato() {
+  const modoHistorico = document.getElementById('extrato-modo-historico').style.display !== 'none';
+  let txt = '';
+
+  if (modoHistorico) {
+    const qtd = parseInt(document.getElementById('extHistoricoQtd') ? document.getElementById('extHistoricoQtd').value : 6);
+    const hoje = new Date();
+    const MESES_PT = ["Janeiro","Fevereiro","Marco","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+    const linhas = ['HISTORICO DE PAGAMENTOS - M de Midia', '- - - - - - - - - - -', ''];
+    for (let i = qtd - 1; i >= 0; i--) {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+      const mes = d.getMonth(), ano = d.getFullYear();
+      const pgMes = pagamentos.filter(p => parseInt(p.mes) === mes && parseInt(p.ano) === ano);
+      const pagos = membros.filter(m => pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+      const pendentes = membros.filter(m => !pgMes.find(p => p.membroId === m.id && p.status === 'pago'));
+      const total = pagos.reduce(function(s, m) {
+        const pg = pgMes.find(p => p.membroId === m.id && p.status === 'pago');
+        return s + parseFloat(pg ? pg.valor || 0 : 0);
+      }, 0);
+      linhas.push(MESES_PT[mes].toUpperCase() + ' ' + ano);
+      linhas.push('Pagaram (' + pagos.length + '): ' + (pagos.map(m => m.nome).join(', ') || 'ninguem'));
+      if (pendentes.length) linhas.push('Pendentes (' + pendentes.length + '): ' + pendentes.map(m => m.nome).join(', '));
+      linhas.push('Total do mes: R$ ' + total.toFixed(2).replace('.',','));
+      linhas.push('');
+    }
+    const totalAcum = (function() { const ch = new Set(); let s = 0; pagamentos.filter(p => p.status === 'pago').forEach(p => { const k = p.membroId+'_'+p.mes+'_'+p.ano; if (!ch.has(k)) { ch.add(k); s += parseFloat(p.valor||0); } }); return s; })();
+    const totalGast = gastos.reduce(function(s,g) { return s + parseFloat(g.valor||0); }, 0);
+    linhas.push('- - - - - - - - - - -');
+    linhas.push('ACUMULADO GERAL');
+    linhas.push('Total arrecadado: R$ ' + totalAcum.toFixed(2).replace('.',','));
+    linhas.push('Total de gastos:  R$ ' + totalGast.toFixed(2).replace('.',','));
+    linhas.push('Saldo disponivel: R$ ' + (totalAcum - totalGast).toFixed(2).replace('.',','));
+    linhas.push('Gerado em ' + new Date().toLocaleDateString('pt-BR'));
+    txt = linhas.join('\n');
+  } else {
+    gerarExtrato();
+    txt = document.getElementById('extratoPreview').textContent;
+  }
+
+  if (!txt || !txt.trim()) { alert('Nenhum dado para compartilhar.'); return; }
+
+  if (navigator.share) {
+    navigator.share({ text: txt, title: 'Extrato M de Midia' })
+      .catch(function(err) { if (err.name !== 'AbortError') copiarTextoFallback(txt); });
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt)
+      .then(function() { alert('Extrato copiado! Cole no grupo do WhatsApp.'); })
+      .catch(function() { copiarTextoFallback(txt); });
+    return;
+  }
+  copiarTextoFallback(txt);
+}
+
+function copiarTextoFallback(txt) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (ok) { alert('Extrato copiado! Cole no grupo do WhatsApp.'); }
+    else { prompt('Copie o texto abaixo:', txt); }
+  } catch(e) { prompt('Copie o texto abaixo:', txt); }
+}
+
+// ========== IMPORTAR EXTRATO ==========
+function analisarExtrato() {
+  const texto = document.getElementById('extratoInput').value.trim();
+  if (!texto) return alert('Cole algum texto primeiro!');
+
+  // Identifica nomes e valores no texto
+  const linhas = texto.split('\n').filter(l => l.trim());
+  const resultados = [];
+  const nomesConhecidos = membros.map(m => ({ id: m.id, nome: m.nome, lower: m.nome.toLowerCase() }));
+
+  const valorRegex = /R?\$?\s*(\d+[.,]\d{0,2}|\d+)\s*(reais?)?/i;
+
+  linhas.forEach(linha => {
+    const valorMatch = linha.match(valorRegex);
+    let valor = null;
+    if (valorMatch) {
+      valor = parseFloat(valorMatch[1].replace(',', '.'));
+    }
+
+    // Tenta encontrar membro pelo nome
+    let membroEncontrado = null;
+    nomesConhecidos.forEach(m => {
+      const partes = m.lower.split(' ');
+      if (partes.some(p => p.length > 3 && linha.toLowerCase().includes(p))) {
+        membroEncontrado = m;
       }
     });
-  }
-  S.notifs.unshift({id:Date.now(),icon:resp==='approved'?'&#9989;':'&#10060;',text:'Pedido de <strong>'+p.solicitante+'</strong> foi <strong>'+(resp==='approved'?'aprovado':'recusado')+'</strong>'+(resp==='approved'&&p.tipo==='sub'&&p.substituto?' &#8212; <strong>'+p.substituto+'</strong> assumiu.':'')+'.',time:nowStr(),unread:true});
-  saveAll().then(function(){toast(resp==='approved'?'Aprovado!':'Recusado.');renderAll();updateBadge();});
-}
-function aceitarSub(idx){S.pedidos[idx].status='pending';S.notifs.unshift({id:Date.now(),icon:'&#129309;',text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Aceito! Aguardando lider.');renderPedidos();updateBadge();});}
-function recusarSub(idx){S.pedidos[idx].status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou substituir <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Recusado.');renderPedidos();updateBadge();});}
 
-function sendPedido(){
-  var cultoEl=document.getElementById('ped-culto');
-  var cultoId=cultoEl.value;
-  var cultoTxt=cultoEl.options[cultoEl.selectedIndex]?cultoEl.options[cultoEl.selectedIndex].text:'-';
-  var tipo=document.getElementById('ped-tipo').value;
-  var motivo=document.getElementById('ped-motivo').value.trim();
-  var subEl=document.getElementById('ped-sub');
-  var subId=subEl.value;
-  var subNome=subEl.options[subEl.selectedIndex]?subEl.options[subEl.selectedIndex].text:'-';
-  var pedStatus=(tipo==='sub'&&subId)?'aguardando_sub':'pending';
-  S.pedidos.unshift({id:Date.now(),tipo:tipo,solicitante:CU.name,solicitanteId:CU.id,substitutoId:tipo==='sub'?subId:null,substituto:tipo==='sub'?subNome:null,cultoId:cultoId,culto:cultoTxt,role:CU.role,motivo:motivo,status:pedStatus});
-  S.notifs.unshift({id:Date.now()+1,icon:'&#128259;',text:'<strong>'+CU.name+'</strong> pediu '+(tipo==='sub'?'substituicao':'ausencia')+' em <strong>'+cultoTxt+'</strong>.',time:nowStr(),unread:true});
-  saveAll().then(function(){
-    document.getElementById('ped-motivo').value='';
-    toast(pedStatus==='aguardando_sub'?'Aguardando '+subNome+'.':'Pedido enviado!');
-    renderPedidos();updateBadge();
-    // Notificar substituto e lideres via WhatsApp
-    setTimeout(function(){
-      notificarPedidoTroca(tipo, cultoTxt, subId, subNome, motivo);
-    }, 500);
+    if (valor || membroEncontrado) {
+      resultados.push({ linha: linha.trim(), valor, membro: membroEncontrado });
+    }
   });
+
+  const res = document.getElementById('parseResult');
+  if (resultados.length === 0) {
+    res.innerHTML = '⚠️ Nenhum valor ou membro identificado. Tente colar um extrato com nomes e valores.';
+    res.classList.add('visible');
+  } else {
+    res.innerHTML = `✅ <strong>${resultados.length} registro(s) identificado(s)</strong>`;
+    res.classList.add('visible');
+  }
+
+  // Render resultados
+  const container = document.getElementById('registrosIdentificados');
+  if (!resultados.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:13px">Nenhum registro identificado.</div>';
+    return;
+  }
+  const mes = getSelectedMes(), ano = getSelectedAno();
+  container.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Linha do Extrato</th><th>Membro Identificado</th><th>Valor</th><th>Ação</th></tr></thead>
+        <tbody>
+          ${resultados.map((r, i) => `
+            <tr>
+              <td style="font-size:12px;color:var(--muted);max-width:260px;word-break:break-word">${r.linha}</td>
+              <td>${r.membro ? `<strong>${r.membro.nome}</strong>` : `<span style="color:var(--muted)">Não identificado</span>`}</td>
+              <td>${r.valor ? `<strong style="color:var(--accent)">R$ ${r.valor.toFixed(2).replace('.',',')}</strong>` : '—'}</td>
+              <td>${r.membro ? `<button class="btn btn-primary" style="font-size:11px;padding:6px 12px" onclick="registrarDoExtrato('${r.membro.id}','${r.valor||0}','${mes}','${ano}')">✅ Registrar</button>` : '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
-// Notifica substituto (pedido de troca) e lideres
-function notificarPedidoTroca(tipo, culto, subId, subNome, motivo){
-  var lideres=S.members.filter(function(m){return m.profile==='lider'&&m.id!==CU.id;});
-  if(tipo==='sub'&&subId){
-    var subMem=S.members.find(function(x){return String(x.id)===String(subId);});
-    if(subMem&&subMem.phone&&subMem.phone.length>=10){
-      var txt='\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n'
-        +'\uD83D\uDD04 *Pedido de Substituicao*\n\n'
-        +'Ola *'+subMem.name+'*, '
-        +'*'+CU.name+'* precisa de um substituto em:\n\n'
-        +'\uD83D\uDCC5 *'+culto+'*\n'
-        +'Motivo: '+( motivo||'Nao informado')+'\n\n'
-        +'Acesse o app para aceitar ou recusar:\n'
-        +APP_URL+'\n\n'
-        +'\uD83D\uDE4F _Ministerio de Midia_';
-      window.open('https://wa.me/55'+subMem.phone+'?text='+encodeURIComponent(txt),'_blank');
+function registrarDoExtrato(membroId, valor, mes, ano) {
+  pagamentos = pagamentos.filter(p => !(p.membroId === membroId && p.mes == mes && p.ano == ano));
+  pagamentos.push({
+    id: Date.now().toString(),
+    membroId, mes: parseInt(mes), ano: parseInt(ano),
+    valor: parseFloat(valor).toFixed(2),
+    status: 'pago',
+    data: new Date().toISOString().split('T')[0],
+    obs: 'Importado via extrato',
+  });
+   renderAll();
+  alert('✅ Pagamento registrado!');
+}
+
+
+
+// ===== CONFIGURAÇÃO DA CHAVE API =====
+function abrirConfigApi() {
+  const saved = localStorage.getItem('anthropic_api_key') || '';
+  const input = document.getElementById('apiKeyInput');
+  if (input) input.value = saved;
+  const status = document.getElementById('apiKeyStatus');
+  if (status) {
+    if (saved) {
+      status.style.display = 'block';
+      status.style.cssText = 'display:block;padding:10px;border-radius:8px;font-size:12px;margin-bottom:12px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.2);color:var(--accent)';
+      status.innerHTML = '✅ Chave configurada: ' + saved.substring(0,20) + '...';
+    } else {
+      status.style.display = 'block';
+      status.style.cssText = 'display:block;padding:10px;border-radius:8px;font-size:12px;margin-bottom:12px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:var(--accent2)';
+      status.innerHTML = '⚠️ Nenhuma chave configurada. Recursos de IA (leitura de PDF) não funcionarão.';
     }
   }
-  // Notifica lideres
-  setTimeout(function(){
-    lideres.forEach(function(lider,i){
-      if(!lider.phone||lider.phone.length<10)return;
-      var txt='\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n'
-        +'\uD83D\uDD14 *Novo pedido de '+(tipo==='sub'?'substituicao':'ausencia')+'*\n\n'
-        +'Membro: *'+CU.name+'*\n'
-        +'Culto: *'+culto+'*\n'
-        +(tipo==='sub'?'Substituto indicado: *'+subNome+'*\n':'')
-        +'Motivo: '+(motivo||'Nao informado')+'\n\n'
-        +'Acesse o app para aprovar ou recusar:\n'
-        +APP_URL+'\n\n'
-        +'\uD83D\uDE4F _Ministerio de Midia_';
-      setTimeout(function(){window.open('https://wa.me/55'+lider.phone+'?text='+encodeURIComponent(txt),'_blank');},i*1500);
+  document.getElementById('modalApiKey').classList.add('open');
+}
+
+function salvarApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) { alert('Digite a chave antes de salvar.'); return; }
+  if (!val.startsWith('sk-ant-')) { alert('Chave inválida. Deve começar com sk-ant-'); return; }
+  localStorage.setItem('anthropic_api_key', val);
+  atualizarBotaoApi();
+  closeModal('apiKey');
+  alert('✅ Chave salva! Agora a leitura de PDF com IA está ativada.');
+}
+
+function atualizarBotaoApi() {
+  const btn = document.getElementById('btnApiStatus');
+  if (!btn) return;
+  const key = localStorage.getItem('anthropic_api_key');
+  if (key) {
+    btn.textContent = '✅ API';
+    btn.style.color = 'var(--accent)';
+    btn.style.borderColor = 'rgba(0,229,160,0.3)';
+  } else {
+    btn.textContent = '⚙️ API';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
+
+// ========== CAIXA ==========
+const CATEG_LABELS = { equipamento:'🔧 Equipamento', evento:'🎉 Evento', material:'📦 Material', servico:'🛠️ Serviço', outro:'📌 Outro' };
+
+function renderCaixa() {
+  const el = document.getElementById('tabelaCaixa');
+  if (!el) return;
+
+  // Total entradas: soma de todos os pagamentos pagos (um por membro por mês)
+  const totalEntradas = (() => {
+    const chaves = new Set();
+    let soma = 0;
+    pagamentos.filter(p => p.status === 'pago').forEach(p => {
+      const k = p.membroId + '_' + p.mes + '_' + p.ano;
+      if (!chaves.has(k)) { chaves.add(k); soma += parseFloat(p.valor || 0); }
     });
-  },tipo==='sub'&&subId?1800:300);
-}
+    return soma;
+  })();
 
-function renderEquipe(){
-  var isL=CU&&CU.profile==='lider';
-  document.getElementById('equipe-list').innerHTML=S.members.map(function(m){
-    return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div>'+
-      '<div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+' </strong><span>'+m.role+'</span><span class="phone-txt">&#128241; '+m.phone+'</span></div>'+
-      (isL?'<div style="display:flex;gap:5px;"><button class="btn bout bsm" onclick="openEditMem('+m.id+')" title="Editar">&#9999;</button><button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')">&#128273;</button></div>':'')+
-    '</div>';
+  const totalSaidas = gastos.reduce((s, g) => s + parseFloat(g.valor || 0), 0);
+  const saldo = totalEntradas - totalSaidas;
+
+  document.getElementById('caixaEntradas').textContent = 'R$ ' + totalEntradas.toFixed(2).replace('.',',');
+  document.getElementById('caixaSaidas').textContent = 'R$ ' + totalSaidas.toFixed(2).replace('.',',');
+  const saldoEl = document.getElementById('caixaSaldo');
+  saldoEl.textContent = 'R$ ' + saldo.toFixed(2).replace('.',',');
+  saldoEl.style.color = saldo >= 0 ? 'var(--accent)' : 'var(--accent2)';
+  // Atualiza painel banco se já importado
+  atualizarPainelBanco(saldo);
+  // Preenche campo manual se já tiver valor
+  if (saldoBanco !== null) {
+    const inp = document.getElementById('bancoSaldoInput');
+    if (inp && !inp.value) inp.value = saldoBanco.valor;
+  }
+
+  // Build movimentações list
+  const entradas = pagamentos.filter(p => p.status === 'pago').map(p => {
+    const m = membros.find(x => x.id === p.membroId);
+    return { id: p.id, data: p.data || '', desc: (m ? m.nome : 'Membro removido') + ' — ' + (["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][p.mes]||'') + '/' + p.ano, categoria: 'mensalidade', valor: parseFloat(p.valor||0), tipo: 'entrada' };
+  });
+  const saidas = gastos.map(g => ({ id: g.id, data: g.data||'', desc: g.desc||'', categoria: g.categoria||'outro', valor: parseFloat(g.valor||0), tipo: 'saida' }));
+
+  let movs = [...entradas, ...saidas].sort((a, b) => (b.data||'').localeCompare(a.data||''));
+
+  if (filtCaixa === 'entrada') movs = movs.filter(m => m.tipo === 'entrada');
+  if (filtCaixa === 'saida') movs = movs.filter(m => m.tipo === 'saida');
+
+  if (!movs.length) {
+    el.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">💰</div><p>Nenhuma movimentação ainda</p></div></td></tr>';
+    return;
+  }
+
+  el.innerHTML = movs.map(mv => {
+    const isEntrada = mv.tipo === 'entrada';
+    const categLabel = isEntrada ? '💳 Mensalidade' : (CATEG_LABELS[mv.categoria] || mv.categoria);
+    const dataFmt = mv.data ? mv.data.split('-').reverse().join('/') : '—';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px;white-space:nowrap">${dataFmt}</td>
+      <td style="font-size:13px;max-width:220px">${mv.desc}</td>
+      <td><span style="font-size:11px;color:var(--muted)">${categLabel}</span></td>
+      <td><span class="badge ${isEntrada ? 'badge-ok' : 'badge-late'}">${isEntrada ? '⬆ Entrada' : '⬇ Saída'}</span></td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700;color:${isEntrada ? 'var(--accent)' : 'var(--accent2)'};white-space:nowrap">${isEntrada ? '+' : '-'} R$ ${mv.valor.toFixed(2).replace('.',',')}</td>
+      <td>${!isEntrada ? `<button class="icon-btn del" onclick="deletarGasto('${mv.id}')" title="Remover">🗑️</button>` : ''}</td>
+    </tr>`;
   }).join('');
 }
 
-function renderFones(){
-  var c=document.getElementById('fones-list');if(!c)return;
-  c.innerHTML=S.members.map(function(m){
-    return '<div class="fone-card" onclick="abrirEditFone('+m.id+')">'+
-      '<div class="av">'+m.name.charAt(0).toUpperCase()+'</div>'+
-      '<div style="flex:1;"><strong style="font-size:.84rem;color:var(--cream);">'+m.name+'</strong><br><span style="font-size:.68rem;color:var(--cream2);opacity:.6;">'+m.role+'</span></div>'+
-      '<div style="text-align:right;"><div style="font-size:.88rem;color:var(--gold);font-weight:700;">'+m.phone+'</div><div style="font-size:.58rem;color:var(--cream2);opacity:.45;margin-top:2px;">toque para editar</div></div>'+
+function setFiltCaixa(f, btn) {
+  filtCaixa = f;
+  document.querySelectorAll('[id^="filtCaixa_"]').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderCaixa();
+}
+
+function registrarGasto() {
+  const desc = document.getElementById('gastoDesc').value.trim();
+  if (!desc) return alert('Descreva o gasto!');
+  const val = parseFloat(String(document.getElementById('gastoValor').value).replace(',','.'));
+  if (!val || val <= 0) return alert('Valor inválido!');
+  const data = document.getElementById('gastoData').value;
+  const categoria = document.getElementById('gastoCategoria').value;
+
+  gastos.push({ id: Date.now().toString(), desc, valor: val.toFixed(2), data, categoria });
+  save();
+
+  document.getElementById('gastoDesc').value = '';
+  document.getElementById('gastoValor').value = '';
+  renderCaixa();
+}
+
+function deletarGasto(id) {
+  if (!confirm('Remover este gasto?')) return;
+  gastos = gastos.filter(g => g.id !== id);
+  save();
+  renderCaixa();
+}
+
+
+// ========== PDF EXTRATO ==========
+function handlePdfDrop(e) {
+  e.preventDefault();
+  const zone = document.getElementById('pdfDropZone');
+  zone.style.borderColor = 'var(--border)';
+  zone.style.background = 'var(--surface2)';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    processarPdf(file);
+  } else {
+    alert('Por favor, envie um arquivo PDF.');
+  }
+}
+
+function lerPdfExtrato(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processarPdf(file);
+  input.value = '';
+}
+
+function mostrarPdfStatus(msg, tipo) {
+  const el = document.getElementById('pdfStatus');
+  el.style.display = 'block';
+  const cores = {
+    loading: 'background:rgba(0,180,255,0.1);border:1px solid rgba(0,180,255,0.25);color:#7dd3fc',
+    ok:      'background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.25);color:var(--accent)',
+    erro:    'background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:var(--accent2)'
+  };
+  el.style.cssText += ';' + (cores[tipo] || cores.loading);
+  el.innerHTML = msg;
+}
+
+async function processarPdf(file) {
+  const zone = document.getElementById('pdfDropZone');
+  const icon = zone.querySelector('div:nth-child(1)');
+  const label = zone.querySelector('div:nth-child(2)');
+  icon.textContent = '⏳';
+  label.textContent = file.name;
+  mostrarPdfStatus('⏳ Extraindo texto do PDF...', 'loading');
+  try {
+    if (typeof pdfjsLib === 'undefined') throw new Error('PDF.js não carregou. Verifique sua conexão.');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let textoCompleto = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(function(it) { return it.str; }).join(' ');
+      textoCompleto = textoCompleto + pageText + '\n';
+    }
+    if (!textoCompleto.trim()) throw new Error('Não foi possível extrair texto. Tente colar manualmente.');
+    icon.textContent = '✅';
+    label.textContent = file.name + ' — texto extraído';
+    document.getElementById('extratoInput').value = textoCompleto;
+    analisarExtrato();
+    mostrarPdfStatus('✅ PDF processado! Confira os registros identificados abaixo.', 'ok');
+  } catch(err) {
+    mostrarPdfStatus('❌ Erro: ' + err.message, 'erro');
+    icon.textContent = '📄';
+    label.textContent = 'Clique ou arraste o PDF aqui';
+  }
+}
+
+
+// ========== SINCRONIZAÇÃO BANCÁRIA ==========
+function mostrarBancoStatus(msg, tipo) {
+  const el = document.getElementById('bancoStatus');
+  if (!el) return;
+  el.style.display = 'block';
+  const cores = {
+    loading: 'background:rgba(0,180,255,0.1);border:1px solid rgba(0,180,255,0.25);color:#7dd3fc',
+    ok:      'background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.25);color:var(--accent)',
+    erro:    'background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:var(--accent2)'
+  };
+  el.setAttribute('style', el.getAttribute('style') + ';' + (cores[tipo] || cores.loading));
+  el.innerHTML = msg;
+}
+
+function atualizarPainelBanco(saldoApp) {
+  const vazio = document.getElementById('bancoPainelVazio');
+  const painel = document.getElementById('bancoPainel');
+  if (!vazio || !painel) return;
+  if (saldoBanco === null) { vazio.style.display = 'block'; painel.style.display = 'none'; return; }
+  vazio.style.display = 'none';
+  painel.style.display = 'block';
+
+  const vBanco = saldoBanco.valor;
+  const diff = vBanco - saldoApp;
+  const absDiff = Math.abs(diff);
+
+  document.getElementById('bancoSaldoVal').textContent = 'R$ ' + vBanco.toFixed(2).replace('.',',');
+  document.getElementById('bancoSaldoApp').textContent = 'R$ ' + saldoApp.toFixed(2).replace('.',',');
+  document.getElementById('bancoSaldoApp').style.color = saldoApp >= 0 ? 'var(--accent)' : 'var(--accent2)';
+  if (saldoBanco.data) document.getElementById('bancoDataRef').textContent = 'Extrato: ' + saldoBanco.data;
+
+  const difEl = document.getElementById('bancoDiferenca');
+  const difDesc = document.getElementById('bancoDifDesc');
+  difEl.textContent = (diff >= 0 ? '+' : '-') + ' R$ ' + absDiff.toFixed(2).replace('.',',');
+
+  if (absDiff < 0.01) {
+    difEl.style.color = 'var(--accent)';
+    difDesc.textContent = '✅ Valores sincronizados!';
+  } else if (diff > 0) {
+    difEl.style.color = '#7dd3fc';
+    difDesc.textContent = 'Banco tem mais que o app';
+  } else {
+    difEl.style.color = 'var(--accent3)';
+    difDesc.textContent = 'App tem mais que o banco';
+  }
+
+  // Diagnóstico detalhado por mês
+  const diagEl = document.getElementById('bancoDiagnostico');
+  if (!diagEl) return;
+
+  // Agrupa pagamentos por mês/ano
+  const porMes = {};
+  pagamentos.filter(p => p.status === 'pago').forEach(p => {
+    const k = p.ano + '_' + String(p.mes).padStart(2,'0');
+    const label = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][p.mes] + '/' + p.ano;
+    if (!porMes[k]) porMes[k] = { label, total: 0, qtd: 0 };
+    const key2 = p.membroId + '_' + p.mes + '_' + p.ano;
+    // avoid double count
+    if (!porMes[k]['_ids']) porMes[k]['_ids'] = new Set();
+    if (!porMes[k]['_ids'].has(key2)) {
+      porMes[k]['_ids'].add(key2);
+      porMes[k].total += parseFloat(p.valor || 0);
+      porMes[k].qtd++;
+    }
+  });
+
+  const totalEntradas = Object.values(porMes).reduce((s, m) => s + m.total, 0);
+  const totalSaidas = gastos.reduce((s, g) => s + parseFloat(g.valor || 0), 0);
+
+  const linhasMes = Object.keys(porMes).sort().reverse().map(k => {
+    const m = porMes[k];
+    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">' +
+      '<span style="font-size:13px;color:var(--muted)">' + m.label + ' <span style="font-size:11px">(' + m.qtd + ' pag.)</span></span>' +
+      '<span style=\"font-family:Syne,sans-serif;font-weight:700;color:var(--accent)\">+ R$ ' + m.total.toFixed(2).replace('.',',') + '</span>' +
     '</div>';
   }).join('');
+
+  const linhasGasto = gastos.length ? gastos.map(g => {
+    const dataFmt = g.data ? g.data.split('-').reverse().join('/') : '—';
+    return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">' +
+      '<span style="font-size:13px;color:var(--muted)">' + dataFmt + ' — ' + g.desc + '</span>' +
+      '<span style=\"font-family:Syne,sans-serif;font-weight:700;color:var(--accent2)\">- R$ ' + parseFloat(g.valor).toFixed(2).replace('.',',') + '</span>' +
+    '</div>';
+  }).join('') : '<div style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum gasto registrado</div>';
+
+  diagEl.innerHTML =
+    '<div style="margin-bottom:16px">' +
+      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">✅ Entradas por mês</div>' +
+      linhasMes +
+      '<div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-weight:700">' +
+        '<span style="font-size:13px">Subtotal entradas</span>' +
+        '<span style="color:var(--accent)">R$ ' + totalEntradas.toFixed(2).replace('.',',') + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:16px">' +
+      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px">➖ Gastos registrados</div>' +
+      linhasGasto +
+      '<div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-weight:700">' +
+        '<span style="font-size:13px">Subtotal gastos</span>' +
+        '<span style="color:var(--accent2)">R$ ' + totalSaidas.toFixed(2).replace('.',',') + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;padding:12px 0;border-top:2px solid var(--border);font-weight:700">' +
+      '<span>Saldo calculado pelo app</span>' +
+      '<span style="color:' + (saldoApp >= 0 ? 'var(--accent)' : 'var(--accent2)') + ';font-size:16px">R$ ' + saldoApp.toFixed(2).replace('.',',') + '</span>' +
+    '</div>' +
+    (absDiff >= 0.01 ? '<div style="padding:12px;border-radius:9px;background:rgba(255,217,61,0.1);border:1px solid rgba(255,217,61,0.25);font-size:12px;color:var(--accent3);margin-top:8px">' +
+      '⚠️ <strong>Divergência de R$ ' + absDiff.toFixed(2).replace('.',',') + '</strong> — ' +
+      (diff > 0 ? 'O banco tem mais. Possível causa: depósito no banco não registrado no app.' : 'O app tem mais. Verifique se algum pagamento foi registrado em duplicata.') +
+    '</div>' : '');
 }
 
-function abrirEditFone(id){
-  var m=S.members.find(function(x){return x.id===id;});if(!m)return;
-  editFoneId=id;
-  document.getElementById('ef-nome').textContent=m.name;
-  document.getElementById('ef-tel').value=m.phone;
-  openMo('mo-edit-fone');
-}
-function salvarFone(){
-  var tel=document.getElementById('ef-tel').value.replace(/\D/g,'');
-  if(tel.length<10){toast('Numero invalido. Use DDD + numero completo.');return;}
-  var dup=S.members.find(function(m){return m.phone===tel&&m.id!==editFoneId;});
-  if(dup){toast('Numero ja usado por '+dup.name+'.');return;}
-  var m=S.members.find(function(x){return x.id===editFoneId;});if(!m)return;
-  m.phone=tel;
-  if(CU&&CU.id===editFoneId)CU.phone=tel;
-  saveAll().then(function(){closeMo('mo-edit-fone');toast('Telefone de '+m.name+' atualizado!');renderFones();renderEquipe();});
-}
-
-function openEditMem(id){
-  var m=S.members.find(function(x){return x.id===id;});if(!m)return;
-  editMemId=id;
-  document.getElementById('em-nome').value=m.name;
-  document.getElementById('em-tel').value=m.phone;
-  document.getElementById('em-funcao').value=m.role;
-  document.getElementById('em-perfil').value=m.profile;
-  openMo('mo-editmem');
-}
-function salvarEdicaoMembro(){
-  var nome=document.getElementById('em-nome').value.trim();
-  var tel=document.getElementById('em-tel').value.replace(/\D/g,'');
-  var funcao=document.getElementById('em-funcao').value;
-  var perfil=document.getElementById('em-perfil').value;
-  if(!nome){toast('Informe o nome.');return;}
-  if(tel.length<8){toast('Telefone invalido.');return;}
-  var dup=S.members.find(function(m){return m.phone===tel&&m.id!==editMemId;});
-  if(dup){toast('Telefone ja usado por '+dup.name+'.');return;}
-  var m=S.members.find(function(x){return x.id===editMemId;});if(!m)return;
-  m.name=nome;m.phone=tel;m.role=funcao;m.profile=perfil;
-  S.escala.forEach(function(day){day.membros.forEach(function(mem){if(mem.id===editMemId){mem.name=nome;mem.role=funcao;}});});
-  if(CU&&CU.id===editMemId){CU.name=nome;CU.role=funcao;CU.profile=perfil;updateHeader();}
-  saveAll().then(function(){closeMo('mo-editmem');toast('Dados de '+nome+' atualizados!');renderAll();});
-}
-
-function renderNotifs(){
-  var c=document.getElementById('notifs-list');
-  if(!S.notifs.length){c.innerHTML='<p style="font-size:.78rem;opacity:.4;text-align:center;padding:16px;">Nenhum aviso.</p>';return;}
-  c.innerHTML=S.notifs.map(function(n){return '<div class="nitem"><div class="nicon">'+n.icon+'</div><div style="flex:1;"><div class="ntxt">'+n.text+'</div><div class="ntime">'+n.time+'</div></div>'+(n.unread?'<div class="udot"></div>':'')+'</div>';}).join('');
-  S.notifs=S.notifs.map(function(n){return Object.assign({},n,{unread:false});});
-  saveAll();updateBadge();
-}
-function sendAviso(){
-  var destEl=document.getElementById('notif-dest');
-  var dest=destEl.options[destEl.selectedIndex]?destEl.options[destEl.selectedIndex].text:'Equipe';
-  var msg=document.getElementById('notif-msg').value.trim();
-  if(!msg){toast('Digite uma mensagem.');return;}
-  S.notifs.unshift({id:Date.now(),icon:'&#128227;',text:'<strong>Aviso para '+dest+':</strong> '+msg,time:nowStr(),unread:true});
-  saveAll().then(function(){document.getElementById('notif-msg').value='';toast('Aviso enviado!');updateBadge();});
-}
-
-function addCulto(){
-  var date=document.getElementById('nd-date').value;
-  var label=document.getElementById('nd-label').value.trim();
-  var modo=document.getElementById('nd-modo').value;
-  if(!date||!label){toast('Preencha data e nome.');return;}
-  var membrosEsc=[];
-  if(modo==='fixo'||modo==='confirmado'){
-    var checked=Array.from(document.querySelectorAll('#nd-checks input:checked'));
-    if(!checked.length){toast('Selecione ao menos 1 membro.');return;}
-    var st=modo==='confirmado'?'confirmed':'pending';
-    membrosEsc=checked.map(function(cb){var m=S.members.find(function(x){return x.id==cb.value;});return{id:m.id,name:m.name,role:m.role,status:st};});
-  }
-  S.escala.push({id:Date.now(),date:date,label:label,membros:membrosEsc,aberto:modo==='aberto'});
-  S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
-  S.notifs.unshift({id:Date.now()+1,icon:'&#128197;',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+(modo==='aberto'?' &#8212; aberto para inscricao!':'.')+'',time:nowStr(),unread:true});
-  saveAll().then(function(){
-    closeMo('mo-addday');
-    document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-modo').value='fixo';toggleModo();
-    toast('Culto adicionado!');renderAll();
-    if(membrosEsc.length>0&&modo!=='aberto'){
-      setTimeout(function(){
-        abrirConfirmNotificacao(membrosEsc,date,label);
-      },400);
-    }
-  });
-}
-
-// Notifica cada membro escalado individualmente
-function notificarMembrosEscalados(membros,date,label){
-  var idx=0;
-  function next(){
-    if(idx>=membros.length)return;
-    var mem=membros[idx];idx++;
-    var memAtual=S.members.find(function(x){return x.id===mem.id;});
-    var phone=memAtual?memAtual.phone:'';
-    if(!phone||phone.length<10){setTimeout(next,300);return;}
-    var txt='\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n'
-      +'\uD83D\uDD14 Voce foi escalado(a)!\n\n'
-      +'\uD83D\uDCC5 *'+fmtDate(date)+' \u2014 '+label+'*\n'
-      +'\uD83C\uDFAD Funcao: *'+mem.role+'*\n\n'
-      +'Por favor confirme sua presenca no app:\n'
-      +APP_URL+'\n\n'
-      +'\uD83D\uDE4F _Ministerio de Midia_';
-    window.open('https://wa.me/55'+phone+'?text='+encodeURIComponent(txt),'_blank');
-    setTimeout(next,1500);
-  }
-  next();
-}
-
-function addMembro(){
-  var nome=document.getElementById('nm-nome').value.trim();var tel=document.getElementById('nm-tel').value.replace(/\D/g,'');var funcao=document.getElementById('nm-funcao').value;var perfil=document.getElementById('nm-perfil').value;
-  if(!nome){toast('Informe o nome.');return;}if(tel.length<8){toast('Telefone invalido.');return;}if(S.members.find(function(m){return m.phone===tel;})){toast('Telefone ja cadastrado.');return;}
-  S.members.push({id:Date.now(),name:nome,phone:tel,role:funcao,profile:perfil,pass:'12345'});
-  saveAll().then(function(){closeMo('mo-addmem');document.getElementById('nm-nome').value='';document.getElementById('nm-tel').value='';toast(nome+' adicionado!');renderAll();populateForms();});
-}
-function openResetPw(id,name){resetTargetId=id;document.getElementById('reset-nome').textContent=name;openMo('mo-resetpw');}
-function confirmReset(){var m=S.members.find(function(x){return x.id===resetTargetId;});if(m){m.pass='12345';saveAll().then(function(){closeMo('mo-resetpw');toast('Senha de '+m.name+' redefinida!');});}}
-function changePass(){
-  var old=document.getElementById('pw-old').value,nw=document.getElementById('pw-new').value,conf=document.getElementById('pw-conf').value;
-  if(old!==CU.pass){toast('Senha atual incorreta.');return;}if(nw.length<5){toast('Minimo 5 caracteres.');return;}if(nw!==conf){toast('Senhas nao coincidem.');return;}
-  var m=S.members.find(function(x){return x.id===CU.id;});if(m){m.pass=nw;CU.pass=nw;saveAll().then(function(){['pw-old','pw-new','pw-conf'].forEach(function(id){document.getElementById(id).value='';});toast('Senha alterada!');});}
-}
-function checkVagas(){
-  var vagas=[];S.escala.forEach(function(d){d.membros.forEach(function(m){if(m.status==='declined')vagas.push({day:d,m:m});});});
-  if(!vagas.length){toast('Nenhuma vaga em aberto!');return;}
-  var msg='VAGAS POR RECUSA:\n';vagas.forEach(function(v){msg+='- '+fmtDate(v.day.date)+' / '+v.day.label+'\n  Funcao: '+v.m.role+'\n';});
-  if(confirm(msg+'\nNotificar no WhatsApp?')){vagas.forEach(function(v){waVaga(v.day.date,v.day.label,v.m.role);});}
-}
-function fazerBackupSeguro(){
-  var st=document.getElementById('backup-status');
-  // SEGURANCA: nao deixa fazer backup com dados vazios ou incompletos
-  if(!S.members||S.members.length===0){
-    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: lista de membros vazia! O backup nao foi salvo para evitar perda de dados. Aguarde o app carregar completamente.</span>';
+function definirSaldoBancoManual() {
+  const valStr = document.getElementById('bancoSaldoInput').value;
+  const data = document.getElementById('bancoDataInput').value;
+  const val = parseFloat(String(valStr).replace(',', '.'));
+  if (!valStr || isNaN(val) || val < 0) {
+    alert('Digite um valor válido para o saldo do banco.');
     return;
   }
-  if(!S.escala){
-    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: escala nao carregada.</span>';
-    return;
+  const dataFmt = data ? data.split('-').reverse().join('/') : new Date().toLocaleDateString('pt-BR');
+  const modoEl = document.querySelector('input[name="bancoModo"]:checked');
+  const modo = modoEl ? modoEl.value : 'definir';
+  let novoValor = val;
+  if (modo === 'somar' && saldoBanco !== null) {
+    novoValor = parseFloat(saldoBanco.valor || 0) + val;
   }
-  st.innerHTML='<span style="color:#58d68d;">&#10003; '+S.members.length+' membros e '+S.escala.length+' cultos encontrados. Salvando...</span>';
-  var data={versao:1,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos};
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
-  a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Backup salvo! '+S.members.length+' membros, '+S.escala.length+' cultos.');
-}
-function fazerBackup(){fazerBackupSeguro();}
-function restaurarBackup(input){
-  if(!input.files||!input.files[0])return;if(!confirm('Substituir todos os dados atuais?'))return;
-  var reader=new FileReader();reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!data.members||!data.escala){toast('Arquivo invalido.');return;}S.members=data.members;S.escala=data.escala;S.notifs=data.notifs||[];S.pedidos=data.pedidos||[];saveAll().then(function(){toast('Backup restaurado!');renderAll();});}catch(err){toast('Erro ao ler arquivo.');}};reader.readAsText(input.files[0]);input.value='';
-}
-function populateForms(){
-  document.getElementById('ped-culto').innerHTML=S.escala.map(function(d){return '<option value="'+d.id+'">'+fmtDate(d.date)+' &#8212; '+d.label+'</option>';}).join('');
-  document.getElementById('ped-sub').innerHTML=S.members.filter(function(m){return m.id!==(CU?CU.id:0);}).map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
-  document.getElementById('notif-dest').innerHTML='<option value="all">Toda a Equipe</option>'+S.members.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
+  saldoBanco = { valor: novoValor, data: dataFmt };
+  save();
+
+  const totalEntradas = (() => {
+    const ch = new Set(); let s = 0;
+    pagamentos.filter(p => p.status === 'pago').forEach(p => {
+      const k = p.membroId + '_' + p.mes + '_' + p.ano;
+      if (!ch.has(k)) { ch.add(k); s += parseFloat(p.valor || 0); }
+    }); return s;
+  })();
+  const saldoApp = totalEntradas - gastos.reduce((s, g) => s + parseFloat(g.valor || 0), 0);
+  atualizarPainelBanco(saldoApp);
+
+  const bancoStatus = document.getElementById('bancoStatus');
+  if (bancoStatus) {
+    bancoStatus.style.display = 'block';
+    bancoStatus.style.cssText = 'display:block;padding:10px 14px;border-radius:9px;font-size:13px;margin-top:12px;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.25);color:var(--accent)';
+    bancoStatus.innerHTML = '✅ Saldo bancário definido: <strong>R$ ' + val.toFixed(2).replace('.',',') + '</strong> em ' + dataFmt;
+  }
 }
 
-// WHATSAPP - gera texto escala com emojis
-function gerarTextoEscala(filtroMembroId){
-  var txt='\uD83C\uDFA5 *ESCALA MINISTERIO DE MIDIA*\n\n';
-  S.escala.forEach(function(d){
-    if(filtroMembroId){var tem=d.membros.find(function(m){return String(m.id)===String(filtroMembroId);});if(!tem)return;}
-    txt+='\uD83D\uDCC5 *'+fmtDate(d.date)+' \u2014 '+d.label+'*\n';
-    d.membros.forEach(function(m){txt+=(m.status==='confirmed'?'\u2705':m.status==='declined'?'\u274C':'\u23F3')+' '+m.name+' \u2014 '+m.role+'\n';});
-    txt+='\n';
-  });
-  txt+='_Confirme pelo app da equipe!_ \uD83D\uDE4F';
-  return txt;
-}
-function abrirWaEscala(){
-  document.getElementById('wa-membro-select').innerHTML=S.members.map(function(m){return '<option value="'+m.id+'">'+m.name+'</option>';}).join('');
-  document.getElementById('wa-dest-select').value='all';document.getElementById('wa-membro-wrap').style.display='none';
-  atualizarPreviewWa();openMo('mo-wa-escala');
-}
-function toggleWaDest(){var dest=document.getElementById('wa-dest-select').value;document.getElementById('wa-membro-wrap').style.display=dest==='one'?'block':'none';atualizarPreviewWa();}
-function atualizarPreviewWa(){var dest=document.getElementById('wa-dest-select').value;var memId=dest==='one'?document.getElementById('wa-membro-select').value:null;document.getElementById('wa-preview').textContent=gerarTextoEscala(memId);}
-function enviarWaEscala(){
-  var dest=document.getElementById('wa-dest-select').value;var memId=null,phone=null;
-  if(dest==='one'){memId=document.getElementById('wa-membro-select').value;var mem=S.members.find(function(x){return String(x.id)===String(memId);});if(mem)phone=mem.phone;}
-  var txt=gerarTextoEscala(memId);
-  var url=phone?'https://wa.me/55'+phone+'?text='+encodeURIComponent(txt):'https://wa.me/?text='+encodeURIComponent(txt);
-  window.open(url,'_blank');closeMo('mo-wa-escala');
-}
-function waVaga(date,label,role){window.open('https://wa.me/?text='+encodeURIComponent('\uD83C\uDFA5 MINISTERIO DE MIDIA \u2014 VAGA EM ABERTO\n\n\uD83D\uDCC5 '+fmtDate(date)+' \u2014 '+label+'\nFuncao: '+role+'\n\nAlguem pode cobrir?\n'+APP_URL),'_blank');}
-function waNotifyCultoCompleto(day){window.open('https://wa.me/?text='+encodeURIComponent('\uD83C\uDFA5 MINISTERIO DE MIDIA\n\n\u2705 Escala confirmada!\n\n\uD83D\uDCC5 '+fmtDate(day.date)+' \u2014 '+day.label+'\n\n'+day.membros.map(function(m){return '\u2705 '+m.name+' \u2014 '+m.role;}).join('\n')),'_blank');}
-
-// PARSER
-function parsearEscala(texto){
-  var ano=new Date().getFullYear();
-  var MESES={jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
-  var limpo=texto.replace(/\*/g,'').replace(/[\u{1F000}-\u{1FFFF}]/gu,' ').replace(/[\u{2702}-\u{27B0}]/gu,' ').replace(/\u23F3/g,' ').replace(/\u2705/g,' ').replace(/\u274C/g,' ').replace(/\|/g,' ');
-  var linhas=limpo.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-  var cultos=[],atual=null;
-  function parseData(s){s=(s||'').trim();var m=s.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);if(m){var a=m[3]?(m[3].length===2?'20'+m[3]:m[3]):String(ano);return a+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}m=s.match(/(\d{1,2})\s*[-\s]\s*([a-zA-Z]{3,})/);if(m){var mes=MESES[m[2].toLowerCase().substring(0,3)];if(mes)return String(ano)+'-'+('0'+mes).slice(-2)+'-'+('0'+m[1]).slice(-2);}return null;}
-  function normLabel(s){s=(s||'').trim().toUpperCase();if(/PROFET|PROFE/.test(s))return 'Quinta Profetica';if(/CELEBR|DOMIN/.test(s))return 'Culto de Celebracao';if(/BATISM/.test(s))return 'Culto de Batismo';if(/CONFER/.test(s))return 'Conferencia';if(/ENCONTRO|SERVO/.test(s))return 'Encontro de Servos';if(/FIRE|NIGHT|NIGTH/.test(s))return 'Fire Night';if(s.length<2)return '';return s.charAt(0)+s.slice(1).toLowerCase();}
-  var LABEL_KW=/^(FIRE|NIGHT|NIGTH|CELEBR|CELEBRACAO|PROFET|PROFETICA|BATISM|BATISMO|CONFER|CONFERENCIA|ENCONTRO|SERVOS?|DOMINGO|QUINTA|DE|DO|DA|AO|E|UM|UMA)$/i;
-  var IGNORAR=/^(GRUPO|DOMINGO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA|DE|DO|DA|E|A|ESCALA|MINISTERIO|MIDIA)$/i;
-  function ehNome(t){t=(t||'').trim();return t.length>1&&/^[A-Z\xC0-\xFF]/.test(t)&&!IGNORAR.test(t)&&!LABEL_KW.test(t)&&!/^\d/.test(t);}
-  function splitLabelNomes(resto){var tokens=resto.trim().split(/\s+/),lT=[],nT=[],inN=false,i=0;while(i<tokens.length){var tok=tokens[i],tokU=tok.toUpperCase();if(tokU==='GRUPO'&&i+1<tokens.length){i+=2;continue;}if(!inN&&LABEL_KW.test(tokU)){lT.push(tok);}else if(!inN&&ehNome(tok)){inN=true;nT.push(tok);}else if(inN&&tokU==='E'){}else if(inN&&ehNome(tok)){nT.push(tok);}i++;}return{label:lT.join(' '),nomes:nT};}
-  function extrairNomes(linha){var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();var nomes=[];s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();if(ehNome(p))nomes.push(p);});return nomes;}
-  linhas.forEach(function(linha){
-    var data=null,label='',nomesExtra=[];
-    var m1=linha.match(/(?:dom|seg|ter|qua|qui|sex|s[aá]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
-    if(m1){data=parseData(m1[1]);label=normLabel(m1[2])||m1[2].trim();}
-    if(!data){var m2=linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3,})\s+(DOMINGO|SABADO|S\xC1BADO|QUINTA|SEXTA|SEGUNDA)\s*(.*)/i);if(m2){data=parseData(m2[1]+'-'+m2[2]);if(data){var sp=splitLabelNomes(m2[4]);label=normLabel(sp.label)||normLabel(m2[3]);nomesExtra=sp.nomes;}}}
-    if(!data){var m3=linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})(.*)/i);if(m3){data=parseData(m3[2]);var r3=m3[3].replace(/[\u2014\-]/,'').trim();label=normLabel(r3)||(m3[1].toLowerCase().includes('quinta')?'Quinta Profetica':'Culto de Celebracao');}}
-    if(!data){var m4=linha.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/);if(m4){data=parseData(m4[1]);label=normLabel(m4[2])||m4[2].trim();}}
-    if(data){if(atual)cultos.push(atual);atual={date:data,label:label||'Culto',membros:[]};nomesExtra.forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});return;}
-    if(atual&&linha.length>1){extrairNomes(linha).forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});}
-  });
-  if(atual)cultos.push(atual);
-  return cultos.filter(function(c){return c.date;});
+function lerPdfBanco(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  processarPdfBanco(file);
 }
 
-function importarEscala(){
-  var status=document.getElementById('ia-status'),result=document.getElementById('ia-result'),btn=document.getElementById('ia-btn');
-  var texto=document.getElementById('ia-texto').value.trim();
-  if(!texto){toast('Cole o texto da escala.');return;}
-  result.style.display='none';status.style.display='block';btn.disabled=true;
-  var cultos=parsearEscala(texto);
-  if(!cultos.length){status.style.display='none';result.style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;';result.innerHTML='Nao encontrei datas na escala.';btn.disabled=false;return;}
-  var adicionados=0;
-  cultos.forEach(function(c){
-    var membrosEsc=c.membros.map(function(nome){var nl=nome.toLowerCase().trim();var m=S.members.find(function(x){var xn=x.name.toLowerCase();var pn=nl.split(' ')[0];return xn===nl||xn.indexOf(nl)>=0||nl.indexOf(xn.split(' ')[0])>=0||xn.split(' ')[0]===pn;});if(m)return{id:m.id,name:m.name,role:m.role,status:'pending'};if(nome.length>1)return{id:Date.now()+Math.random(),name:nome,role:'Projecao',status:'pending'};return null;}).filter(Boolean);
-    S.escala.push({id:Date.now()+adicionados,date:c.date,label:c.label,membros:membrosEsc,aberto:false});adicionados++;
-  });
-  S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
-  S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s).',time:nowStr(),unread:true});
-  saveAll().then(function(){
-    status.style.display='none';
-    result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';
-    result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' &#8212; '+c.label+(c.membros.length?' ('+c.membros.length+')':'');}).join('<br>');
-    btn.disabled=false;document.getElementById('ia-texto').value='';renderAll();
-    // Perguntar se quer notificar membros
-    var todosMembros={};
-    S.escala.forEach(function(day){day.membros.forEach(function(m){if(!todosMembros[m.id])todosMembros[m.id]={id:m.id,name:m.name,cultos:[]};todosMembros[m.id].cultos.push({date:day.date,label:day.label,role:m.role});});});
-    var lista=Object.values(todosMembros);
-    if(lista.length>0){
-      setTimeout(function(){
-        pendingNotifLista=lista;
-        abrirConfirmNotificacaoImport(lista.length);
-      },600);
+async function processarPdfBanco(file) {
+  mostrarBancoStatus('⏳ Lendo extrato com IA...', 'loading');
+  try {
+    // Converte PDF para base64
+    const base64 = await new Promise(function(res, rej) {
+      const r = new FileReader();
+      r.onload = function() { res(r.result.split(',')[1]); };
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: 'Analise este extrato bancário e retorne SOMENTE um JSON, sem texto adicional:\n{"saldo": <valor numérico do saldo disponível/atual>, "data": "<data do extrato DD/MM/YYYY ou null>"}\nSe não encontrar saldo retorne {"saldo": null, "data": null}.' }
+          ]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error && err.error.message ? err.error.message : 'Erro na API (' + response.status + ')');
     }
+
+    const data = await response.json();
+    const texto = data.content.map(function(c) { return c.text || ''; }).join('');
+    let parsed;
+    try {
+      parsed = JSON.parse(texto.replace(/```json|```/g, '').trim());
+    } catch(e) {
+      throw new Error('IA não retornou JSON válido: ' + texto.substring(0, 80));
+    }
+
+    if (parsed.saldo === null || parsed.saldo === undefined) {
+      // IA não encontrou — pede confirmação manual
+      const manual = prompt('A IA não identificou o saldo no PDF.\nDigite o saldo atual da conta (ex: 211.98):');
+      if (manual === null) { document.getElementById('bancoStatus').style.display = 'none'; return; }
+      const val = parseFloat(String(manual).replace(',', '.'));
+      if (isNaN(val)) throw new Error('Valor inválido.');
+      saldoBanco = { valor: val, data: new Date().toLocaleDateString('pt-BR') };
+    } else {
+      saldoBanco = { valor: parseFloat(parsed.saldo), data: parsed.data || new Date().toLocaleDateString('pt-BR') };
+    }
+
+    // Preenche campo manual com valor lido
+    const inp = document.getElementById('bancoSaldoInput');
+    if (inp) inp.value = saldoBanco.valor;
+
+    save();
+    const totalEntradas = (function() {
+      const ch = new Set(); let s = 0;
+      pagamentos.filter(function(p) { return p.status === 'pago'; }).forEach(function(p) {
+        const k = p.membroId + '_' + p.mes + '_' + p.ano;
+        if (!ch.has(k)) { ch.add(k); s += parseFloat(p.valor || 0); }
+      }); return s;
+    })();
+    const saldoApp = totalEntradas - gastos.reduce(function(s, g) { return s + parseFloat(g.valor || 0); }, 0);
+    atualizarPainelBanco(saldoApp);
+    mostrarBancoStatus('✅ Saldo lido pela IA: R$ ' + saldoBanco.valor.toFixed(2).replace('.',','), 'ok');
+
+  } catch(err) {
+    // Se falhou por rede (arquivo local), cai para PDF.js
+    if (err.message && (err.message.includes('fetch') || err.message.includes('Failed'))) {
+      mostrarBancoStatus('⚠️ API indisponível (arquivo local). Use o campo manual acima.', 'erro');
+    } else {
+      mostrarBancoStatus('❌ ' + err.message, 'erro');
+    }
+  }
+}
+
+
+// ========== EXPORTAR / IMPORTAR EXCEL ==========
+function exportarExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // Aba Membros
+  const membrosData = [['ID','Nome','Contato','Mensalidade (R$)','Data Entrada','Observações']];
+  membros.forEach(m => membrosData.push([m.id, m.nome, m.contato||'', m.valor||'', m.data||'', m.obs||'']));
+  const wsMembros = XLSX.utils.aoa_to_sheet(membrosData);
+  wsMembros['!cols'] = [{wch:18},{wch:28},{wch:22},{wch:16},{wch:14},{wch:28}];
+  XLSX.utils.book_append_sheet(wb, wsMembros, 'Membros');
+
+  // Aba Pagamentos
+  const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const pgData = [['ID','Membro ID','Membro Nome','Mês','Mês Num','Ano','Valor (R$)','Status','Data Pgto','Observações']];
+  pagamentos.forEach(p => {
+    const m = membros.find(x => x.id === p.membroId);
+    pgData.push([p.id, p.membroId, m ? m.nome : '(removido)', MESES_NOME[p.mes]||'', p.mes, p.ano, p.valor||'', p.status||'', p.data||'', p.obs||'']);
   });
-}
+  const wsPg = XLSX.utils.aoa_to_sheet(pgData);
+  wsPg['!cols'] = [{wch:18},{wch:18},{wch:28},{wch:12},{wch:8},{wch:6},{wch:12},{wch:12},{wch:12},{wch:28}];
+  XLSX.utils.book_append_sheet(wb, wsPg, 'Pagamentos');
 
-// Notifica cada membro com todos os seus cultos da escala importada
-function notificarTodosImportados(lista){
-  var idx=0;
-  function next(){
-    if(idx>=lista.length)return;
-    var mem=lista[idx];idx++;
-    var memAtual=S.members.find(function(x){return x.id===mem.id;});
-    var phone=memAtual?memAtual.phone:'';
-    if(!phone||phone.length<10){setTimeout(next,300);return;}
-    var txt='\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n'
-      +'\uD83D\uDD14 *Sua escala chegou!*\n\n'
-      +'Ola *'+mem.name+'*, voce foi escalado(a) em:\n\n';
-    mem.cultos.forEach(function(cl){txt+='\uD83D\uDCC5 *'+fmtDate(cl.date)+' \u2014 '+cl.label+'*\n\uD83C\uDFAD Funcao: *'+cl.role+'*\n\n';});
-    txt+='Confirme sua presenca no app:\n'+APP_URL+'\n\n\uD83D\uDE4F _Ministerio de Midia_';
-    window.open('https://wa.me/55'+phone+'?text='+encodeURIComponent(txt),'_blank');
-    setTimeout(next,1500);
+  // Salva saldo banco como metadado
+  if (saldoBanco !== null) {
+    const wsMeta = XLSX.utils.aoa_to_sheet([['chave','valor'],['saldoBanco', saldoBanco.valor || ''],['saldoBancoData', saldoBanco.data || '']]);
+    XLSX.utils.book_append_sheet(wb, wsMeta, 'Meta');
   }
-  next();
+
+  // Aba Gastos
+  const gastosData = [['ID','Data','Descricao','Categoria','Valor']];
+  gastos.forEach(g => gastosData.push([g.id, g.data||'', g.desc||'', g.categoria||'', g.valor||'']));
+  const wsGastos = XLSX.utils.aoa_to_sheet(gastosData);
+  wsGastos['!cols'] = [{wch:18},{wch:12},{wch:40},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsGastos, 'Gastos');
+
+  // Gera e baixa
+  const hoje = new Date().toISOString().split('T')[0];
+  XLSX.writeFile(wb, `gestao-club-${hoje}.xlsx`);
 }
 
-var pendingNotifMembros=null,pendingNotifDate=null,pendingNotifLabel=null,pendingNotifLista=null,pendingNotifMode=null;
+function importarExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
 
-function abrirConfirmNotificacao(membros,date,label){
-  pendingNotifMembros=membros;pendingNotifDate=date;pendingNotifLabel=label;pendingNotifMode='single';
-  document.getElementById('confirm-notif-txt').innerHTML=
-    'Deseja enviar uma mensagem de WhatsApp para cada membro escalado?<br><br>'+
-    '<strong style="color:var(--gold);">'+membros.length+' membro(s)</strong> serao notificados sobre:<br>'+
-    '<strong>'+fmtDate(date)+' — '+label+'</strong>';
-  openMo('mo-confirm-notif');
+      // Lê Membros
+      const wsMembros = wb.Sheets['Membros'];
+      if (wsMembros) {
+        const rows = XLSX.utils.sheet_to_json(wsMembros, { header: 1 });
+        membros = [];
+        rows.slice(1).forEach(r => {
+          if (r[0] && r[1]) {
+            membros.push({ id: String(r[0]), nome: String(r[1]), contato: String(r[2]||''), valor: String(r[3]||''), data: String(r[4]||''), obs: String(r[5]||'') });
+          }
+        });
+      }
+
+      // Lê Pagamentos
+      const wsPg = wb.Sheets['Pagamentos'];
+      if (wsPg) {
+        const rows = XLSX.utils.sheet_to_json(wsPg, { header: 1 });
+        pagamentos = [];
+        rows.slice(1).forEach(r => {
+          if (r[0] && r[1]) {
+            pagamentos.push({ id: String(r[0]), membroId: String(r[1]), mes: parseInt(r[4])||0, ano: parseInt(r[5])||new Date().getFullYear(), valor: String(r[6]||''), status: String(r[7]||'pendente'), data: String(r[8]||''), obs: String(r[9]||'') });
+          }
+        });
+      }
+
+      
+      save();
+      renderAll();
+      alert(`✅ Dados carregados com sucesso!\n👥 ${membros.length} membros\n💳 ${pagamentos.length} pagamentos`);
+    } catch(err) {
+      alert('❌ Erro ao importar: ' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsBinaryString(file);
 }
 
-function abrirConfirmNotificacaoImport(total){
-  pendingNotifMode='import';
-  document.getElementById('confirm-notif-txt').innerHTML=
-    'Deseja notificar cada membro escalado pelo WhatsApp?<br><br>'+
-    '<strong style="color:var(--gold);">'+total+' membro(s)</strong> receberao sua escala individual com todos os cultos que participam.';
-  openMo('mo-confirm-notif');
-}
-
-function executarNotificacao(){
-  closeMo('mo-confirm-notif');
-  if(pendingNotifMode==='single'&&pendingNotifMembros){
-    notificarMembrosEscalados(pendingNotifMembros,pendingNotifDate,pendingNotifLabel);
-  } else if(pendingNotifMode==='import'&&pendingNotifLista){
-    notificarTodosImportados(pendingNotifLista);
-  }
-  pendingNotifMembros=null;pendingNotifDate=null;pendingNotifLabel=null;pendingNotifLista=null;pendingNotifMode=null;
-}
-
-window.addEventListener('load',function(){
-  var saved=sessionStorage.getItem('mm_cu');
-  if(saved){try{var sid=JSON.parse(saved).id;loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.id===sid;});if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}});}catch(e){}}
-  else{loadFromCloud().then(function(){seedMembers();});}
-  document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+// close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
 });
+
+init();
 </script>
+
+<script>
+// ===== CONFIG DA API — lida do localStorage =====
+function getApiKey() {
+  return localStorage.getItem('anthropic_api_key') || '';
+}
+
+const _origFetch = window.fetch;
+window.fetch = function(url, opts) {
+  if (typeof url === 'string' && url.includes('api.anthropic.com')) {
+    const key = getApiKey();
+    if (!key) { console.warn('Chave da API não configurada'); }
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['x-api-key'] = key;
+    opts.headers['anthropic-version'] = '2023-06-01';
+    opts.headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+  return _origFetch(url, opts);
+};
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
+
+<!-- Modal Configurar API -->
+<div class="modal-overlay" id="modalApiKey">
+  <div class="modal" style="max-width:420px">
+    <h3>⚙️ Chave da API</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">
+      Necessária para leitura de PDF com IA.<br>
+      Obtenha em <strong>console.anthropic.com → API Keys</strong>
+    </p>
+    <div class="form-group">
+      <label>Chave da API (sk-ant-...)</label>
+      <input class="form-control" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..." style="font-size:13px;letter-spacing:1px">
+      <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="showKey" onchange="document.getElementById('apiKeyInput').type=this.checked?'text':'password'">
+        <label for="showKey" style="font-size:12px;color:var(--muted);cursor:pointer">Mostrar chave</label>
+      </div>
+    </div>
+    <div id="apiKeyStatus" style="display:none;padding:10px;border-radius:8px;font-size:12px;margin-bottom:12px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('apiKey')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarApiKey()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
