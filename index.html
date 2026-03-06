@@ -446,8 +446,10 @@ function renderEscala(){
     var inscBtn='';
     if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});
       inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
+    var isL=CU&&CU.profile==='lider';
+    var delBtn=isL?'<button onclick="excluirCulto('+day.id+',event)" style="background:rgba(192,57,43,.18);border:1px solid rgba(192,57,43,.4);color:#ec7063;border-radius:6px;padding:3px 9px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:6px;">&#128465; Excluir</button>':'';
     div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
-      '<div><div class="dc-date">'+fmtDate(day.date)+abBadge+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
+      '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><div><div class="dc-date">'+fmtDate(day.date)+abBadge+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+delBtn+'</div>'+
       '<span class="dc-arr">&#9660;</span></div>'+
       '<div class="dc-body">'+
       (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+
@@ -460,6 +462,16 @@ function renderEscala(){
       '</div>';
     c.appendChild(div);
   });
+}
+
+function excluirCulto(dayId, event){
+  event.stopPropagation();
+  var day=S.escala.find(function(d){return d.id===dayId;});
+  if(!day)return;
+  if(!confirm('Excluir "'+day.label+'" de '+fmtDate(day.date)+'?\n\nEssa acao nao pode ser desfeita.'))return;
+  S.escala=S.escala.filter(function(d){return d.id!==dayId;});
+  S.notifs.unshift({id:Date.now(),icon:'&#128465;',text:'<strong>Culto excluido:</strong> '+day.label+' de '+fmtDate(day.date)+'.',time:nowStr(),unread:false});
+  saveAll().then(function(){toast('Culto excluido.');renderAll();});
 }
 
 function renderMinha(){
