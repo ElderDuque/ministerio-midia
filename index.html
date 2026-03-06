@@ -151,6 +151,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="tab" onclick="goPage('pedidos',this)">&#128259; Pedidos</div>
     <div class="tab" onclick="goPage('equipe',this)">&#128101; Equipe</div>
     <div class="tab" onclick="goPage('notifs',this)" id="tab-notifs">&#128276; Avisos</div>
+    <div class="tab" onclick="goPage('fones',this)">&#128241; Fones</div>
   </div>
 
   <div id="page-escala" class="page active">
@@ -236,6 +237,12 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
         <button class="btn bgold bblock" style="margin-top:12px;" onclick="sendAviso()">Enviar Aviso</button>
       </div>
     </div>
+  </div>
+
+  <!-- FONES PAGE -->
+  <div id="page-fones" class="page">
+    <div class="mhdr"><h2 style="font-size:1.1rem;">&#128241; Telefones da Equipe</h2><p>Toque no numero para editar</p></div>
+    <div id="fones-list"></div>
   </div>
 </div>
 
@@ -350,6 +357,25 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 </div>
 
+<!-- MODAL EDITAR TELEFONE -->
+<div class="mo" id="mo-edit-fone" onclick="closeMo('mo-edit-fone')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#128241; Editar Telefone</div>
+    <p style="font-size:.85rem;color:var(--gold-l);font-weight:700;margin-bottom:14px;" id="ef-nome">-</p>
+    <label class="mfl">Numero com DDD</label>
+    <input type="tel" class="mfi" id="ef-tel" placeholder="Ex: 93991234567" inputmode="numeric">
+    <p style="font-size:.7rem;color:var(--cream2);opacity:.55;margin-bottom:14px;margin-top:-8px;">
+      &#128161; Use o numero completo com DDD.<br>
+      Exemplo: <strong style="color:var(--gold);">93991234567</strong> (DDD 93 + 9 digitos)
+    </p>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-edit-fone')">Cancelar</button>
+      <button class="btn bgold" onclick="salvarFone()">&#10003; Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <!-- MODAL EDITAR MEMBRO -->
@@ -432,8 +458,8 @@ function doLogin(){
 function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
 
-function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();}
-function renderAll(){renderEscala();renderMinha();renderPedidos();renderEquipe();renderNotifs();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
+function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
+function renderAll(){renderEscala();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
 function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
 function excluirCulto(dayId,event){
@@ -718,6 +744,45 @@ function importarEscala(){
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
   S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s) adicionado(s).',time:nowStr(),unread:true});
   saveAll().then(function(){status.style.display='none';result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' &#8212; '+c.label+(c.membros.length?' ('+c.membros.length+' membros)':'');}).join('<br>');btn.disabled=false;document.getElementById('ia-texto').value='';renderAll();});
+}
+
+function renderFones(){
+  var c=document.getElementById('fones-list');
+  if(!c)return;
+  c.innerHTML=S.members.map(function(m){
+    return '<div class="mcard" style="cursor:pointer;" onclick="abrirEditFone('+m.id+')">' +
+      '<div class="av">'+m.name.charAt(0).toUpperCase()+'</div>' +
+      '<div class="minfo" style="flex:1;">' +
+        '<strong>'+m.name+'</strong>' +
+        '<span>'+m.role+'</span>' +
+      '</div>' +
+      '<div style="text-align:right;">' +
+        '<div style="font-size:.9rem;color:var(--gold);font-weight:700;">'+m.phone+'</div>' +
+        '<div style="font-size:.6rem;color:var(--cream2);opacity:.5;margin-top:2px;">toque para editar</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+var editFoneId = null;
+function abrirEditFone(id){
+  var m=S.members.find(function(x){return x.id===id;});
+  if(!m)return;
+  editFoneId=id;
+  document.getElementById('ef-nome').textContent=m.name;
+  document.getElementById('ef-tel').value=m.phone;
+  openMo('mo-edit-fone');
+}
+function salvarFone(){
+  var tel=document.getElementById('ef-tel').value.replace(/\D/g,'');
+  if(tel.length<10){toast('Numero invalido. Use DDD + numero completo.');return;}
+  var dup=S.members.find(function(m){return m.phone===tel&&m.id!==editFoneId;});
+  if(dup){toast('Numero ja usado por '+dup.name+'.');return;}
+  var m=S.members.find(function(x){return x.id===editFoneId;});
+  if(!m)return;
+  m.phone=tel;
+  if(CU&&CU.id===editFoneId)CU.phone=tel;
+  saveAll().then(function(){closeMo('mo-edit-fone');toast('Telefone de '+m.name+' atualizado!');renderFones();renderEquipe();});
 }
 
 var editMemId = null;
