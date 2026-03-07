@@ -299,16 +299,59 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 </div>
 
+<!-- MODAL IMPORTAR ESCALA -->
 <div class="mo" id="mo-ia" onclick="closeMo('mo-ia')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mhandle"></div>
     <div class="mtitle">&#129302; Importar Escala</div>
-    <p style="font-size:.76rem;color:var(--cream2);opacity:.7;margin-bottom:10px;">Cole o texto da escala copiado do WhatsApp:</p>
-    <label class="mfl">Texto da Escala</label>
-    <textarea id="ia-texto" class="mfi" rows="7" placeholder="Cole aqui..." style="height:130px;resize:vertical;"></textarea>
+
+    <!-- Abas: Texto / Foto -->
+    <div style="display:flex;gap:0;margin-bottom:14px;border:1px solid rgba(201,168,76,.25);border-radius:8px;overflow:hidden;">
+      <button id="ia-tab-texto" onclick="iaTabSwitch('texto')" style="flex:1;padding:8px;font-size:.75rem;font-weight:700;background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;border:none;cursor:pointer;">&#128clipboard; Texto</button>
+      <button id="ia-tab-foto" onclick="iaTabSwitch('foto')" style="flex:1;padding:8px;font-size:.75rem;font-weight:700;background:transparent;color:var(--gold);border:none;cursor:pointer;">&#128247; Foto / Imagem</button>
+    </div>
+
+    <!-- Aba Texto -->
+    <div id="ia-panel-texto">
+      <label class="mfl">Texto copiado do WhatsApp</label>
+      <textarea id="ia-texto" class="mfi" rows="7" placeholder="Cole aqui o texto da escala..." style="height:120px;resize:vertical;"></textarea>
+    </div>
+
+    <!-- Aba Foto -->
+    <div id="ia-panel-foto" style="display:none;">
+      <div id="ia-foto-drop" onclick="document.getElementById('ia-foto-input').click()" style="border:2px dashed rgba(201,168,76,.35);border-radius:12px;padding:28px 16px;text-align:center;cursor:pointer;margin-bottom:12px;background:rgba(201,168,76,.04);">
+        <div style="font-size:2rem;margin-bottom:8px;">&#128247;</div>
+        <p style="font-size:.78rem;color:var(--gold);font-weight:700;">Toque para escolher foto</p>
+        <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin-top:4px;">Foto da escala impressa ou print do WhatsApp</p>
+      </div>
+      <input type="file" id="ia-foto-input" accept="image/*" style="display:none;" onchange="iaFotoSelecionada(this)">
+      <div id="ia-foto-preview" style="display:none;margin-bottom:12px;">
+        <img id="ia-foto-img" style="width:100%;border-radius:8px;max-height:180px;object-fit:cover;">
+        <p style="font-size:.68rem;color:var(--cream2);opacity:.5;text-align:center;margin-top:5px;">Imagem selecionada</p>
+      </div>
+      <div id="ia-foto-status" style="display:none;text-align:center;padding:12px;font-size:.78rem;color:var(--gold);"><span class="spin">&#8635;</span> Lendo a escala com IA...</div>
+    </div>
+
     <div id="ia-status" style="display:none;font-size:.75rem;color:var(--gold);text-align:center;padding:10px;"><span class="spin">&#8635;</span> Processando...</div>
     <div id="ia-result" style="display:none;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;line-height:1.6;"></div>
-    <div class="macts"><button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button><button class="btn bgold" id="ia-btn" onclick="importarEscala()">Importar</button></div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-ia')">Cancelar</button>
+      <button class="btn bgold" id="ia-btn" onclick="iaProcessar()">&#128269; Analisar Escala</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR ESCALA RECONHECIDA -->
+<div class="mo" id="mo-ia-confirm" onclick="void(0)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#9989; Confirmar Escala Reconhecida</div>
+    <p style="font-size:.75rem;color:var(--cream2);opacity:.7;margin-bottom:12px;">Verifique os cultos abaixo antes de salvar:</p>
+    <div id="ia-confirm-list" style="max-height:55vh;overflow-y:auto;"></div>
+    <div class="macts" style="margin-top:14px;">
+      <button class="btn bred" onclick="cancelarImport()">&#10007; Cancelar</button>
+      <button class="btn bgold" onclick="confirmarImport()">&#10003; Salvar Escala</button>
+    </div>
   </div>
 </div>
 
@@ -373,6 +416,21 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <button class="btn bout" style="width:100%;justify-content:center;color:var(--cream2);border-color:rgba(255,255,255,.2);" onclick="closeMo('mo-confirm-notif')">
         &#128683; Nao notificar agora
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR NOME CULTO -->
+<div class="mo" id="mo-edit-culto" onclick="closeMo('mo-edit-culto')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#9999; Editar Nome do Culto</div>
+    <p style="font-size:.72rem;color:var(--cream2);opacity:.6;margin-bottom:12px;" id="edit-culto-data">-</p>
+    <label class="mfl">Nome do Culto</label>
+    <input type="text" class="mfi" id="edit-culto-nome" placeholder="Ex: Culto de Celebracao">
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-edit-culto')">Cancelar</button>
+      <button class="btn bgold" onclick="salvarNomeCulto()">&#10003; Salvar</button>
     </div>
   </div>
 </div>
@@ -482,7 +540,7 @@ function renderEscala(){
     var declined=day.membros.filter(function(m){return m.status==='declined';});
     var div=document.createElement('div');div.className='dc';
     var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
-    var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button>':'';
+    var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button><button class="del-btn" onclick="editarNomeCulto('+day.id+',event)" style="background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold);">&#9999;</button>':'';
     var inscBtn='';
     if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
     div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
@@ -846,26 +904,164 @@ function parsearEscala(texto){
   return cultos.filter(function(c){return c.date;});
 }
 
-function importarEscala(){
-  var status=document.getElementById('ia-status'),result=document.getElementById('ia-result'),btn=document.getElementById('ia-btn');
-  var texto=document.getElementById('ia-texto').value.trim();
-  if(!texto){toast('Cole o texto da escala.');return;}
-  result.style.display='none';status.style.display='block';btn.disabled=true;
-  var cultos=parsearEscala(texto);
-  if(!cultos.length){status.style.display='none';result.style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;';result.innerHTML='Nao encontrei datas na escala.';btn.disabled=false;return;}
+var pendingCultosImport = [];
+
+function iaTabSwitch(tab){
+  var isTexto = tab==='texto';
+  document.getElementById('ia-panel-texto').style.display = isTexto?'block':'none';
+  document.getElementById('ia-panel-foto').style.display = isTexto?'none':'block';
+  document.getElementById('ia-tab-texto').style.background = isTexto?'linear-gradient(135deg,#C9A84C,#A07830)':'transparent';
+  document.getElementById('ia-tab-texto').style.color = isTexto?'#0F0D07':'var(--gold)';
+  document.getElementById('ia-tab-foto').style.background = isTexto?'transparent':'linear-gradient(135deg,#C9A84C,#A07830)';
+  document.getElementById('ia-tab-foto').style.color = isTexto?'var(--gold)':'#0F0D07';
+}
+
+function iaFotoSelecionada(input){
+  if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('ia-foto-img').src=e.target.result;
+    document.getElementById('ia-foto-preview').style.display='block';
+    document.getElementById('ia-foto-drop').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function iaProcessar(){
+  var btn=document.getElementById('ia-btn');
+  var fotoPanel=document.getElementById('ia-panel-foto');
+  var isFoto=fotoPanel.style.display!=='none';
+
+  if(isFoto){
+    var img=document.getElementById('ia-foto-img');
+    if(!img.src||img.src===window.location.href){toast('Selecione uma foto primeiro.');return;}
+    iaLerFoto(img.src);
+  } else {
+    var texto=document.getElementById('ia-texto').value.trim();
+    if(!texto){toast('Cole o texto da escala.');return;}
+    var cultos=parsearEscala(texto);
+    if(!cultos.length){
+      document.getElementById('ia-result').style.cssText='display:block;background:rgba(192,57,43,.1);border:1px solid #C0392B;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#ec7063;';
+      document.getElementById('ia-result').innerHTML='Nao encontrei datas na escala. Verifique o texto.';
+      return;
+    }
+    mostrarConfirmacaoImport(cultos);
+  }
+}
+
+async function iaLerFoto(dataUrl){
+  var statusEl=document.getElementById('ia-foto-status');
+  var btn=document.getElementById('ia-btn');
+  statusEl.style.display='block';
+  btn.disabled=true;
+
+  try {
+    // Converte dataUrl para base64 puro
+    var base64=dataUrl.split(',')[1];
+    var mimeType=dataUrl.split(';')[0].split(':')[1];
+
+    var response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+            {type:'text',text:'Esta imagem contem uma escala de servico de uma igreja. Extraia APENAS as informacoes de data e culto em formato de lista simples, uma por linha, assim:
+
+DD/MM - Nome do Culto
+Nome1, Nome2
+
+DD/MM - Nome do Culto
+Nome1
+
+Se nao conseguir ler nomes, coloque apenas a data e o culto. Responda SOMENTE com a lista, sem explicacoes.'}
+          ]
+        }]
+      })
+    });
+
+    var data=await response.json();
+    var texto=data.content&&data.content[0]?data.content[0].text:'';
+
+    if(!texto){
+      statusEl.innerHTML='<span style="color:#e74c3c;">Nao consegui ler a escala. Tente uma foto mais nitida.</span>';
+      btn.disabled=false;
+      return;
+    }
+
+    statusEl.style.display='none';
+    btn.disabled=false;
+
+    // Mostra o texto extraido na aba de texto para revisar
+    document.getElementById('ia-texto').value=texto;
+    iaTabSwitch('texto');
+    toast('Escala lida! Verifique o texto e clique em Analisar.');
+
+  } catch(e) {
+    statusEl.innerHTML='<span style="color:#e74c3c;">Erro ao processar imagem. Tente copiar o texto manualmente.</span>';
+    btn.disabled=false;
+  }
+}
+
+function mostrarConfirmacaoImport(cultos){
+  pendingCultosImport=cultos;
+  var html='';
+  cultos.forEach(function(c,i){
+    var membrosHtml=c.membros.length
+      ? c.membros.map(function(n){
+          var m=S.members.find(function(x){var nl=n.toLowerCase();return x.name.toLowerCase()===nl||x.name.toLowerCase().indexOf(nl.split(' ')[0])>=0;});
+          return '<span style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:12px;font-size:.65rem;background:'+(m?'rgba(30,132,73,.2)':'rgba(201,168,76,.1)')+';color:'+(m?'#58d68d':'var(--gold-l)')+';border:1px solid '+(m?'#1E8449':'rgba(201,168,76,.3)')+';">'+n+(m?' &#10003;':' ?')+'</span>';
+        }).join('')
+      : '<span style="font-size:.68rem;color:var(--cream2);opacity:.4;">Nenhum membro identificado</span>';
+
+    html+='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.15);border-radius:10px;padding:11px;margin-bottom:9px;">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+      +'<strong style="font-size:.84rem;color:var(--gold-l);">&#128197; '+fmtDate(c.date)+'</strong>'
+      +'<span style="font-size:.7rem;color:var(--cream2);opacity:.6;">'+c.label+'</span>'
+      +'</div>'
+      +'<div>'+membrosHtml+'</div>'
+      +'<div style="font-size:.62rem;color:var(--cream2);opacity:.35;margin-top:5px;">&#10003; verde = encontrado na equipe &nbsp; ? amarelo = nao cadastrado</div>'
+      +'</div>';
+  });
+
+  document.getElementById('ia-confirm-list').innerHTML=html;
+  closeMo('mo-ia');
+  openMo('mo-ia-confirm');
+}
+
+function cancelarImport(){
+  pendingCultosImport=[];
+  closeMo('mo-ia-confirm');
+  toast('Importacao cancelada.');
+}
+
+function confirmarImport(){
+  if(!pendingCultosImport||!pendingCultosImport.length){closeMo('mo-ia-confirm');return;}
+  var cultos=pendingCultosImport;
   var adicionados=0;
   cultos.forEach(function(c){
-    var membrosEsc=c.membros.map(function(nome){var nl=nome.toLowerCase().trim();var m=S.members.find(function(x){var xn=x.name.toLowerCase();var pn=nl.split(' ')[0];return xn===nl||xn.indexOf(nl)>=0||nl.indexOf(xn.split(' ')[0])>=0||xn.split(' ')[0]===pn;});if(m)return{id:m.id,name:m.name,role:m.role,status:'pending'};if(nome.length>1)return{id:Date.now()+Math.random(),name:nome,role:'Projecao',status:'pending'};return null;}).filter(Boolean);
-    S.escala.push({id:Date.now()+adicionados,date:c.date,label:c.label,membros:membrosEsc,aberto:false});adicionados++;
+    var membrosEsc=c.membros.map(function(nome){
+      var nl=nome.toLowerCase().trim();
+      var m=S.members.find(function(x){var xn=x.name.toLowerCase();return xn===nl||xn.indexOf(nl.split(' ')[0])>=0||nl.indexOf(xn.split(' ')[0])>=0;});
+      if(m)return{id:m.id,name:m.name,role:m.role,status:'pending'};
+      if(nome.length>1)return{id:Date.now()+Math.random(),name:nome,role:'Projecao',status:'pending'};
+      return null;
+    }).filter(Boolean);
+    S.escala.push({id:Date.now()+adicionados,date:c.date,label:c.label,membros:membrosEsc,aberto:false});
+    adicionados++;
   });
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
-  S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s).',time:nowStr(),unread:true});
+  S.notifs.unshift({id:Date.now(),icon:'&#129302;',text:'<strong>Escala importada!</strong> '+adicionados+' culto(s) adicionado(s).',time:nowStr(),unread:true});
+  pendingCultosImport=[];
   saveAll().then(function(){
-    status.style.display='none';
-    result.style.cssText='display:block;background:rgba(30,132,73,.1);border:1px solid #1E8449;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#58d68d;line-height:1.7;';
-    result.innerHTML='<strong>'+adicionados+' culto(s) importado(s)!</strong><br>'+cultos.map(function(c){return fmtDate(c.date)+' &#8212; '+c.label+(c.membros.length?' ('+c.membros.length+')':'');}).join('<br>');
-    btn.disabled=false;document.getElementById('ia-texto').value='';renderAll();
-    // Perguntar se quer notificar membros
+    closeMo('mo-ia-confirm');
+    toast(adicionados+' culto(s) adicionado(s) com sucesso!');
+    renderAll();
     var todosMembros={};
     S.escala.forEach(function(day){day.membros.forEach(function(m){if(!todosMembros[m.id])todosMembros[m.id]={id:m.id,name:m.name,cultos:[]};todosMembros[m.id].cultos.push({date:day.date,label:day.label,role:m.role});});});
     var lista=Object.values(todosMembros);
@@ -878,7 +1074,9 @@ function importarEscala(){
   });
 }
 
-// Notifica cada membro com todos os seus cultos da escala importada
+function importarEscala(){iaProcessar();}
+
+
 function notificarTodosImportados(lista){
   var idx=0;
   function next(){
@@ -925,6 +1123,33 @@ function executarNotificacao(){
     notificarTodosImportados(pendingNotifLista);
   }
   pendingNotifMembros=null;pendingNotifDate=null;pendingNotifLabel=null;pendingNotifLista=null;pendingNotifMode=null;
+}
+
+var editCultoId = null;
+
+function editarNomeCulto(dayId, event){
+  event.stopPropagation();
+  var day=S.escala.find(function(d){return d.id===dayId;});
+  if(!day)return;
+  editCultoId=dayId;
+  document.getElementById('edit-culto-data').textContent=fmtDate(day.date);
+  document.getElementById('edit-culto-nome').value=day.label;
+  openMo('mo-edit-culto');
+}
+
+function salvarNomeCulto(){
+  var nome=document.getElementById('edit-culto-nome').value.trim();
+  if(!nome){toast('Digite o nome do culto.');return;}
+  var day=S.escala.find(function(d){return d.id===editCultoId;});
+  if(!day)return;
+  var nomeAntigo=day.label;
+  day.label=nome;
+  S.notifs.unshift({id:Date.now(),icon:'&#9999;',text:'<strong>Culto renomeado:</strong> "'+nomeAntigo+'" passou a se chamar "<strong>'+nome+'</strong>".',time:nowStr(),unread:false});
+  saveAll().then(function(){
+    closeMo('mo-edit-culto');
+    toast('Nome atualizado!');
+    renderEscala();
+  });
 }
 
 window.addEventListener('load',function(){
