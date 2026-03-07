@@ -892,7 +892,7 @@ function parsearEscala(texto){
   function extrairNomes(linha){var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();var nomes=[];s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();if(ehNome(p))nomes.push(p);});return nomes;}
   linhas.forEach(function(linha){
     var data=null,label='',nomesExtra=[];
-    var m1=linha.match(/(?:dom|seg|ter|qua|qui|sex|s[aá]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
+    var m1=linha.match(/(?:dom|seg|ter|qua|qui|sex|s[a\u00E1]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
     if(m1){data=parseData(m1[1]);label=normLabel(m1[2])||m1[2].trim();}
     if(!data){var m2=linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3,})\s+(DOMINGO|SABADO|S\xC1BADO|QUINTA|SEXTA|SEGUNDA)\s*(.*)/i);if(m2){data=parseData(m2[1]+'-'+m2[2]);if(data){var sp=splitLabelNomes(m2[4]);label=normLabel(sp.label)||normLabel(m2[3]);nomesExtra=sp.nomes;}}}
     if(!data){var m3=linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})(.*)/i);if(m3){data=parseData(m3[2]);var r3=m3[3].replace(/[\u2014\-]/,'').trim();label=normLabel(r3)||(m3[1].toLowerCase().includes('quinta')?'Quinta Profetica':'Culto de Celebracao');}}
@@ -1103,7 +1103,7 @@ function abrirConfirmNotificacao(membros,date,label){
   document.getElementById('confirm-notif-txt').innerHTML=
     'Deseja enviar uma mensagem de WhatsApp para cada membro escalado?<br><br>'+
     '<strong style="color:var(--gold);">'+membros.length+' membro(s)</strong> serao notificados sobre:<br>'+
-    '<strong>'+fmtDate(date)+' — '+label+'</strong>';
+    '<strong>'+fmtDate(date)+' \u2014 '+label+'</strong>';
   openMo('mo-confirm-notif');
 }
 
