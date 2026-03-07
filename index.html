@@ -971,15 +971,7 @@ async function iaLerFoto(dataUrl){
           role:'user',
           content:[
             {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
-            {type:'text',text:'Esta imagem contem uma escala de servico de uma igreja. Extraia APENAS as informacoes de data e culto em formato de lista simples, uma por linha, assim:
-
-DD/MM - Nome do Culto
-Nome1, Nome2
-
-DD/MM - Nome do Culto
-Nome1
-
-Se nao conseguir ler nomes, coloque apenas a data e o culto. Responda SOMENTE com a lista, sem explicacoes.'}
+            {type:'text',text:'Esta imagem contem uma escala de servico de uma igreja. Extraia APENAS as informacoes de data e culto em formato de lista simples, uma por linha, assim:\n\nDD/MM - Nome do Culto\nNome1, Nome2\n\nDD/MM - Nome do Culto\nNome1\n\nSe nao conseguir ler nomes, coloque apenas a data e o culto. Responda SOMENTE com a lista, sem explicacoes.'}
           ]
         }]
       })
