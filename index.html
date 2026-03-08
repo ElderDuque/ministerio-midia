@@ -236,6 +236,20 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="mtitle">+ Novo Culto na Escala</div>
     <label class="mfl">Data</label><input type="date" class="mfi" id="nd-date" onchange="autoLabel()">
     <label class="mfl">Nome do Culto</label><input type="text" class="mfi" id="nd-label" placeholder="Ex: Culto de Celebracao">
+    <label class="mfl">Horario</label>
+    <select class="mfs" id="nd-hora">
+      <option value="08:00">08:00</option>
+      <option value="09:00">09:00</option>
+      <option value="10:00">10:00</option>
+      <option value="17:00">17:00</option>
+      <option value="18:00">18:00</option>
+      <option value="18:30">18:30</option>
+      <option value="19:00" selected>19:00</option>
+      <option value="19:30">19:30</option>
+      <option value="20:00">20:00</option>
+      <option value="20:30">20:30</option>
+      <option value="21:00">21:00</option>
+    </select>
     <label class="mfl">Modo</label>
     <select class="mfs" id="nd-modo" onchange="toggleModo()">
       <option value="fixo">Membros fixos - precisam confirmar</option>
@@ -537,21 +551,23 @@ function renderEscala(){
   document.getElementById('st-pend').textContent=pend;
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
-  // Encontra o proximo culto (primeiro que ainda nao passou)
-  var hoje=new Date();hoje.setHours(0,0,0,0);
+  // Encontra o proximo culto usando data+hora real
+  var agora=new Date();
   var proximoId=null;
   for(var pi=0;pi<S.escala.length;pi++){
-    var pd=new Date(S.escala[pi].date+'T12:00:00');
-    if(pd>=hoje){proximoId=S.escala[pi].id;break;}
+    var dh=S.escala[pi].hora||'23:59';
+    var pd=new Date(S.escala[pi].date+'T'+dh+':00');
+    if(pd>agora){proximoId=S.escala[pi].id;break;}
   }
 
   S.escala.forEach(function(day){
     var declined=day.membros.filter(function(m){return m.status==='declined';});
     var div=document.createElement('div');div.className='dc';
 
-    // Verifica se culto ja passou
-    var dayDate=new Date(day.date+'T12:00:00');
-    var passou=dayDate<hoje;
+    // Culto passou se data+hora ja passou
+    var dh=day.hora||'23:59';
+    var dayDate=new Date(day.date+'T'+dh+':00');
+    var passou=dayDate<=agora;
     var isProximo=day.id===proximoId;
 
     // Estilo visual por status do dia
@@ -575,7 +591,7 @@ function renderEscala(){
     var inscBtn='';
     if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
     div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
-      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
+      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+(day.hora?' <span style="font-weight:400;font-size:.72rem;color:var(--cream2);opacity:.7;">'+day.hora+'h</span>':'')+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
       '<span class="dc-arr">&#9660;</span></div>'+
       '<div class="dc-body">'+
       (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+
@@ -780,6 +796,7 @@ function sendAviso(){
 function addCulto(){
   var date=document.getElementById('nd-date').value;
   var label=document.getElementById('nd-label').value.trim();
+  var hora=document.getElementById('nd-hora').value||'19:00';
   var modo=document.getElementById('nd-modo').value;
   if(!date||!label){toast('Preencha data e nome.');return;}
   var membrosEsc=[];
@@ -789,12 +806,12 @@ function addCulto(){
     var st=modo==='confirmado'?'confirmed':'pending';
     membrosEsc=checked.map(function(cb){var m=S.members.find(function(x){return x.id==cb.value;});return{id:m.id,name:m.name,role:m.role,status:st};});
   }
-  S.escala.push({id:Date.now(),date:date,label:label,membros:membrosEsc,aberto:modo==='aberto'});
+  S.escala.push({id:Date.now(),date:date,hora:hora,label:label,membros:membrosEsc,aberto:modo==='aberto'});
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
   S.notifs.unshift({id:Date.now()+1,icon:'&#128197;',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+(modo==='aberto'?' &#8212; aberto para inscricao!':'.')+'',time:nowStr(),unread:true});
   saveAll().then(function(){
     closeMo('mo-addday');
-    document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-modo').value='fixo';toggleModo();
+    document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-hora').value='19:00';document.getElementById('nd-modo').value='fixo';toggleModo();
     toast('Culto adicionado!');renderAll();
     if(membrosEsc.length>0&&modo!=='aberto'){
       setTimeout(function(){
