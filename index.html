@@ -3,17 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>Ministério de Mídia</title>
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ministério de Mídia">
-  <meta name="application-name" content="Ministério de Mídia">
-  <meta name="theme-color" content="#0F0D07">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icone-192.png">
-  <link rel="apple-touch-icon" href="icone-192.png">
-
+<title>Ministerio de Midia</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#C9A84C;--gold-l:#F0D080;--gold-d:rgba(201,168,76,.15);--dark:#0F0D07;--d2:#1C1608;--d3:#251D0A;--cream:#FAF3E0;--cream2:#D4C9A8;--red:#C0392B;--green:#1E8449;}
@@ -63,6 +53,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 .dc-arr{font-size:.72rem;color:var(--gold);transition:transform .2s;flex-shrink:0;margin-left:6px;}
 .dc.open .dc-arr{transform:rotate(180deg);}
 .dc-body{display:none;padding:9px 13px;} .dc.open .dc-body{display:block;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .miss-alert{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.28);border-radius:6px;padding:6px 9px;margin-bottom:7px;font-size:.7rem;color:#e74c3c;}
 .mrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .mrow:last-child{border-bottom:none;}
@@ -546,15 +537,45 @@ function renderEscala(){
   document.getElementById('st-pend').textContent=pend;
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
+  // Encontra o proximo culto (primeiro que ainda nao passou)
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var proximoId=null;
+  for(var pi=0;pi<S.escala.length;pi++){
+    var pd=new Date(S.escala[pi].date+'T12:00:00');
+    if(pd>=hoje){proximoId=S.escala[pi].id;break;}
+  }
+
   S.escala.forEach(function(day){
     var declined=day.membros.filter(function(m){return m.status==='declined';});
     var div=document.createElement('div');div.className='dc';
+
+    // Verifica se culto ja passou
+    var dayDate=new Date(day.date+'T12:00:00');
+    var passou=dayDate<hoje;
+    var isProximo=day.id===proximoId;
+
+    // Estilo visual por status do dia
+    if(passou){
+      div.style.cssText='opacity:.5;filter:grayscale(40%);';
+    } else if(isProximo){
+      div.style.cssText='border:1px solid rgba(201,168,76,.6);box-shadow:0 0 10px rgba(201,168,76,.15);';
+    }
+
     var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
+
+    // Badge de status do culto
+    var statusBadge='';
+    if(passou){
+      statusBadge=' <span style="font-size:.58rem;background:rgba(88,214,141,.12);color:#58d68d;border:1px solid rgba(88,214,141,.3);padding:1px 7px;border-radius:7px;">✓ Realizado</span>';
+    } else if(isProximo){
+      statusBadge=' <span style="font-size:.58rem;background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.5);padding:1px 7px;border-radius:7px;animation:pulse 1.5s infinite;">▶ Proximo</span>';
+    }
+
     var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button><button class="del-btn" onclick="editarNomeCulto('+day.id+',event)" style="background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold);">&#9999;</button>':'';
     var inscBtn='';
     if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
     div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
-      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+abBadge+'</span>'+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
+      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
       '<span class="dc-arr">&#9660;</span></div>'+
       '<div class="dc-body">'+
       (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+
