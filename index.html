@@ -443,6 +443,20 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <p style="font-size:.72rem;color:var(--cream2);opacity:.6;margin-bottom:12px;" id="edit-culto-data">-</p>
     <label class="mfl">Nome do Culto</label>
     <input type="text" class="mfi" id="edit-culto-nome" placeholder="Ex: Culto de Celebracao">
+    <label class="mfl">Horario</label>
+    <select class="mfs" id="edit-culto-hora">
+      <option value="08:00">08:00</option>
+      <option value="09:00">09:00</option>
+      <option value="10:00">10:00</option>
+      <option value="17:00">17:00</option>
+      <option value="18:00">18:00</option>
+      <option value="18:30">18:30</option>
+      <option value="19:00">19:00</option>
+      <option value="19:30">19:30</option>
+      <option value="20:00">20:00</option>
+      <option value="20:30">20:30</option>
+      <option value="21:00">21:00</option>
+    </select>
     <div class="macts">
       <button class="btn bout" onclick="closeMo('mo-edit-culto')">Cancelar</button>
       <button class="btn bgold" onclick="salvarNomeCulto()">&#10003; Salvar</button>
@@ -1174,20 +1188,23 @@ function editarNomeCulto(dayId, event){
   editCultoId=dayId;
   document.getElementById('edit-culto-data').textContent=fmtDate(day.date);
   document.getElementById('edit-culto-nome').value=day.label;
+  document.getElementById('edit-culto-hora').value=day.hora||'19:00';
   openMo('mo-edit-culto');
 }
 
 function salvarNomeCulto(){
   var nome=document.getElementById('edit-culto-nome').value.trim();
+  var hora=document.getElementById('edit-culto-hora').value||'19:00';
   if(!nome){toast('Digite o nome do culto.');return;}
   var day=S.escala.find(function(d){return d.id===editCultoId;});
   if(!day)return;
   var nomeAntigo=day.label;
   day.label=nome;
-  S.notifs.unshift({id:Date.now(),icon:'&#9999;',text:'<strong>Culto renomeado:</strong> "'+nomeAntigo+'" passou a se chamar "<strong>'+nome+'</strong>".',time:nowStr(),unread:false});
+  day.hora=hora;
+  S.notifs.unshift({id:Date.now(),icon:'&#9999;',text:'<strong>Culto atualizado:</strong> "'+nome+'" • '+hora+'h',time:nowStr(),unread:false});
   saveAll().then(function(){
     closeMo('mo-edit-culto');
-    toast('Nome atualizado!');
+    toast('Culto atualizado!');
     renderEscala();
   });
 }
