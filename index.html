@@ -166,6 +166,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="tab" onclick="goPage('equipe',this)">&#128101; Equipe</div>
     <div class="tab" onclick="goPage('fones',this)">&#128241; Fones</div>
     <div class="tab" onclick="goPage('notifs',this)" id="tab-notifs">&#128276; Avisos</div>
+    <div class="tab" onclick="goPage('artigos',this)" id="tab-artigos">&#128230; Artigos</div>
   </div>
 
   <div id="page-escala" class="page active">
@@ -394,6 +395,26 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="macts"><button class="btn bout" onclick="closeMo('mo-edit-fone')">Cancelar</button><button class="btn bgold" onclick="salvarFone()">&#10003; Salvar</button></div>
   </div>
 </div>
+<div id="page-artigos" class="page">
+  <div class="mhdr"><h2>&#128230; Artigos do Ministerio</h2><p>Patrimonio e localizacao dos equipamentos</p></div>
+
+  <!-- View toggle + Add button (lideres) -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="display:flex;gap:6px;">
+      <button id="art-view-grid" onclick="artigoSetView('grid')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;font-size:.75rem;font-weight:700;cursor:pointer;">&#9646;&#9646; Grade</button>
+      <button id="art-view-list" onclick="artigoSetView('list')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,.3);background:transparent;color:var(--gold);font-size:.75rem;font-weight:700;cursor:pointer;">&#9776; Lista</button>
+    </div>
+    <button id="art-add-btn" style="display:none;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;font-size:.75rem;font-weight:700;border:none;cursor:pointer;" onclick="openMo('mo-add-artigo')">+ Adicionar</button>
+  </div>
+
+  <!-- Search -->
+  <input type="text" id="art-search" class="mfi" placeholder="&#128269; Buscar artigo..." oninput="renderArtigos()" style="margin-bottom:14px;">
+
+  <!-- Items list/grid -->
+  <div id="artigos-container"></div>
+</div>
+
+
 
 <!-- MODAL IMPORTAR ESCALA -->
 <div class="mo" id="mo-ia" onclick="closeMo('mo-ia')">
@@ -598,6 +619,62 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 </div>
 
+<!-- MODAL ADD/EDIT ARTIGO -->
+<div class="mo" id="mo-add-artigo" onclick="closeMo('mo-add-artigo')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mo-artigo-title">&#128230; Novo Artigo</div>
+
+    <label class="mfl">Nome do Item *</label>
+    <input type="text" class="mfi" id="art-nome" placeholder="Ex: Camera Sony A7III">
+
+    <label class="mfl">Quantidade</label>
+    <input type="number" class="mfi" id="art-qtd" placeholder="1" min="1" value="1">
+
+    <label class="mfl">Onde esta guardado</label>
+    <input type="text" class="mfi" id="art-local" placeholder="Ex: Armario sala tecnica, gaveta 2">
+
+    <label class="mfl">Estado</label>
+    <select class="mfs" id="art-estado">
+      <option value="bom">&#9989; Bom estado</option>
+      <option value="atencao">&#9888; Requer atencao</option>
+      <option value="danificado">&#10060; Danificado</option>
+      <option value="emprestado">&#128256; Emprestado</option>
+    </select>
+
+    <label class="mfl">Foto do Item</label>
+    <div id="art-foto-preview" style="margin-bottom:8px;display:none;">
+      <img id="art-foto-img" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;">
+      <button onclick="removerFotoArtigo()" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;background:rgba(192,57,43,.2);color:#ec7063;border:1px solid rgba(192,57,43,.3);font-size:.72rem;cursor:pointer;">&#10006; Remover foto</button>
+    </div>
+    <div id="art-foto-drop" onclick="document.getElementById('art-foto-input').click()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;">
+      <div style="font-size:1.5rem;">&#128247;</div>
+      <p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p>
+    </div>
+    <input type="file" id="art-foto-input" accept="image/*" style="display:none;" onchange="artigoFotoSelecionada(this)">
+
+    <label class="mfl">Observacoes</label>
+    <textarea class="mfi" id="art-obs" rows="3" placeholder="Detalhes adicionais..." style="height:70px;resize:none;"></textarea>
+
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-add-artigo')">Cancelar</button>
+      <button class="btn bgold" onclick="salvarArtigo()">&#10003; Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER ARTIGO -->
+<div class="mo" id="mo-ver-artigo" onclick="closeMo('mo-ver-artigo')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;">
+    <div class="mhandle"></div>
+    <div id="mo-ver-artigo-content"></div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-ver-artigo')">Fechar</button>
+      <button class="btn bgold" id="mo-ver-edit-btn" style="display:none;" onclick="editarArtigoAtual()">&#9999; Editar</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <script>
 var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
@@ -608,12 +685,12 @@ function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML
 async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
 async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});setOnline(r.ok);}catch(e){setOnline(false);}}
 
-var S={members:[],escala:[],notifs:[],pedidos:[]};
+var S={members:[],escala:[],notifs:[],pedidos:[],artigos:[]};
 var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
 
 function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
-async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;}showSync(false);}
-async function saveAll(){await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos});document.getElementById('backup-alert').style.display='block';}
+async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;if(d.artigos)S.artigos=d.artigos;}showSync(false);}
+async function saveAll(){await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos||[]});document.getElementById('backup-alert').style.display='block';}
 
 function seedMembers(){
   if(!S.members.length)S.members=[
@@ -1341,6 +1418,206 @@ function salvarNomeCulto(){
     toast('Culto atualizado!');
     renderEscala();
   });
+}
+
+// ============ ARTIGOS ============
+var artigoView = 'grid';
+var artigoEditId = null;
+var artigoFotoB64 = null;
+
+function artigoSetView(v){
+  artigoView = v;
+  document.getElementById('art-view-grid').style.background = v==='grid'?'linear-gradient(135deg,#C9A84C,#A07830)':'transparent';
+  document.getElementById('art-view-grid').style.color = v==='grid'?'#0F0D07':'var(--gold)';
+  document.getElementById('art-view-list').style.background = v==='list'?'linear-gradient(135deg,#C9A84C,#A07830)':'transparent';
+  document.getElementById('art-view-list').style.color = v==='list'?'#0F0D07':'var(--gold)';
+  renderArtigos();
+}
+
+function artigoFotoSelecionada(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    artigoFotoB64=e.target.result;
+    document.getElementById('art-foto-img').src=e.target.result;
+    document.getElementById('art-foto-preview').style.display='block';
+    document.getElementById('art-foto-drop').style.display='none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function removerFotoArtigo(){
+  artigoFotoB64=null;
+  document.getElementById('art-foto-preview').style.display='none';
+  document.getElementById('art-foto-drop').style.display='block';
+  document.getElementById('art-foto-input').value='';
+}
+
+var estadoInfo={
+  bom:{icon:'\u2705',label:'Bom estado',color:'#58d68d',bg:'rgba(30,132,73,.15)'},
+  atencao:{icon:'\u26A0\uFE0F',label:'Requer atencao',color:'#f39c12',bg:'rgba(243,156,18,.12)'},
+  danificado:{icon:'\u274C',label:'Danificado',color:'#e74c3c',bg:'rgba(192,57,43,.15)'},
+  emprestado:{icon:'\uD83D\uDD04',label:'Emprestado',color:'#3498db',bg:'rgba(52,152,219,.15)'}
+};
+
+function renderArtigos(){
+  var isL=CU&&CU.profile==='lider';
+  var addBtn=document.getElementById('art-add-btn');
+  if(addBtn)addBtn.style.display=isL?'block':'none';
+
+  var search=(document.getElementById('art-search')||{}).value||'';
+  var items=(S.artigos||[]).filter(function(a){
+    return !search||a.nome.toLowerCase().indexOf(search.toLowerCase())>=0||
+      (a.local&&a.local.toLowerCase().indexOf(search.toLowerCase())>=0);
+  });
+
+  var ct=document.getElementById('artigos-container');
+  if(!ct)return;
+
+  if(!items.length){
+    ct.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--cream2);opacity:.4;">'
+      +'<div style="font-size:2.5rem;margin-bottom:10px;">&#128230;</div>'
+      +'<p style="font-size:.82rem;">'+(isL?'Nenhum artigo cadastrado ainda.<br>Clique em + Adicionar para comecar.':'Nenhum artigo cadastrado ainda.')+'</p>'
+      +'</div>';
+    return;
+  }
+
+  if(artigoView==='grid'){
+    ct.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px;';
+    ct.innerHTML=items.map(function(a){
+      var ei=estadoInfo[a.estado]||estadoInfo.bom;
+      var fotoHtml=a.foto
+        ?'<img src="'+a.foto+'" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;">'
+        :'<div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:rgba(255,255,255,.03);border-radius:8px 8px 0 0;">&#128230;</div>';
+      return '<div onclick="verArtigo('+a.id+')" style="background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);border-radius:10px;cursor:pointer;overflow:hidden;">'
+        +fotoHtml
+        +'<div style="padding:8px;">'
+        +'<div style="font-size:.78rem;font-weight:700;color:var(--gold-l);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+'</div>'
+        +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:5px;">&#128205; '+(a.local||'Sem local')+'</div>'
+        +'<span style="font-size:.6rem;padding:2px 7px;border-radius:8px;background:'+ei.bg+';color:'+ei.color+';">'+ei.icon+' '+ei.label+'</span>'
+        +'</div></div>';
+    }).join('');
+  } else {
+    ct.style.cssText='display:flex;flex-direction:column;gap:8px;';
+    ct.innerHTML=items.map(function(a){
+      var ei=estadoInfo[a.estado]||estadoInfo.bom;
+      var fotoHtml=a.foto
+        ?'<img src="'+a.foto+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
+        :'<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(255,255,255,.05);border-radius:8px;flex-shrink:0;">&#128230;</div>';
+      return '<div onclick="verArtigo('+a.id+')" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);border-radius:10px;padding:10px;cursor:pointer;">'
+        +fotoHtml
+        +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:.82rem;font-weight:700;color:var(--gold-l);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+'</div>'
+        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.5;">&#128205; '+(a.local||'Sem local')+(a.qtd>1?' &nbsp;&#128230; x'+a.qtd:'')+'</div>'
+        +'<span style="font-size:.6rem;padding:2px 6px;border-radius:7px;background:'+ei.bg+';color:'+ei.color+';">'+ei.icon+' '+ei.label+'</span>'
+        +'</div>'
+        +'<span style="color:var(--gold);opacity:.4;font-size:1rem;">&#9656;</span>'
+        +'</div>';
+    }).join('');
+  }
+}
+
+function verArtigo(id){
+  var a=S.artigos.find(function(x){return x.id===id;});
+  if(!a)return;
+  var isL=CU&&CU.profile==='lider';
+  var ei=estadoInfo[a.estado]||estadoInfo.bom;
+  var fotoHtml=a.foto?'<img src="'+a.foto+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-bottom:12px;">':'';
+  document.getElementById('mo-ver-artigo-content').innerHTML=
+    '<div class="mtitle">'+a.nome+'</div>'
+    +fotoHtml
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'
+    +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;">'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">QUANTIDADE</div>'
+    +'<div style="font-size:.92rem;font-weight:700;color:var(--gold-l);">'+a.qtd+'</div>'
+    +'</div>'
+    +'<div style="background:'+ei.bg+';border-radius:8px;padding:10px;">'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">ESTADO</div>'
+    +'<div style="font-size:.78rem;font-weight:700;color:'+ei.color+';">'+ei.icon+' '+ei.label+'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">&#128205; ONDE ESTA</div>'
+    +'<div style="font-size:.82rem;color:var(--cream2);">'+(a.local||'Nao informado')+'</div>'
+    +'</div>'
+    +(a.obs?'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">&#128221; OBSERVACOES</div>'
+    +'<div style="font-size:.78rem;color:var(--cream2);line-height:1.6;">'+a.obs+'</div>'
+    +'</div>':'');
+  var editBtn=document.getElementById('mo-ver-edit-btn');
+  if(editBtn)editBtn.style.display=isL?'block':'none';
+  artigoEditId=id;
+  openMo('mo-ver-artigo');
+}
+
+function editarArtigoAtual(){
+  var a=S.artigos.find(function(x){return x.id===artigoEditId;});
+  if(!a)return;
+  closeMo('mo-ver-artigo');
+  setTimeout(function(){
+    document.getElementById('mo-artigo-title').textContent='\u270F\uFE0F Editar Artigo';
+    document.getElementById('art-nome').value=a.nome;
+    document.getElementById('art-qtd').value=a.qtd||1;
+    document.getElementById('art-local').value=a.local||'';
+    document.getElementById('art-estado').value=a.estado||'bom';
+    document.getElementById('art-obs').value=a.obs||'';
+    artigoFotoB64=a.foto||null;
+    if(a.foto){
+      document.getElementById('art-foto-img').src=a.foto;
+      document.getElementById('art-foto-preview').style.display='block';
+      document.getElementById('art-foto-drop').style.display='none';
+    } else {
+      document.getElementById('art-foto-preview').style.display='none';
+      document.getElementById('art-foto-drop').style.display='block';
+    }
+    openMo('mo-add-artigo');
+  },300);
+}
+
+function salvarArtigo(){
+  var nome=document.getElementById('art-nome').value.trim();
+  if(!nome){toast('Digite o nome do item.');return;}
+  var qtd=parseInt(document.getElementById('art-qtd').value)||1;
+  var local=document.getElementById('art-local').value.trim();
+  var estado=document.getElementById('art-estado').value;
+  var obs=document.getElementById('art-obs').value.trim();
+
+  if(!S.artigos)S.artigos=[];
+
+  if(artigoEditId){
+    var a=S.artigos.find(function(x){return x.id===artigoEditId;});
+    if(a){a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;if(artigoFotoB64!==null)a.foto=artigoFotoB64;}
+  } else {
+    S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,foto:artigoFotoB64});
+  }
+
+  saveAll().then(function(){
+    closeMo('mo-add-artigo');
+    artigoEditId=null;artigoFotoB64=null;
+    document.getElementById('art-nome').value='';
+    document.getElementById('art-qtd').value='1';
+    document.getElementById('art-local').value='';
+    document.getElementById('art-estado').value='bom';
+    document.getElementById('art-obs').value='';
+    document.getElementById('art-foto-preview').style.display='none';
+    document.getElementById('art-foto-drop').style.display='block';
+    document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+    toast('Artigo salvo!');
+    renderArtigos();
+  });
+}
+
+function openAddArtigo(){
+  artigoEditId=null;artigoFotoB64=null;
+  document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+  document.getElementById('art-nome').value='';
+  document.getElementById('art-qtd').value='1';
+  document.getElementById('art-local').value='';
+  document.getElementById('art-estado').value='bom';
+  document.getElementById('art-obs').value='';
+  document.getElementById('art-foto-preview').style.display='none';
+  document.getElementById('art-foto-drop').style.display='block';
+  openMo('mo-add-artigo');
 }
 
 window.addEventListener('load',function(){
