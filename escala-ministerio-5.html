@@ -1,0 +1,253 @@
+<div class="mhdr">
+  <h2 style="margin:0 0 4px;">Escala Geral</h2>
+  <p style="margin:0;opacity:.7;">Ministério de Mídia</p>
+</div>
+
+<script>
+
+// ─── COMPARTILHAR MÊS VIA WHATSAPP ──────────────────────────────────────────
+
+function compartilharMes(key) {
+  const { days, mesNome } = window._escalaMes[key];
+
+  let msg = `📋 *ESCALA DE MÍDIA — ${mesNome.toUpperCase()}*\n`;
+  msg += `_Ministério de Mídia_\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  days.forEach(day => {
+    const dt = new Date(day.date + 'T12:00:00');
+    const diaSemana = dt.toLocaleDateString('pt-BR', { weekday: 'short' })
+      .replace('.', '').replace(/^\w/, c => c.toUpperCase());
+    const diaMes = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    const hora = day.time ? day.time : '';
+
+    msg += `📅 *${diaSemana}, ${diaMes}${hora ? ' às ' + hora : ''}*\n`;
+    msg += `🎙 ${day.label}\n`;
+
+    if (day.membros.length === 0) {
+      msg += `👥 _Nenhum inscrito ainda — inscrição livre_\n`;
+    } else {
+      day.membros.forEach(m => {
+        const status = m.status === 'confirmed' ? '✅' : m.status === 'pending' ? '⏳' : '❌';
+        msg += `  ${status} ${m.name} — ${m.role}\n`;
+      });
+    }
+    msg += `\n`;
+  });
+
+  msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `⚠️ _Cultos sem inscritos ainda estão com inscrição livre!_\n`;
+  msg += `📲 _Acesse o app e garanta sua vaga._`;
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ─── SCROLL ATÉ O MÊS EM FORMAÇÃO ───────────────────────────────────────────
+
+function irParaProximoMes() {
+  const el = document.getElementById('mes-em-formacao');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ─── RENDERIZAÇÃO POR MÊS ───────────────────────────────────────────────────
+
+function renderEscala() {
+  const all = escala();
+  const c = document.getElementById('escala-list');
+  c.innerHTML = '';
+  if (!window._escalaMes) window._escalaMes = {};
+
+  // Agrupar cultos por mês
+  const grupos = {};
+  all.forEach(day => {
+    const dt = new Date(day.date + 'T12:00:00');
+    const key = dt.getFullYear() + '-' + String(dt.getMonth()).padStart(2,'0');
+    if (!grupos[key]) grupos[key] = { dt, days: [] };
+    grupos[key].days.push(day);
+  });
+
+  const keys = Object.keys(grupos).sort();
+
+  // ── Detectar mês atual e próximo ─────────────────────────────────────────
+  const hoje = new Date();
+  const mesAtualKey = hoje.getFullYear() + '-' + String(hoje.getMonth()).padStart(2,'0');
+
+  // Mês anterior ao atual (ou ao mais recente com dados)
+  // Próximo mês = primeiro mês APÓS o mês atual que tenha cultos
+  let keyMesAnterior = null;
+  let keyProximoMes  = null;
+
+  keys.forEach(k => {
+    if (k < mesAtualKey) keyMesAnterior = k;
+    if (k > mesAtualKey && !keyProximoMes) keyProximoMes = k;
+    if (k === mesAtualKey) {
+      // se o mês atual existe nos dados, ele próprio pode ser o "em formação"
+      const emFormacao = grupos[k].days.filter(d => d.membros.length === 0).length > 0;
+      if (emFormacao) keyProximoMes = k;
+    }
+  });
+
+  // Mês "em formação" é o próximo com cultos sem inscritos
+  const mesEmFormacaoKey = keyProximoMes;
+
+  // Banner: mostrar se existe mês em formação diferente do mês anterior
+  const mostrarBanner = mesEmFormacaoKey && mesEmFormacaoKey !== keyMesAnterior;
+
+  if (mostrarBanner) {
+    const mesFormNome = grupos[mesEmFormacaoKey].dt
+      .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      .replace(/^\w/, c => c.toUpperCase());
+
+    const banner = document.createElement('div');
+    banner.onclick = irParaProximoMes;
+    banner.style.cssText = `
+      background: linear-gradient(135deg, #b8860b, #8B6914);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    `;
+    banner.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.4rem;">🗓️</span>
+        <div>
+          <div style="color:#FFD700;font-weight:700;font-size:.85rem;">ESCALA EM FORMAÇÃO</div>
+          <div style="color:#fff;font-size:.8rem;margin-top:2px;">
+            A escala de <strong>${mesFormNome}</strong> já está disponível!<br>
+            <span style="opacity:.85;">Clique para ver e garantir sua vaga.</span>
+          </div>
+        </div>
+      </div>
+      <span style="color:#FFD700;font-size:1.3rem;">›</span>
+    `;
+    c.appendChild(banner);
+  }
+
+  // ── Renderizar cada mês ───────────────────────────────────────────────────
+  keys.forEach(key => {
+    const { dt, days } = grupos[key];
+
+    const mesNome = dt.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      .replace(/^\w/, c => c.toUpperCase());
+
+    window._escalaMes[key] = { days: JSON.parse(JSON.stringify(days)), mesNome };
+
+    const totalPend = days.filter(d => d.membros.length === 0).length;
+    const totalConf = days.filter(d => d.membros.length > 0 && d.membros.every(m => m.status === 'confirmed')).length;
+
+    let statusColor, statusLabel;
+    if (totalPend === days.length) {
+      statusColor = '#3498db'; statusLabel = 'Escala em aberto';
+    } else if (totalConf === days.length) {
+      statusColor = '#2ecc71'; statusLabel = 'Escala finalizada';
+    } else {
+      statusColor = '#f1c40f'; statusLabel = 'Escala em montagem';
+    }
+
+    // Indicador extra se este for o mês em formação
+    const isEmFormacao = key === mesEmFormacaoKey;
+
+    const secao = document.createElement('div');
+    secao.style.cssText = 'margin-bottom:32px;';
+    if (isEmFormacao) secao.id = 'mes-em-formacao';
+
+    secao.innerHTML = `
+      <div class="mhdr" style="margin-bottom:10px;padding:16px 16px 10px;${isEmFormacao ? 'border:2px solid #b8860b;border-radius:12px;' : ''}">
+        ${isEmFormacao ? `
+          <div style="
+            background:linear-gradient(135deg,#b8860b,#8B6914);
+            color:#FFD700;
+            font-size:.7rem;
+            font-weight:700;
+            letter-spacing:.05em;
+            padding:4px 10px;
+            border-radius:6px;
+            display:inline-block;
+            margin-bottom:8px;
+          ">🚧 EM FORMAÇÃO — INSCREVA-SE!</div>
+        ` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div>
+            <h2 style="margin:0 0 2px;font-size:1.3rem;">${mesNome}</h2>
+            <p style="margin:0 0 10px;opacity:.7;font-size:.8rem;">Escala Geral do Ministério de Mídia</p>
+          </div>
+          <button
+            onclick="compartilharMes('${key}')"
+            style="
+              background:#25D366;border:none;border-radius:8px;color:#fff;
+              font-size:.75rem;font-weight:600;padding:6px 10px;cursor:pointer;
+              display:flex;align-items:center;gap:5px;white-space:nowrap;margin-top:2px;
+            ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="white" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Compartilhar
+          </button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:8px;">
+          <div class="st-box"><span class="st-num">${days.length}</span><span class="st-lbl">CULTOS</span></div>
+          <div class="st-box"><span class="st-num">${members().length}</span><span class="st-lbl">MEMBROS</span></div>
+          <div class="st-box"><span class="st-num">${totalPend}</span><span class="st-lbl">PENDENTES</span></div>
+        </div>
+        <div style="font-size:.75rem;display:flex;align-items:center;gap:6px;">
+          <span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:${statusColor};"></span>
+          <span>${statusLabel}</span>
+        </div>
+      </div>`;
+
+    // Cultos do mês
+    days.forEach(day => {
+      const semMembros = day.membros.length === 0;
+      const todosConf  = !semMembros && day.membros.every(m => m.status === 'confirmed');
+
+      let badgeClass, badgeText;
+      if (semMembros) {
+        badgeClass = 'sb sp'; badgeText = 'Inscrição livre';
+      } else if (todosConf) {
+        badgeClass = 'sb sc'; badgeText = '✓ Realizado';
+      } else {
+        badgeClass = 'sb sd'; badgeText = '⚠ Pendente';
+      }
+
+      const div = document.createElement('div');
+      div.className = 'dc';
+
+      div.innerHTML = `
+        <div class="dc-head" onclick="this.parentElement.classList.toggle('open')">
+          <div>
+            <div class="dc-date">${fmtDate(day.date)} <span class="${badgeClass}" style="font-size:.65rem;padding:2px 8px;">${badgeText}</span></div>
+            <div class="dc-lbl">${day.label} · ${day.membros.length} pessoas</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${currentUser && currentUser.role === 'lider'
+              ? `<button class="icon-btn trash-btn" onclick="event.stopPropagation();deleteDay('${day.date}','${day.label}')">🗑</button>
+                 <button class="icon-btn" onclick="event.stopPropagation();openLink('${day.date}','${day.label}')">🔗</button>`
+              : ''}
+            <span class="dc-arr">▼</span>
+          </div>
+        </div>
+        <div class="dc-body">
+          ${semMembros
+            ? '<div class="miss-alert">📋 Nenhum membro inscrito ainda — inscrição livre</div>'
+            : day.membros.map(m => `
+              <div class="mrow">
+                <div><div class="mn">${m.name}</div><div class="mr">${m.role}</div></div>
+                <span class="sb ${m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd'}">
+                  ${m.status==='confirmed'?'✓ Confirmado':m.status==='pending'?'⏳ Pendente':'✗ Recusado'}
+                </span>
+              </div>`).join('')}
+        </div>`;
+
+      secao.appendChild(div);
+    });
+
+    c.appendChild(secao);
+  });
+}
+
+</script>
