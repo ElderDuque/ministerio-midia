@@ -776,8 +776,10 @@ function renderEscala(){
   document.getElementById('st-pend').textContent=pend;
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
-  // Encontra o proximo culto usando data+hora real
   var agora=new Date();
+  var mesAtualKey=agora.getFullYear()+'-'+String(agora.getMonth()).padStart(2,'0');
+
+  // Encontra o proximo culto usando data+hora real
   var proximoId=null;
   for(var pi=0;pi<S.escala.length;pi++){
     var dh=S.escala[pi].hora||'23:59';
@@ -785,44 +787,103 @@ function renderEscala(){
     if(pd>agora){proximoId=S.escala[pi].id;break;}
   }
 
+  // Agrupar cultos por mês
+  var grupos={};
   S.escala.forEach(function(day){
-    var declined=day.membros.filter(function(m){return m.status==='declined';});
-    var div=document.createElement('div');div.className='dc';
+    var dt=new Date(day.date+'T12:00:00');
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    if(!grupos[key])grupos[key]={dt:dt,days:[]};
+    grupos[key].days.push(day);
+  });
 
-    // Culto passou se data+hora ja passou
-    var dh=day.hora||'23:59';
-    var dayDate=new Date(day.date+'T'+dh+':00');
-    var passou=dayDate<=agora;
-    var isProximo=day.id===proximoId;
+  var keys=Object.keys(grupos).sort();
 
-    // Estilo visual por status do dia
-    if(passou){
-      div.style.cssText='opacity:.5;filter:grayscale(40%);';
-    } else if(isProximo){
-      div.style.cssText='border:1px solid rgba(201,168,76,.6);box-shadow:0 0 10px rgba(201,168,76,.15);';
+  // Detectar mês em formação (próximo mês com cultos abertos)
+  var mesEmFormacaoKey=null;
+  keys.forEach(function(k){
+    if(k>mesAtualKey&&!mesEmFormacaoKey){
+      var temAberto=grupos[k].days.some(function(d){return d.aberto||d.membros.length===0;});
+      if(temAberto)mesEmFormacaoKey=k;
     }
-
-    var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
-
-    // Badge de status do culto
-    var statusBadge='';
-    if(passou){
-      statusBadge=' <span style="font-size:.58rem;background:rgba(88,214,141,.12);color:#58d68d;border:1px solid rgba(88,214,141,.3);padding:1px 7px;border-radius:7px;">✓ Realizado</span>';
-    } else if(isProximo){
-      statusBadge=' <span style="font-size:.58rem;background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.5);padding:1px 7px;border-radius:7px;animation:pulse 1.5s infinite;">▶ Proximo</span>';
+    if(k===mesAtualKey){
+      var temAberto=grupos[k].days.some(function(d){return d.aberto;});
+      if(temAberto&&!mesEmFormacaoKey)mesEmFormacaoKey=k;
     }
+  });
 
-    var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button><button class="del-btn" onclick="editarNomeCulto('+day.id+',event)" style="background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold);">&#9999;</button>':'';
-    var inscBtn='';
-    if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
-    div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
-      '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+(day.hora?' <span style="font-weight:400;font-size:.72rem;color:var(--cream2);opacity:.7;">'+day.hora+'h</span>':'')+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
-      '<span class="dc-arr">&#9660;</span></div>'+
-      '<div class="dc-body">'+
-      (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+
-      (day.membros.length?day.membros.map(function(m){return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span></div>';}).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
-      '</div>';
-    c.appendChild(div);
+  // Banner de mês em formação
+  if(mesEmFormacaoKey&&mesEmFormacaoKey!==mesAtualKey){
+    var mesFormNome=grupos[mesEmFormacaoKey].dt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+    var banner=document.createElement('div');
+    banner.onclick=function(){var el=document.getElementById('mes-em-formacao');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
+    banner.style.cssText='background:linear-gradient(135deg,#b8860b,#8B6914);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+    banner.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🗓️</span><div><div style="color:#FFD700;font-weight:700;font-size:.85rem;">ESCALA EM FORMAÇÃO</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">A escala de <strong>'+mesFormNome+'</strong> já está disponível!<br><span style="opacity:.85;">Toque para ver e garantir sua vaga.</span></div></div></div><span style="color:#FFD700;font-size:1.3rem;">›</span>';
+    c.appendChild(banner);
+  }
+
+  // Renderizar cada mês separado
+  keys.forEach(function(key){
+    var grupo=grupos[key];
+    var mesNome=grupo.dt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+    var isEmFormacao=key===mesEmFormacaoKey&&key!==mesAtualKey;
+    var isMesAtual=key===mesAtualKey;
+
+    // Cabeçalho do mês
+    var secao=document.createElement('div');
+    secao.style.cssText='margin-bottom:24px;';
+    if(isEmFormacao)secao.id='mes-em-formacao';
+
+    var headerBorder=isEmFormacao?'border:2px solid #b8860b;border-radius:12px;padding:12px 14px 8px;margin-bottom:10px;':'border-bottom:1px solid rgba(201,168,76,.2);padding-bottom:8px;margin-bottom:10px;';
+    var headerHtml='<div style="'+headerBorder+'">';
+    if(isEmFormacao){
+      headerHtml+='<div style="background:linear-gradient(135deg,#b8860b,#8B6914);color:#FFD700;font-size:.68rem;font-weight:700;letter-spacing:.05em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;">🚧 EM FORMAÇÃO — INSCREVA-SE!</div>';
+    }
+    headerHtml+='<div style="display:flex;align-items:center;justify-content:space-between;">';
+    headerHtml+='<div><h3 style="font-family:\'Cinzel\',serif;font-size:1rem;color:var(--gold);margin:0;">'+mesNome+'</h3>';
+    if(isMesAtual)headerHtml+='<span style="font-size:.65rem;color:var(--cream2);opacity:.6;">Mês atual</span>';
+    headerHtml+='</div>';
+    headerHtml+='<span style="font-size:.75rem;color:var(--cream2);opacity:.5;">'+grupo.days.length+' cultos</span>';
+    headerHtml+='</div></div>';
+    secao.innerHTML=headerHtml;
+
+    // Cultos do mês
+    grupo.days.forEach(function(day){
+      var declined=day.membros.filter(function(m){return m.status==='declined';});
+      var div=document.createElement('div');div.className='dc';
+
+      var dh=day.hora||'23:59';
+      var dayDate=new Date(day.date+'T'+dh+':00');
+      var passou=dayDate<=agora;
+      var isProximo=day.id===proximoId;
+
+      if(passou){
+        div.style.cssText='opacity:.5;filter:grayscale(40%);';
+      } else if(isProximo){
+        div.style.cssText='border:1px solid rgba(201,168,76,.6);box-shadow:0 0 10px rgba(201,168,76,.15);';
+      }
+
+      var abBadge=day.aberto?' <span style="font-size:.58rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);padding:1px 6px;border-radius:7px;">Inscricao livre</span>':'';
+      var statusBadge='';
+      if(passou){
+        statusBadge=' <span style="font-size:.58rem;background:rgba(88,214,141,.12);color:#58d68d;border:1px solid rgba(88,214,141,.3);padding:1px 7px;border-radius:7px;">✓ Realizado</span>';
+      } else if(isProximo){
+        statusBadge=' <span style="font-size:.58rem;background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.5);padding:1px 7px;border-radius:7px;animation:pulse 1.5s infinite;">▶ Proximo</span>';
+      }
+
+      var delBtn=isL?'<button class="del-btn" onclick="excluirCulto('+day.id+',event)">&#128465;</button><button class="del-btn" onclick="editarNomeCulto('+day.id+',event)" style="background:rgba(201,168,76,.15);border-color:rgba(201,168,76,.4);color:var(--gold);">&#9999;</button>':'';
+      var inscBtn='';
+      if(day.aberto&&CU){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
+      div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
+        '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+(day.hora?' <span style="font-weight:400;font-size:.72rem;color:var(--cream2);opacity:.7;">'+day.hora+'h</span>':'')+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; '+day.membros.length+' pessoas</div></div>'+
+        '<span class="dc-arr">&#9660;</span></div>'+
+        '<div class="dc-body">'+
+        (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+
+        (day.membros.length?day.membros.map(function(m){return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span></div>';}).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
+        '</div>';
+      secao.appendChild(div);
+    });
+
+    c.appendChild(secao);
   });
 }
 
