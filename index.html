@@ -949,7 +949,11 @@ function renderEscala(){
           if(isL&&!passou&&m.status==='pending'){
             liderBtn='<button onclick="liderConfirmarMembro('+day.id+','+m.id+')" title="Confirmar por este membro" style="background:rgba(30,132,73,.25);border:1px solid #1E8449;color:#58d68d;border-radius:6px;padding:2px 8px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:5px;font-family:\'Nunito\',sans-serif;">&#10003; Confirmar</button>';
           }
-          return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><div style="display:flex;align-items:center;">'+statusEl+liderBtn+'</div></div>';
+          var removeBtn='';
+          if(isL&&!passou){
+            removeBtn='<button onclick="liderRemoverMembro('+day.id+','+m.id+')" title="Remover da escala" style="background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.45);color:#ec7063;border-radius:6px;padding:2px 7px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:4px;font-family:\'Nunito\',sans-serif;">&#10007;</button>';
+          }
+          return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><div style="display:flex;align-items:center;">'+statusEl+liderBtn+removeBtn+'</div></div>';
         }).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
         '</div>';
       secao.appendChild(div);
@@ -1081,11 +1085,18 @@ function salvarAddMemCulto(){
   });
 }
 
+function liderRemoverMembro(dayId, memId){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
+  if(!confirm('Remover '+m.name+' do culto de '+fmtDate(day.date)+'?'))return;
+  day.membros=day.membros.filter(function(x){return x.id!==memId;});
+  saveAll().then(function(){toast(m.name+' removido(a) da escala.');renderAll();});
+}
+
 function liderConfirmarMembro(dayId, memId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
   var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
   m.status='confirmed';
-  S.notifs.unshift({id:Date.now(),icon:'✅',text:'<strong>'+CU.name+'</strong> confirmou presença de <strong>'+m.name+'</strong> em <strong>'+fmtDate(day.date)+' — '+day.label+'</strong>.',time:nowStr(),unread:true});
   saveAll().then(function(){toast(m.name+' confirmado(a)!');renderAll();autoCheckNotify(dayId);});
 }
 
