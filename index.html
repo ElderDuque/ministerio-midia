@@ -539,6 +539,48 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 </div>
 
+<!-- MODAL INSTRUÇÃO INSTALAR APP -->
+<div class="mo" id="mo-instrucao-install" onclick="this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">📲 Instalar como App</div>
+
+    <p style="font-size:.78rem;color:var(--cream2);margin-bottom:16px;">Siga os passos abaixo para instalar o app na tela inicial do seu celular:</p>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px;">
+        <div style="font-size:1.6rem;">⋮</div>
+        <div>
+          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 1 — Abra o menu</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Toque nos <strong style="color:var(--gold);">três pontinhos</strong> no canto superior direito do Chrome</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px;">
+        <div style="font-size:1.6rem;">🏠</div>
+        <div>
+          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 2 — Adicionar à tela inicial</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Toque em <strong style="color:var(--gold);">"Adicionar à tela inicial"</strong> e confirme</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(30,132,73,.08);border:1px solid rgba(30,132,73,.25);border-radius:10px;padding:12px;">
+        <div style="font-size:1.6rem;">✅</div>
+        <div>
+          <div style="font-size:.82rem;color:#58d68d;font-weight:700;">Pronto!</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">O app aparecerá na sua tela inicial como qualquer outro aplicativo</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="macts" style="margin-top:18px;">
+      <button class="btn bgold" style="width:100%;justify-content:center;" onclick="document.getElementById('mo-instrucao-install').classList.remove('open')">Entendi!</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL CONFIRMAR NOTIFICACAO -->
 <div class="mo" id="mo-confirm-notif" onclick="closeMo('mo-confirm-notif')">
   <div class="modal" onclick="event.stopPropagation()">
@@ -1950,12 +1992,21 @@ window.addEventListener('appinstalled', function(){
 });
 
 function instalarApp(){
-  if(!_installPrompt){ toast('Use o menu do navegador para instalar.'); return; }
+  if(!_installPrompt){
+    // Mostra modal com instrução visual
+    abrirInstrucaoInstall();
+    return;
+  }
   _installPrompt.prompt();
   _installPrompt.userChoice.then(function(result){
     if(result.outcome === 'accepted') fecharBannerInstall();
     _installPrompt = null;
   });
+}
+
+function abrirInstrucaoInstall(){
+  var mo = document.getElementById('mo-instrucao-install');
+  if(mo) mo.classList.add('open');
 }
 
 function fecharBannerInstall(){
