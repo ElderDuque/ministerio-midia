@@ -716,7 +716,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 <script>
 var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
 var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
-var APP_URL='https://elderduque.github.io/ministerio-midia';
+var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
 async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
@@ -1893,6 +1893,37 @@ window.addEventListener('load',function(){
 </script>
 <script>
 var _swReg = null;
+var VERCEL_URL = 'https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
+
+// Se estiver rodando no GitHub Pages, redireciona para o Vercel imediatamente
+(function(){
+  if(window.location.hostname === 'elderduque.github.io'){
+    window.location.replace(VERCEL_URL);
+  }
+})();
+
+// Ao carregar no Vercel, limpa SWs e caches do GitHub se existirem
+(function limparCacheAntigo(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(reg){
+      // Remove qualquer SW que não seja do Vercel
+      if(reg.scope && reg.scope.indexOf('github.io') >= 0){
+        reg.unregister();
+      }
+    });
+  });
+  // Limpa caches com nome antigo (github)
+  if('caches' in window){
+    caches.keys().then(function(names){
+      names.forEach(function(name){
+        if(name.indexOf('github') >= 0 || name.indexOf('ministerio-v') >= 0){
+          caches.delete(name);
+        }
+      });
+    });
+  }
+})();
 
 function mostrarBannerUpdate(){
   var banner = document.getElementById('update-banner');
