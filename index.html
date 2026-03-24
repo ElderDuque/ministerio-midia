@@ -943,7 +943,14 @@ function renderEscala(){
         '<span class="dc-arr">&#9660;</span></div>'+
         '<div class="dc-body">'+
         (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+addMemBtn+
-        (day.membros.length?day.membros.map(function(m){return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span></div>';}).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
+        (day.membros.length?day.membros.map(function(m){
+          var statusEl='<span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span>';
+          var liderBtn='';
+          if(isL&&!passou&&m.status==='pending'){
+            liderBtn='<button onclick="liderConfirmarMembro('+day.id+','+m.id+')" title="Confirmar por este membro" style="background:rgba(30,132,73,.25);border:1px solid #1E8449;color:#58d68d;border-radius:6px;padding:2px 8px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:5px;font-family:\'Nunito\',sans-serif;">&#10003; Confirmar</button>';
+          }
+          return '<div class="mrow"><div><div class="mn">'+m.name+'</div><div class="mr">'+m.role+'</div></div><div style="display:flex;align-items:center;">'+statusEl+liderBtn+'</div></div>';
+        }).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
         '</div>';
       secao.appendChild(div);
     });
@@ -1072,6 +1079,14 @@ function salvarAddMemCulto(){
     toast(mem.name+' adicionado(a)!');
     renderAll();
   });
+}
+
+function liderConfirmarMembro(dayId, memId){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
+  m.status='confirmed';
+  S.notifs.unshift({id:Date.now(),icon:'✅',text:'<strong>'+CU.name+'</strong> confirmou presença de <strong>'+m.name+'</strong> em <strong>'+fmtDate(day.date)+' — '+day.label+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast(m.name+' confirmado(a)!');renderAll();autoCheckNotify(dayId);});
 }
 
 function inscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day||day.membros.find(function(m){return m.id===CU.id;})){toast('Ja inscrito!');return;}day.membros.push({id:CU.id,name:CU.name,role:CU.role,status:'confirmed'});S.notifs.unshift({id:Date.now(),icon:'&#128587;',text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao confirmada!');renderAll();});}
