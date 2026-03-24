@@ -1,0 +1,154 @@
+<div class="mhdr">
+  <h2 id="month-lbl">—</h2>
+  <p>Escala Geral do Ministério de Mídia</p>
+
+  <div style="margin-top:10px;">
+    <select id="month-select" class="fs2" onchange="changeMonth()"></select>
+  </div>
+
+  <div id="month-status" style="margin-top:8px;font-size:.75rem;display:flex;align-items:center;gap:6px;">
+    <span id="status-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#888;"></span>
+    <span id="status-text">—</span>
+  </div>
+</div>
+
+<script>
+
+// 🔥 NOVO ESTADO
+let selectedMonth = null;
+
+// 🔥 SELETOR DE MÊS
+function populateMonthSelector() {
+  const list = escala();
+  const sel = document.getElementById('month-select');
+
+  const meses = {};
+
+  list.forEach(d => {
+    const dt = new Date(d.date + 'T12:00:00');
+    const key = dt.getFullYear() + '-' + dt.getMonth();
+    meses[key] = dt;
+  });
+
+  const ordenados = Object.values(meses).sort((a,b)=>a-b);
+
+  sel.innerHTML = ordenados.map(d => {
+    const val = d.getFullYear() + '-' + d.getMonth();
+    const txt = d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})
+      .replace(/^\w/,c=>c.toUpperCase());
+    return `<option value="${val}">${txt}</option>`;
+  }).join('');
+
+  if (!selectedMonth && ordenados.length) {
+    const d = ordenados[ordenados.length - 1];
+    selectedMonth = d.getFullYear() + '-' + d.getMonth();
+  }
+
+  sel.value = selectedMonth;
+}
+
+function changeMonth() {
+  selectedMonth = document.getElementById('month-select').value;
+  renderEscala();
+}
+
+// 🔥 STATUS
+function updateMonthStatus(list) {
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+
+  if (!list.length) {
+    dot.style.background = '#3498db';
+    txt.textContent = 'Escala em aberto';
+    return;
+  }
+
+  let total = 0;
+  let confirmados = 0;
+  let pendentes = 0;
+
+  list.forEach(d => {
+    d.membros.forEach(m => {
+      total++;
+      if (m.status === 'confirmed') confirmados++;
+      if (m.status === 'pending') pendentes++;
+    });
+  });
+
+  if (confirmados === total) {
+    dot.style.background = '#2ecc71';
+    txt.textContent = 'Escala finalizada';
+  } else if (pendentes > 0) {
+    dot.style.background = '#f1c40f';
+    txt.textContent = 'Escala em montagem';
+  } else {
+    dot.style.background = '#e74c3c';
+    txt.textContent = 'Pendências na escala';
+  }
+}
+
+// 🔥 ALTERAÇÃO DA ESCALA (SUBSTITUA SUA FUNÇÃO renderEscala)
+function renderEscala() {
+  const all = escala();
+
+  populateMonthSelector();
+
+  const list = selectedMonth
+    ? all.filter(d => {
+        const dt = new Date(d.date + 'T12:00:00');
+        const key = dt.getFullYear() + '-' + dt.getMonth();
+        return key === selectedMonth;
+      })
+    : all;
+
+  updateMonthStatus(list);
+
+  let mesBase = list.length
+    ? new Date(list[0].date + 'T12:00:00')
+    : new Date();
+
+  document.getElementById('month-lbl').textContent =
+    mesBase.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})
+    .replace(/^\w/,c=>c.toUpperCase());
+
+  const pend = list.reduce((a,d)=>a+d.membros.filter(m=>m.status==='pending').length,0);
+  document.getElementById('st-cultos').textContent  = list.length;
+  document.getElementById('st-membros').textContent = members().length;
+  document.getElementById('st-pend').textContent    = pend;
+
+  const c = document.getElementById('escala-list');
+  c.innerHTML = '';
+
+  list.forEach(day => {
+    const declined = day.membros.filter(m=>m.status==='declined');
+
+    const missHtml = declined.length
+      ? `<div class="miss-alert">⚠️ Vaga em aberto: ${declined.map(m=>m.role).join(', ')}</div>` : '';
+
+    const div = document.createElement('div');
+    div.className = 'dc';
+
+    div.innerHTML = `
+      <div class="dc-head" onclick="this.parentElement.classList.toggle('open')">
+        <div>
+          <div class="dc-date">${fmtDate(day.date)}</div>
+          <div class="dc-lbl">${day.label} · ${day.membros.length} pessoas</div>
+        </div>
+        <span class="dc-arr">▼</span>
+      </div>
+      <div class="dc-body">
+        ${missHtml}
+        ${day.membros.map(m=>`
+          <div class="mrow">
+            <div><div class="mn">${m.name}</div><div class="mr">${m.role}</div></div>
+            <span class="sb ${m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd'}">
+              ${m.status==='confirmed'?'✓ Confirmado':m.status==='pending'?'⏳ Pendente':'✗ Recusado'}
+            </span>
+          </div>`).join('')}
+      </div>`;
+
+    c.appendChild(div);
+  });
+}
+
+</script>
