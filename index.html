@@ -181,7 +181,14 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 
   <div id="page-escala" class="page active">
-    <div class="mhdr"><h2 id="month-lbl">-</h2><p>Escala Geral do Ministerio de Midia</p></div>
+    <div class="mhdr">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:2px;">
+        <button id="btn-mes-ant" onclick="navegarMes(-1)" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:8px;padding:5px 13px;font-size:1.1rem;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1;" title="Mês anterior">&#8592;</button>
+        <h2 id="month-lbl" style="margin:0;min-width:180px;text-align:center;">-</h2>
+        <button id="btn-mes-prox" onclick="navegarMes(1)" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:8px;padding:5px 13px;font-size:1.1rem;cursor:pointer;font-family:'Nunito',sans-serif;line-height:1;" title="Próximo mês">&#8594;</button>
+      </div>
+      <p id="escala-sub-lbl" style="font-size:.72rem;color:var(--cream2);opacity:.5;margin:0;">Escala Geral do Ministerio de Midia</p>
+    </div>
     <div class="stats">
       <div class="sbox"><div class="snum" id="st-cultos">0</div><div class="slbl">Cultos</div></div>
       <div class="sbox"><div class="snum" id="st-membros">0</div><div class="slbl">Membros</div></div>
@@ -863,7 +870,7 @@ function doLogin(){
 }
 function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
-function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
+function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='escala'){_mesOffset=0;renderEscala();}if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
 function renderAll(){renderEscala();renderCardPendentes();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
 function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
@@ -876,19 +883,67 @@ function excluirCulto(dayId,event){
   saveAll().then(function(){toast('Culto excluido.');renderAll();});
 }
 
+// Variável global para controle de navegação de mês
+var _mesOffset=0;
+
+function navegarMes(delta){
+  _mesOffset+=delta;
+  renderEscala();
+}
+
 function renderEscala(){
-  var now=new Date();
-  document.getElementById('month-lbl').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+  var agora=new Date();
+  // Calcula o mês exibido com base no offset
+  var mesExib=new Date(agora.getFullYear(),agora.getMonth()+_mesOffset,1);
+  var mesExibKey=mesExib.getFullYear()+'-'+String(mesExib.getMonth()).padStart(2,'0');
+  var mesAtualKey=agora.getFullYear()+'-'+String(agora.getMonth()).padStart(2,'0');
+  var isMesAtual=mesExibKey===mesAtualKey;
+
+  // Verificar se existem meses disponíveis antes/depois
+  var chaves=[];
+  S.escala.forEach(function(day){var dt=new Date(day.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');if(chaves.indexOf(k)<0)chaves.push(k);});
+  chaves.sort();
+  var temAnterior=chaves.some(function(k){return k<mesExibKey;});
+  var temProximo=chaves.some(function(k){return k>mesExibKey;});
+
+  // Atualizar botões de navegação
+  var btnAnt=document.getElementById('btn-mes-ant');
+  var btnProx=document.getElementById('btn-mes-prox');
+  if(btnAnt)btnAnt.style.opacity=temAnterior?'1':'0.3';
+  if(btnProx)btnProx.style.cssText='background:'+(temProximo?'linear-gradient(135deg,rgba(201,168,76,.35),rgba(201,168,76,.2));border:2px solid rgba(201,168,76,.7);box-shadow:0 0 8px rgba(201,168,76,.25);':'rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);')+'color:var(--gold);border-radius:8px;padding:5px 13px;font-size:1.1rem;cursor:pointer;font-family:\'Nunito\',sans-serif;line-height:1;opacity:'+(temProximo?'1':'0.3')+';';
+
+  // Label do mês exibido
+  var mesNomeExib=mesExib.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+  document.getElementById('month-lbl').textContent=mesNomeExib;
+
+  // Sub-label
+  var subLbl=document.getElementById('escala-sub-lbl');
+  if(subLbl){
+    if(isMesAtual){subLbl.textContent='Mês atual — eventos a partir de hoje';}
+    else if(_mesOffset>0){subLbl.textContent='Próximo período';}
+    else{subLbl.textContent='Período anterior';}
+  }
+
+  // Badge do próximo mês com cultos disponíveis
+  if(isMesAtual&&temProximo){
+    var proxKey=chaves.find(function(k){return k>mesExibKey;});
+    if(proxKey){
+      var proxDt=new Date(proxKey+'-15T12:00:00');
+      var proxNome=proxDt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+      var proxCultos=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===proxKey;});
+      var proxAberto=proxCultos.some(function(d){return d.aberto||d.membros.length===0;});
+      if(btnProx){btnProx.title='Ver '+proxNome+(proxAberto?' — Inscrições abertas!':'');}
+    }
+  }
+
   var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);
   document.getElementById('st-cultos').textContent=S.escala.length;
   document.getElementById('st-membros').textContent=S.members.length;
   document.getElementById('st-pend').textContent=pend;
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
-  var agora=new Date();
-  var mesAtualKey=agora.getFullYear()+'-'+String(agora.getMonth()).padStart(2,'0');
 
-  // Encontra o proximo culto usando data+hora real
+  // Encontra o proximo culto usando data+hora real (global, não filtrado por mês)
   var proximoId=null;
   for(var pi=0;pi<S.escala.length;pi++){
     var dh=S.escala[pi].hora||'23:59';
@@ -896,71 +951,62 @@ function renderEscala(){
     if(pd>agora){proximoId=S.escala[pi].id;break;}
   }
 
-  // Agrupar cultos por mês
-  var grupos={};
-  S.escala.forEach(function(day){
+  // Filtrar cultos do mês selecionado
+  var cultosMes=S.escala.filter(function(day){
     var dt=new Date(day.date+'T12:00:00');
-    var key=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
-    if(!grupos[key])grupos[key]={dt:dt,days:[]};
-    grupos[key].days.push(day);
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    return k===mesExibKey;
   });
 
-  var keys=Object.keys(grupos).sort();
-
-  // Detectar mês em formação (próximo mês com cultos abertos)
-  var mesEmFormacaoKey=null;
-  keys.forEach(function(k){
-    if(k>mesAtualKey&&!mesEmFormacaoKey){
-      var temAberto=grupos[k].days.some(function(d){return d.aberto||d.membros.length===0;});
-      if(temAberto)mesEmFormacaoKey=k;
+  // No mês atual: mostrar apenas eventos a partir de hoje (mas destacar os passados levemente)
+  // Banner de próximo mês disponível (só no mês atual)
+  if(isMesAtual&&temProximo){
+    var proxKey=chaves.find(function(k){return k>mesExibKey;});
+    if(proxKey){
+      var proxDt=new Date(proxKey+'-15T12:00:00');
+      var proxNome=proxDt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+      var proxCultosList=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===proxKey;});
+      var proxAberto=proxCultosList.some(function(d){return d.aberto||d.membros.length===0;});
+      var proxTodoConfirm=proxCultosList.length>0&&proxCultosList.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
+      var bannerProx=document.createElement('div');
+      bannerProx.onclick=function(){_mesOffset++;renderEscala();};
+      if(proxTodoConfirm){
+        bannerProx.style.cssText='background:linear-gradient(135deg,#1a5c2a,#0d3318);border:1px solid rgba(88,214,141,.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+        bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🟢</span><div><div style="color:#58d68d;font-weight:700;font-size:.85rem;">ESCALA DE '+proxNome.toUpperCase()+' — FINALIZADA</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Todos confirmados. <span style="opacity:.85;">Toque para ver.</span></div></div></div><span style="color:#58d68d;font-size:1.3rem;">›</span>';
+      } else if(proxAberto){
+        bannerProx.style.cssText='background:linear-gradient(135deg,#b8860b,#8B6914);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+        bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🗓️</span><div><div style="color:#FFD700;font-weight:700;font-size:.85rem;">NOVA ESCALA — '+proxNome.toUpperCase()+'</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Escala de <strong>'+proxNome+'</strong> disponível!<br><span style="opacity:.85;">Toque para ver e garantir sua vaga ›</span></div></div></div><span style="color:#FFD700;font-size:1.4rem;">›</span>';
+      } else {
+        bannerProx.style.cssText='background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:12px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+        bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.2rem;">📅</span><div style="color:var(--gold);font-size:.82rem;font-weight:700;">Ver '+proxNome+'</div></div><span style="color:var(--gold);font-size:1.2rem;">›</span>';
+      }
+      c.appendChild(bannerProx);
     }
-    if(k===mesAtualKey){
-      var temAberto=grupos[k].days.some(function(d){return d.aberto;});
-      if(temAberto&&!mesEmFormacaoKey)mesEmFormacaoKey=k;
-    }
-  });
-
-  // Banner de mês em formação
-  if(mesEmFormacaoKey&&mesEmFormacaoKey!==mesAtualKey){
-    var grupoForm=grupos[mesEmFormacaoKey];
-    var mesFormNome=grupoForm.dt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-    // Verifica se já está finalizada
-    var formFinalizada=grupoForm.days.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
-    var banner=document.createElement('div');
-    banner.onclick=function(){var el=document.getElementById('mes-em-formacao');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
-    if(formFinalizada){
-      // Escala finalizada — banner verde
-      banner.style.cssText='background:linear-gradient(135deg,#1a5c2a,#0d3318);border:1px solid rgba(88,214,141,.3);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
-      banner.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🟢</span><div><div style="color:#58d68d;font-weight:700;font-size:.85rem;">ESCALA — '+mesFormNome.toUpperCase()+'</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Escala de <strong>'+mesFormNome+'</strong> finalizada!<br><span style="opacity:.85;">Todos os cultos confirmados. Toque para ver.</span></div></div></div><span style="color:#58d68d;font-size:1.3rem;">›</span>';
-    } else {
-      // Em formação — banner dourado
-      banner.style.cssText='background:linear-gradient(135deg,#b8860b,#8B6914);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
-      banner.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🗓️</span><div><div style="color:#FFD700;font-weight:700;font-size:.85rem;">NOVA ESCALA — '+mesFormNome.toUpperCase()+'</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">A escala de <strong>'+mesFormNome+'</strong> já está disponível!<br><span style="opacity:.85;">Toque para ver e garantir sua vaga.</span></div></div></div><span style="color:#FFD700;font-size:1.3rem;">›</span>';
-    }
-    c.appendChild(banner);
   }
 
-  // Renderizar cada mês separado
+  // Sem cultos neste mês
+  if(cultosMes.length===0){
+    var vazio=document.createElement('div');
+    vazio.style.cssText='text-align:center;padding:40px 20px;opacity:.45;';
+    vazio.innerHTML='<div style="font-size:2.5rem;margin-bottom:10px;">📅</div><div style="font-size:.85rem;color:var(--cream2);">Nenhum culto cadastrado em '+mesNomeExib+'.</div>';
+    c.appendChild(vazio);
+    return;
+  }
+
+  // Renderizar cultos do mês selecionado (um único grupo)
+  var grupos={};grupos[mesExibKey]={dt:mesExib,days:cultosMes};
+  var keys=[mesExibKey];
+
   keys.forEach(function(key){
     var grupo=grupos[key];
     var mesNome=grupo.dt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-    var isEmFormacao=key===mesEmFormacaoKey&&key!==mesAtualKey;
-    var isMesAtual=key===mesAtualKey;
+    var isEmFormacao=false;
+    var isMesAtualLocal=key===mesAtualKey;
 
     // Cabeçalho do mês
     var secao=document.createElement('div');
     secao.style.cssText='margin-bottom:24px;';
-    if(isEmFormacao)secao.id='mes-em-formacao';
 
-    var headerBorder=isEmFormacao?'border:2px solid #b8860b;border-radius:12px;padding:12px 14px 8px;margin-bottom:10px;':'border-bottom:1px solid rgba(201,168,76,.2);padding-bottom:8px;margin-bottom:10px;';
-    var headerHtml='<div style="'+headerBorder+'">';
-    if(isEmFormacao){
-      if(todosCultosConfirmados){
-        headerHtml+='<div style="background:linear-gradient(135deg,#1a5c2a,#0d3318);color:#58d68d;border:1px solid rgba(88,214,141,.35);font-size:.68rem;font-weight:700;letter-spacing:.05em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;">🟢 ESCALA FINALIZADA</div>';
-      } else {
-        headerHtml+='<div style="background:linear-gradient(135deg,#b8860b,#8B6914);color:#FFD700;font-size:.68rem;font-weight:700;letter-spacing:.05em;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;">🚧 NOVA ESCALA — INSCREVA-SE!</div>';
-      }
-    }
     // Status do mês: 🔵 em aberto, 🟡 em montagem, 🟢 finalizada
     var todosCultosTemMembros=grupo.days.every(function(d){return d.membros.length>0;});
     var todosCultosConfirmados=grupo.days.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
@@ -970,13 +1016,15 @@ function renderEscala(){
     else if(nenhumTemMembros){statusMes='🔵';statusMesTxt='Escala em aberto';}
     else{statusMes='🟡';statusMesTxt='Escala em montagem';}
 
+    var headerBorder='border-bottom:1px solid rgba(201,168,76,.2);padding-bottom:8px;margin-bottom:10px;';
+    var headerHtml='<div style="'+headerBorder+'">';
+
     // Botão compartilhar
-    var mesParaCompartilhar=mesNome;
     var compartilharBtn='<button onclick="compartilharMes(\''+key+'\')" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:7px;padding:3px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:\'Nunito\',sans-serif;">📤 Compartilhar</button>';
 
     headerHtml+='<div style="display:flex;align-items:center;justify-content:space-between;">';
     headerHtml+='<div><h3 style="font-family:\'Cinzel\',serif;font-size:1rem;color:var(--gold);margin:0;">'+mesNome+'</h3>';
-    if(isMesAtual)headerHtml+='<span style="font-size:.65rem;color:var(--cream2);opacity:.6;">Mês atual</span>';
+    if(isMesAtualLocal)headerHtml+='<span style="font-size:.65rem;color:var(--cream2);opacity:.6;">Mês atual</span>';
     headerHtml+='<span style="font-size:.6rem;opacity:.65;margin-left:2px;" title="'+statusMesTxt+'">'+statusMes+' '+statusMesTxt+'</span>';
     headerHtml+='</div>';
     headerHtml+='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><span style="font-size:.75rem;color:var(--cream2);opacity:.5;">'+grupo.days.length+' cultos</span>'+compartilharBtn+'</div>';
