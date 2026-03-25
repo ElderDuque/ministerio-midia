@@ -554,33 +554,39 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 <div class="mo" id="mo-instrucao-install" onclick="this.classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="mhandle"></div>
-    <div class="mtitle">📲 Instalar como App</div>
+    <div class="mtitle">📲 Instalar App no Android</div>
 
-    <p style="font-size:.78rem;color:var(--cream2);margin-bottom:16px;">Siga os passos abaixo para instalar o app na tela inicial do seu celular:</p>
+    <p style="font-size:.78rem;color:var(--cream2);margin-bottom:16px;">Para instalar como <strong style="color:var(--gold);">app nativo</strong> no seu Android, siga os passos:</p>
 
     <div style="display:flex;flex-direction:column;gap:12px;">
 
       <div style="display:flex;align-items:center;gap:12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px;">
         <div style="font-size:1.6rem;">⋮</div>
         <div>
-          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 1 — Abra o menu</div>
-          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Toque nos <strong style="color:var(--gold);">três pontinhos</strong> no canto superior direito do Chrome</div>
+          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 1 — Menu do Chrome</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Toque nos <strong style="color:var(--gold);">três pontinhos</strong> no canto superior direito</div>
         </div>
       </div>
 
       <div style="display:flex;align-items:center;gap:12px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:12px;">
-        <div style="font-size:1.6rem;">🏠</div>
+        <div style="font-size:1.6rem;">📥</div>
         <div>
-          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 2 — Adicionar à tela inicial</div>
-          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Toque em <strong style="color:var(--gold);">"Adicionar à tela inicial"</strong> e confirme</div>
+          <div style="font-size:.82rem;color:var(--gold);font-weight:700;">Passo 2 — Instalar app</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">Procure a opção <strong style="color:var(--gold);">"Instalar app"</strong> ou <strong style="color:var(--gold);">"Adicionar à tela inicial"</strong> e confirme</div>
         </div>
+      </div>
+
+      <div style="background:rgba(26,79,122,.15);border:1px solid rgba(26,79,122,.35);border-radius:10px;padding:11px 13px;">
+        <div style="font-size:.75rem;color:#add8f7;font-weight:700;margin-bottom:3px;">💡 Dica</div>
+        <div style="font-size:.7rem;color:var(--cream2);opacity:.75;">Se não aparecer essa opção, abra o link do app no Chrome (não em outro navegador) e tente novamente.</div>
+        <div style="margin-top:8px;font-size:.7rem;color:var(--cream2);opacity:.6;word-break:break-all;">🔗 ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app</div>
       </div>
 
       <div style="display:flex;align-items:center;gap:12px;background:rgba(30,132,73,.08);border:1px solid rgba(30,132,73,.25);border-radius:10px;padding:12px;">
         <div style="font-size:1.6rem;">✅</div>
         <div>
           <div style="font-size:.82rem;color:#58d68d;font-weight:700;">Pronto!</div>
-          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">O app aparecerá na sua tela inicial como qualquer outro aplicativo</div>
+          <div style="font-size:.72rem;color:var(--cream2);opacity:.75;margin-top:2px;">O app aparece nos seus aplicativos como qualquer app nativo</div>
         </div>
       </div>
 
@@ -1982,6 +1988,11 @@ function mostrarPwaTopBanner(){
   if(b)b.style.display='flex';
 }
 
+// Mostra o banner sempre ao carregar se não estiver instalado
+window.addEventListener('load', function(){
+  setTimeout(mostrarPwaTopBanner, 1500);
+});
+
 function configurarBannerParaAtualizar(){
   document.getElementById('install-banner-icon').textContent = '🔄';
   document.getElementById('install-banner-title').textContent = 'Atualização disponível!';
@@ -2019,13 +2030,15 @@ window.addEventListener('appinstalled', function(){
 
 function instalarApp(){
   if(!_installPrompt){
-    // Mostra modal com instrução visual
     abrirInstrucaoInstall();
     return;
   }
   _installPrompt.prompt();
   _installPrompt.userChoice.then(function(result){
-    if(result.outcome === 'accepted') fecharBannerInstall();
+    if(result.outcome === 'accepted'){
+      fecharBannerInstall();
+      fecharPwaTopBanner();
+    }
     _installPrompt = null;
   });
 }
