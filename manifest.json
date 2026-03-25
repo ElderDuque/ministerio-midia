@@ -1,20 +1,21 @@
 {
   "name": "Ministerio de Midia",
   "short_name": "Min. Midia",
-  "start_url": "/ministerio-midia/",
-  "scope": "/ministerio-midia/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0F0D07",
   "theme_color": "#0F0D07",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://elderduque.github.io/ministerio-midia/icone-192.png",
+      "src": "/icone-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://elderduque.github.io/ministerio-midia/icone-512.png",
+      "src": "/icone-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
