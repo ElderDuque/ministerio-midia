@@ -112,6 +112,9 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 .del-btn{background:rgba(192,57,43,.18);border:1px solid rgba(192,57,43,.4);color:#ec7063;border-radius:6px;padding:3px 9px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:6px;font-family:'Nunito',sans-serif;}
 .fone-card{display:flex;align-items:center;gap:11px;padding:12px 13px;background:linear-gradient(135deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.15);border-radius:10px;margin-bottom:8px;cursor:pointer;active:opacity:.8;}
 .fone-card:active{opacity:.75;}
+.afastado-badge{font-size:.52rem;background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.4);padding:1px 6px;border-radius:7px;margin-left:4px;white-space:nowrap;}
+.mcard.afastado{opacity:.55;border-color:rgba(192,57,43,.3);}
+.mem-actions{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
 
 #splash-screen{
   position:fixed;top:0;left:0;width:100%;height:100%;
@@ -605,6 +608,39 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   </div>
 </div>
 
+<!-- MODAL AFASTAR MEMBRO -->
+<div class="mo" id="mo-afastar" onclick="closeMo('mo-afastar')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#128683; Afastar Membro</div>
+    <p id="afastar-nome-txt" style="font-size:.84rem;color:var(--cream2);margin-bottom:14px;"></p>
+    <label class="mfl">Motivo do afastamento</label>
+    <input type="text" class="mfi" id="afastar-motivo" placeholder="Ex: Viagem, problema de saude...">
+    <label class="mfl">Retorno previsto (opcional)</label>
+    <input type="date" class="mfi" id="afastar-retorno">
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-afastar')">Cancelar</button>
+      <button class="btn bred" onclick="confirmarAfastar()">&#128683; Afastar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXCLUIR MEMBRO -->
+<div class="mo" id="mo-excluir-mem" onclick="closeMo('mo-excluir-mem')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle" style="color:#e74c3c;">&#9888; Excluir Membro</div>
+    <p id="excluir-mem-txt" style="font-size:.83rem;color:var(--cream2);line-height:1.6;margin-bottom:18px;"></p>
+    <div style="background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.28);border-radius:8px;padding:11px;margin-bottom:16px;font-size:.75rem;color:#ec7063;line-height:1.5;">
+      &#9888; Esta acao e permanente. O membro sera removido da equipe e de todas as escalas futuras.
+    </div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-excluir-mem')">Cancelar</button>
+      <button class="btn bred" onclick="confirmarExcluirMembro()">&#128465; Excluir</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL CONFIRMAR NOTIFICACAO -->
 <div class="mo" id="mo-confirm-notif" onclick="closeMo('mo-confirm-notif')">
   <div class="modal" onclick="event.stopPropagation()">
@@ -829,7 +865,7 @@ function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{w
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 function openMo(id){
-  if(id==='mo-addday'){document.getElementById('nd-checks').innerHTML=S.members.map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;"><input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+' <span style="color:var(--gold);font-size:.65rem;opacity:.7;">('+m.role+')</span></label>';}).join('');}
+  if(id==='mo-addday'){document.getElementById('nd-checks').innerHTML=S.members.filter(function(m){return !m.afastado;}).map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;"><input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+' <span style="color:var(--gold);font-size:.65rem;opacity:.7;">('+m.role+')</span></label>';}).join('');}
   document.getElementById(id).classList.add('open');
 }
 function closeMo(id){document.getElementById(id).classList.remove('open');}
@@ -938,7 +974,7 @@ function renderEscala(){
 
   var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);
   document.getElementById('st-cultos').textContent=S.escala.length;
-  document.getElementById('st-membros').textContent=S.members.length;
+  document.getElementById('st-membros').textContent=S.members.filter(function(m){return !m.afastado;}).length;
   document.getElementById('st-pend').textContent=pend;
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
@@ -1196,7 +1232,7 @@ function abrirAddMemCulto(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
   // Filtra membros que ainda não estão no culto
   var jaInscritos=day.membros.map(function(m){return m.id;});
-  var disponiveis=S.members.filter(function(m){return jaInscritos.indexOf(m.id)<0;});
+  var disponiveis=S.members.filter(function(m){return jaInscritos.indexOf(m.id)<0&&!m.afastado;});
   if(!disponiveis.length){toast('Todos os membros já estão neste culto.');return;}
   var sel=document.getElementById('amc-select');
   sel.innerHTML=disponiveis.map(function(m){return '<option value="'+m.id+'">'+m.name+' ('+m.role+')</option>';}).join('');
@@ -1334,9 +1370,24 @@ function notificarPedidoTroca(tipo, culto, subId, subNome, motivo){
 function renderEquipe(){
   var isL=CU&&CU.profile==='lider';
   document.getElementById('equipe-list').innerHTML=S.members.map(function(m){
-    return '<div class="mcard"><div class="av">'+m.name.charAt(0).toUpperCase()+'</div>'+
-      '<div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+' </strong><span>'+m.role+'</span><span class="phone-txt">&#128241; '+m.phone+'</span></div>'+
-      (isL?'<div style="display:flex;gap:5px;"><button class="btn bout bsm" onclick="openEditMem('+m.id+')" title="Editar">&#9999;</button><button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')">&#128273;</button></div>':'')+
+    var isAfastado=m.afastado;
+    var afastadoBadge=isAfastado?'<span class="afastado-badge">&#128683; Afastado'+(m.retornoAfastamento?' ate '+fmtDate(m.retornoAfastamento):'')+'</span>':'';
+    var actionBtns='';
+    if(isL){
+      var afastarBtn=isAfastado
+        ?'<button class="btn bsm" onclick="reativarMembro('+m.id+')" title="Reativar" style="background:rgba(30,132,73,.25);border:1px solid #1E8449;color:#58d68d;">&#9654; Reativar</button>'
+        :'<button class="btn bout bsm" onclick="openAfastar('+m.id+')" title="Afastar temporariamente" style="color:#e67e22;border-color:rgba(230,126,34,.45);">&#128683; Afastar</button>';
+      actionBtns='<div class="mem-actions">'+
+        '<button class="btn bout bsm" onclick="openEditMem('+m.id+')" title="Editar">&#9999;</button>'+
+        '<button class="btn bout bsm" onclick="openResetPw('+m.id+',\''+m.name.replace(/'/g,"\\'")+'\')">&#128273;</button>'+
+        afastarBtn+
+        '<button class="btn bsm" onclick="openExcluirMembro('+m.id+')" title="Excluir membro" style="background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.45);color:#ec7063;">&#128465;</button>'+
+      '</div>';
+    }
+    return '<div class="mcard'+(isAfastado?' afastado':'')+'">'+
+      '<div class="av" style="'+(isAfastado?'opacity:.5;':'')+'">'+(isAfastado?'&#128683;':m.name.charAt(0).toUpperCase())+'</div>'+
+      '<div class="minfo" style="flex:1;"><strong>'+m.name+(m.profile==='lider'?'<span class="lbadge">Lider</span>':'')+afastadoBadge+' </strong><span>'+m.role+'</span><span class="phone-txt">&#128241; '+m.phone+(m.motivoAfastamento?' &middot; '+m.motivoAfastamento:'')+'</span></div>'+
+      actionBtns+
     '</div>';
   }).join('');
 }
@@ -2011,6 +2062,69 @@ function openAddArtigo(){
   document.getElementById('art-foto-preview').style.display='none';
   document.getElementById('art-foto-drop').style.display='block';
   openMo('mo-add-artigo');
+}
+
+// ============ AFASTAR / EXCLUIR MEMBRO ============
+var afastarTargetId = null;
+var excluirMemTargetId = null;
+
+function openAfastar(id){
+  var m=S.members.find(function(x){return x.id===id;});if(!m)return;
+  afastarTargetId=id;
+  document.getElementById('afastar-nome-txt').textContent='Afastar temporariamente: '+m.name+' ('+m.role+')';
+  document.getElementById('afastar-motivo').value=m.motivoAfastamento||'';
+  document.getElementById('afastar-retorno').value=m.retornoAfastamento||'';
+  openMo('mo-afastar');
+}
+
+function confirmarAfastar(){
+  var m=S.members.find(function(x){return x.id===afastarTargetId;});if(!m)return;
+  var motivo=document.getElementById('afastar-motivo').value.trim();
+  var retorno=document.getElementById('afastar-retorno').value;
+  m.afastado=true;
+  m.motivoAfastamento=motivo||'Afastamento temporario';
+  m.retornoAfastamento=retorno||null;
+  // Remove de escalas futuras
+  var agora=new Date();
+  S.escala.forEach(function(day){
+    var dh=day.hora||'23:59';
+    var pd=new Date(day.date+'T'+dh+':00');
+    if(pd>agora){
+      day.membros=day.membros.filter(function(mem){return mem.id!==afastarTargetId;});
+    }
+  });
+  S.notifs.unshift({id:Date.now(),icon:'&#128683;',text:'<strong>'+m.name+'</strong> foi afastado(a) temporariamente.'+(motivo?' Motivo: '+motivo:'')+(retorno?' Retorno previsto: '+fmtDate(retorno):''),time:nowStr(),unread:true});
+  saveAll().then(function(){closeMo('mo-afastar');toast(m.name+' afastado(a).');renderAll();});
+}
+
+function reativarMembro(id){
+  var m=S.members.find(function(x){return x.id===id;});if(!m)return;
+  if(!confirm('Reativar '+m.name+'?'))return;
+  m.afastado=false;
+  m.motivoAfastamento=null;
+  m.retornoAfastamento=null;
+  S.notifs.unshift({id:Date.now(),icon:'&#9654;',text:'<strong>'+m.name+'</strong> foi reativado(a) na equipe.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast(m.name+' reativado(a)!');renderAll();});
+}
+
+function openExcluirMembro(id){
+  var m=S.members.find(function(x){return x.id===id;});if(!m)return;
+  if(m.id===CU.id){toast('Voce nao pode excluir a si mesmo.');return;}
+  excluirMemTargetId=id;
+  document.getElementById('excluir-mem-txt').innerHTML='Tem certeza que deseja excluir <strong style="color:var(--gold);">'+m.name+'</strong> da equipe?<br><br>Ele(a) sera removido(a) de todas as escalas.';
+  openMo('mo-excluir-mem');
+}
+
+function confirmarExcluirMembro(){
+  var m=S.members.find(function(x){return x.id===excluirMemTargetId;});if(!m)return;
+  var nome=m.name;
+  S.members=S.members.filter(function(x){return x.id!==excluirMemTargetId;});
+  // Remove de todas as escalas
+  S.escala.forEach(function(day){
+    day.membros=day.membros.filter(function(mem){return mem.id!==excluirMemTargetId;});
+  });
+  S.notifs.unshift({id:Date.now(),icon:'&#128465;',text:'<strong>'+nome+'</strong> foi removido(a) da equipe.',time:nowStr(),unread:true});
+  saveAll().then(function(){closeMo('mo-excluir-mem');toast(nome+' removido(a) da equipe.');renderAll();populateForms();});
 }
 
 window.addEventListener('load',function(){
