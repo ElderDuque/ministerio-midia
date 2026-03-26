@@ -972,7 +972,8 @@ function renderEscala(){
     }
   }
 
-  var pend=S.escala.reduce(function(a,d){return a+d.membros.filter(function(m){return m.status==='pending';}).length;},0);
+  var agora2=new Date();
+  var pend=S.escala.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');if(pd<=agora2)return false;return d.membros.length===0||d.membros.some(function(m){return m.status==='pending';});}).length;
   document.getElementById('st-cultos').textContent=S.escala.length;
   document.getElementById('st-membros').textContent=S.members.filter(function(m){return !m.afastado;}).length;
   document.getElementById('st-pend').textContent=pend;
