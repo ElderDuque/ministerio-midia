@@ -214,6 +214,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <p class="stitle">Acoes do Lider</p>
       <button class="btn bgold bblock" onclick="openMo('mo-addday')">+ Adicionar Culto</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="openMo('mo-ia')">&#129302; Importar Escala</button>
+      <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(201,168,76,.55);color:var(--gold-l);background:rgba(201,168,76,.07);" onclick="abrirEscalaPreDefinida()">&#128196; Escala Pré-Definida</button>
       <button class="btn bout bblock" style="margin-top:8px;" onclick="checkVagas()">&#9888; Verificar Vagas</button>
       <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(100,100,255,.4);color:#aab4ff;" onclick="openMo('mo-backup')">&#128190; Backup e Restauracao</button>
       <button class="btn bout bblock" style="margin-top:8px;border-color:rgba(52,199,89,.4);color:#4cd964;" onclick="verificarAtualizacao()">🔄 Atualizar App</button>
@@ -902,6 +903,7 @@ function doLogin(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
     updateHeader();renderAll();startPolling();
+    setTimeout(verificarBannerEscala,1500);
   });
 }
 function doLogout(){CU=null;sessionStorage.removeItem('mm_cu');document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('li-phone').value='';document.getElementById('li-pass').value='';document.getElementById('li-err').textContent='';}
@@ -2308,6 +2310,150 @@ function verificarAtualizacao(){
   });
 }
 
+// ===== BANNER LEMBRETE ESCALA =====
+function verificarBannerEscala(){
+  if(!CU||CU.profile!=='lider')return;
+  var agora=new Date();
+  var ultimoDiaMes=new Date(agora.getFullYear(),agora.getMonth()+1,0);
+  var diasRestantes=ultimoDiaMes.getDate()-agora.getDate();
+  if(diasRestantes>4)return;
+  var proxAno=agora.getMonth()===11?agora.getFullYear()+1:agora.getFullYear();
+  var proxMes=agora.getMonth()===11?0:agora.getMonth()+1;
+  var proxKey=proxAno+'-'+String(proxMes).padStart(2,'0');
+  var temEscalaProxMes=S.escala.some(function(d){
+    var dt=new Date(d.date+'T12:00:00');
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    return k===proxKey;
+  });
+  if(temEscalaProxMes)return;
+  var fechouHoje=localStorage.getItem('banner_escala_fechou');
+  if(fechouHoje===agora.toDateString())return;
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var nomeProxMes=meses[proxMes];
+  document.getElementById('banner-escala-titulo').textContent='⏰ ATENÇÃO — '+diasRestantes+(diasRestantes===1?' dia restante!':' dias restantes!');
+  document.getElementById('banner-escala-msg').textContent='A escala de '+nomeProxMes+' ainda não foi montada. Prepare com antecedência para que a equipe possa confirmar a tempo!';
+  document.getElementById('banner-escala-lembrete').style.display='block';
+}
+function fecharBannerEscala(){
+  document.getElementById('banner-escala-lembrete').style.display='none';
+  localStorage.setItem('banner_escala_fechou',new Date().toDateString());
+}
+
+// ===== ESCALA PRÉ-DEFINIDA =====
+function abrirEscalaPreDefinida(){
+  var sel=document.getElementById('pre-mes');
+  sel.innerHTML='';
+  var agora=new Date();
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  for(var i=0;i<=3;i++){
+    var m=new Date(agora.getFullYear(),agora.getMonth()+i,1);
+    var key=m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0');
+    var opt=document.createElement('option');
+    opt.value=key;
+    opt.textContent=meses[m.getMonth()]+' '+m.getFullYear()+(i===0?' (mês atual)':i===1?' (próximo mês)':'');
+    if(i===1)opt.selected=true;
+    sel.appendChild(opt);
+  }
+  var memDiv=document.getElementById('pre-membros-checks');
+  var ativos=S.members.filter(function(m){return !m.afastado;});
+  memDiv.innerHTML=ativos.length?ativos.map(function(m){
+    return '<label style="display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--cream2);cursor:pointer;padding:3px 0;">'
+    +'<input type="checkbox" class="pre-mem-ck" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '
+    +m.name+' <span style="color:var(--gold);font-size:.63rem;opacity:.7;">('+m.role+')</span></label>';
+  }).join(''):'<p style="font-size:.74rem;opacity:.4;text-align:center;">Nenhum membro ativo.</p>';
+  document.getElementById('pre-modelo').value='padrao';
+  document.getElementById('pre-custom-wrap').style.display='none';
+  window._preCultos=[];
+  gerarPreEscala();
+  openMo('mo-escala-pre');
+}
+
+function gerarPreEscala(){
+  var sel=document.getElementById('pre-mes');
+  if(!sel||!sel.value)return;
+  var partes=sel.value.split('-');
+  var ano=parseInt(partes[0]);
+  var mes=parseInt(partes[1])-1;
+  var modelo=document.getElementById('pre-modelo').value;
+  document.getElementById('pre-custom-wrap').style.display=modelo==='personalizado'?'block':'none';
+  var diasSemana=[],horasDia={};
+  if(modelo==='padrao'){diasSemana=[0,4];horasDia={0:'09:45',4:'19:30'};}
+  else if(modelo==='sodomingo'){diasSemana=[0];horasDia={0:'09:45'};}
+  else if(modelo==='soquinta'){diasSemana=[4];horasDia={4:'19:30'};}
+  else{
+    if(document.getElementById('pre-ckdom').checked){diasSemana.push(0);horasDia[0]=document.getElementById('pre-hora-dom').value;}
+    if(document.getElementById('pre-ckqui').checked){diasSemana.push(4);horasDia[4]=document.getElementById('pre-hora-qui').value;}
+    if(document.getElementById('pre-cksab').checked){diasSemana.push(6);horasDia[6]=document.getElementById('pre-hora-sab').value;}
+  }
+  var nomesCulto={0:'Culto de Celebração',4:'Quinta Profética',6:'Culto de Sábado'};
+  var cultos=[];
+  var totalDias=new Date(ano,mes+1,0).getDate();
+  for(var d=1;d<=totalDias;d++){
+    var dt=new Date(ano,mes,d);
+    if(diasSemana.indexOf(dt.getDay())>=0){
+      var dateStr=ano+'-'+String(mes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      cultos.push({date:dateStr,label:nomesCulto[dt.getDay()]||'Culto',hora:horasDia[dt.getDay()]||'19:00'});
+    }
+  }
+  var container=document.getElementById('pre-lista-cultos');
+  document.getElementById('pre-count').textContent='('+cultos.length+' culto'+(cultos.length===1?'':'s')+')';
+  var diasExist=S.escala.map(function(e){return e.date;});
+  var diasSemNomes=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  if(!cultos.length){container.innerHTML='<p style="font-size:.74rem;color:var(--cream2);opacity:.45;text-align:center;padding:10px;">Nenhum culto gerado.</p>';window._preCultos=[];return;}
+  container.innerHTML=cultos.map(function(c){
+    var jaExiste=diasExist.indexOf(c.date)>=0;
+    var dt2=new Date(c.date+'T12:00:00');
+    var fmt=diasSemNomes[dt2.getDay()]+'. '+String(dt2.getDate()).padStart(2,'0')+'/'+String(dt2.getMonth()+1).padStart(2,'0');
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:7px;margin-bottom:4px;background:'+(jaExiste?'rgba(192,57,43,.1)':'rgba(30,132,73,.07)')+';border:1px solid '+(jaExiste?'rgba(192,57,43,.3)':'rgba(30,132,73,.2)')+';">'
+    +'<div style="display:flex;align-items:center;gap:7px;"><span>'+(jaExiste?'⚠️':'📅')+'</span><div>'
+    +'<div style="font-size:.78rem;color:var(--cream);font-weight:700;">'+fmt+' — '+c.hora+'h</div>'
+    +'<div style="font-size:.65rem;color:var(--gold);opacity:.72;">'+c.label+'</div>'
+    +'</div></div><span style="font-size:.63rem;color:'+(jaExiste?'#ec7063':'#58d68d')+';font-weight:700;">'+(jaExiste?'já existe':'novo')+'</span></div>';
+  }).join('');
+  window._preCultos=cultos;
+}
+
+function salvarPreEscala(){
+  if(!window._preCultos||!window._preCultos.length){toast('Nenhum culto para criar.');return;}
+  var status=document.getElementById('pre-status').value;
+  var obs=document.getElementById('pre-obs').value.trim();
+  var memsSel=Array.from(document.querySelectorAll('.pre-mem-ck:checked')).map(function(ck){return parseInt(ck.value);});
+  var memObjs=memsSel.map(function(id){var m=S.members.find(function(x){return x.id===id;});return m?{id:m.id,name:m.name,role:m.role,status:status}:null;}).filter(Boolean);
+  var diasExist=S.escala.map(function(e){return e.date;});
+  var criados=0;
+  window._preCultos.forEach(function(c){
+    if(diasExist.indexOf(c.date)>=0)return;
+    S.escala.push({id:Date.now()+Math.random(),date:c.date,label:c.label+(obs?' — '+obs:''),hora:c.hora,membros:memObjs.map(function(m){return Object.assign({},m);}),aberto:memsSel.length===0});
+    criados++;
+  });
+  if(!criados){toast('Nenhum culto novo (todos já existem).');return;}
+  S.notifs.unshift({id:Date.now(),icon:'📋',text:'<strong>Escala Pré-Definida</strong> criada: <strong>'+criados+' culto(s)</strong> adicionados.',time:nowStr(),unread:true});
+  saveAll().then(function(){closeMo('mo-escala-pre');toast('✅ '+criados+' culto(s) criado(s)!');renderAll();document.getElementById('banner-escala-lembrete').style.display='none';});
+}
+
+function salvarEEnviarPreEscala(){
+  salvarPreEscala();
+  setTimeout(function(){
+    if(!window._preCultos||!window._preCultos.length)return;
+    var sel=document.getElementById('pre-mes');
+    var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    var partes=sel.value.split('-');
+    var nomeMes=meses[parseInt(partes[1])-1]+' '+partes[0];
+    var memsSel=Array.from(document.querySelectorAll('.pre-mem-ck:checked')).map(function(ck){
+      var m=S.members.find(function(x){return x.id===parseInt(ck.value);});return m?m.name:'';
+    }).filter(Boolean);
+    var diasSemNomes=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    var txt='📋 *ESCALA — '+nomeMes.toUpperCase()+'*\nMinisterio de Midia\n\n';
+    window._preCultos.forEach(function(c){
+      var dt=new Date(c.date+'T12:00:00');
+      var fmt=diasSemNomes[dt.getDay()]+'. '+String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+      txt+='📅 *'+fmt+' — '+c.hora+'h*\n   '+c.label+'\n'+(memsSel.length?'   👥 '+memsSel.join(', ')+'\n':'')+'\n';
+    });
+    txt+=(memsSel.length?'_Confirme sua presença no app._\n':'')+'🔗 '+APP_URL;
+    window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+  },700);
+}
+
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').then(function(reg){
     _swReg = reg;
@@ -2344,6 +2490,118 @@ if('serviceWorker' in navigator){
   }, 5 * 60 * 1000);
 }
 </script>
+
+<!-- ===== BANNER LEMBRETE: MONTAR ESCALA DO PRÓXIMO MÊS ===== -->
+<div id="banner-escala-lembrete" style="
+  display:none;
+  position:fixed;
+  bottom:80px;
+  left:12px;
+  right:12px;
+  background:linear-gradient(135deg,#7A3C00,#4A2000);
+  border:1.5px solid #C9A84C;
+  border-radius:14px;
+  padding:12px 16px;
+  z-index:9990;
+  box-shadow:0 4px 20px rgba(0,0,0,0.6);
+  animation:bannerSlideIn .4s ease;
+  cursor:pointer;
+" onclick="fecharBannerEscala()">
+  <div style="display:flex;align-items:center;gap:11px;">
+    <span style="font-size:1.8rem;flex-shrink:0;">⏰</span>
+    <div style="flex:1;">
+      <div style="font-family:'Cinzel',serif;font-size:.82rem;color:#FFD700;font-weight:700;letter-spacing:.5px;" id="banner-escala-titulo">ATENÇÃO LÍDER!</div>
+      <div style="font-size:.75rem;color:#FAF3E0;margin-top:2px;line-height:1.45;" id="banner-escala-msg">Faltam poucos dias para o mês acabar e a escala do próximo mês ainda não está pronta!</div>
+    </div>
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;">
+      <button onclick="event.stopPropagation();abrirEscalaPreDefinida();" style="background:linear-gradient(135deg,#C9A84C,#A07830);border:none;border-radius:8px;color:#0F0D07;font-size:.68rem;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap;">Montar Agora</button>
+      <button onclick="event.stopPropagation();fecharBannerEscala();" style="background:transparent;border:1px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.5);font-size:.6rem;padding:3px 8px;cursor:pointer;font-family:'Nunito',sans-serif;">Fechar</button>
+    </div>
+  </div>
+</div>
+<style>@keyframes bannerSlideIn{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}</style>
+
+<!-- ===== MODAL ESCALA PRÉ-DEFINIDA ===== -->
+<div class="mo" id="mo-escala-pre" onclick="closeMo('mo-escala-pre')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;">
+    <div class="mhandle"></div>
+    <div class="mtitle">📋 Escala Pré-Definida</div>
+    <p style="font-size:.75rem;color:var(--cream2);opacity:.65;margin-bottom:14px;line-height:1.5;">Monte rapidamente a escala do próximo mês com base nos padrões da equipe. Ajuste o que precisar e envie!</p>
+
+    <!-- Selecionar mês alvo -->
+    <label class="mfl">Mês da Escala</label>
+    <select class="mfs" id="pre-mes" style="margin-bottom:13px;" onchange="gerarPreEscala()">
+    </select>
+
+    <!-- Padrão de cultos do mês -->
+    <label class="mfl">Modelo de Cultos</label>
+    <select class="mfs" id="pre-modelo" style="margin-bottom:13px;" onchange="gerarPreEscala()">
+      <option value="padrao">Padrão: Dom 09:45 + Qui 19:30</option>
+      <option value="sodomingo">Somente Domingos 09:45</option>
+      <option value="soquinta">Somente Quintas 19:30</option>
+      <option value="personalizado">Personalizado</option>
+    </select>
+
+    <!-- Div para configuração personalizada -->
+    <div id="pre-custom-wrap" style="display:none;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.18);border-radius:9px;padding:11px;margin-bottom:13px;">
+      <p style="font-size:.7rem;color:var(--gold);margin-bottom:8px;font-weight:700;">Dias e Horários:</p>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.76rem;color:var(--cream2);cursor:pointer;">
+        <input type="checkbox" id="pre-ckdom" checked style="accent-color:var(--gold);"> Domingos
+        <select id="pre-hora-dom" class="mfs" style="flex:1;padding:4px 8px;font-size:.74rem;margin:0;">
+          <option value="07:00">07:00</option><option value="09:00">09:00</option><option value="09:45" selected>09:45</option><option value="10:00">10:00</option><option value="18:00">18:00</option><option value="19:00">19:00</option><option value="19:30">19:30</option>
+        </select>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:.76rem;color:var(--cream2);cursor:pointer;">
+        <input type="checkbox" id="pre-ckqui" checked style="accent-color:var(--gold);"> Quintas
+        <select id="pre-hora-qui" class="mfs" style="flex:1;padding:4px 8px;font-size:.74rem;margin:0;">
+          <option value="07:00">07:00</option><option value="09:00">09:00</option><option value="18:00">18:00</option><option value="19:00">19:00</option><option value="19:30" selected>19:30</option><option value="20:00">20:00</option>
+        </select>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--cream2);cursor:pointer;">
+        <input type="checkbox" id="pre-cksab" style="accent-color:var(--gold);"> Sábados
+        <select id="pre-hora-sab" class="mfs" style="flex:1;padding:4px 8px;font-size:.74rem;margin:0;">
+          <option value="07:00">07:00</option><option value="09:00">09:00</option><option value="10:00">10:00</option><option value="18:00">18:00</option><option value="19:00">19:00</option><option value="19:30">19:30</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Lista de cultos gerados -->
+    <label class="mfl">Cultos Gerados <span id="pre-count" style="font-size:.65rem;opacity:.6;font-weight:400;text-transform:none;">(0 cultos)</span></label>
+    <div id="pre-lista-cultos" style="margin-bottom:14px;max-height:220px;overflow-y:auto;border:1px solid rgba(201,168,76,.16);border-radius:9px;padding:8px;background:rgba(0,0,0,.15);">
+      <p style="font-size:.74rem;color:var(--cream2);opacity:.45;text-align:center;padding:10px;">Selecione o mês para gerar os cultos</p>
+    </div>
+
+    <!-- Escalar membros padrão -->
+    <label class="mfl">Membros para cada culto <span style="font-size:.62rem;font-weight:400;opacity:.55;text-transform:none;">(opcional — deixe vazio para escala aberta)</span></label>
+    <div id="pre-membros-checks" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;background:rgba(0,0,0,.12);border:1px solid rgba(201,168,76,.14);border-radius:9px;padding:10px;max-height:160px;overflow-y:auto;">
+      <p style="font-size:.74rem;color:var(--cream2);opacity:.4;">Carregando membros...</p>
+    </div>
+
+    <!-- Status dos membros -->
+    <label class="mfl">Status dos Membros Escalados</label>
+    <select class="mfs" id="pre-status" style="margin-bottom:14px;">
+      <option value="confirmed">Já Confirmado</option>
+      <option value="pending">Pendente (precisam confirmar)</option>
+    </select>
+
+    <!-- Observação -->
+    <label class="mfl">Observação (opcional)</label>
+    <input type="text" class="mfi" id="pre-obs" placeholder="Ex: Escala de Abril - Equipe completa" style="margin-bottom:6px;">
+
+    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.72rem;color:var(--cream2);line-height:1.5;">
+      💡 Os cultos gerados serão <strong style="color:var(--gold);">adicionados à escala existente</strong>. Datas que já existem serão ignoradas para evitar duplicatas.
+    </div>
+
+    <div class="macts" style="flex-direction:column;gap:8px;">
+      <button class="btn bgold" style="width:100%;justify-content:center;font-size:.84rem;" onclick="salvarPreEscala()">✅ Criar Escala no App</button>
+      <button class="btn bgreen" style="width:100%;justify-content:center;font-size:.84rem;" onclick="salvarEEnviarPreEscala()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Criar + Enviar no WhatsApp
+      </button>
+      <button class="btn bout" style="width:100%;justify-content:center;color:var(--cream2);border-color:rgba(255,255,255,.2);" onclick="closeMo('mo-escala-pre')">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Banner de nova versão disponível -->
 <div id="update-banner" style="
