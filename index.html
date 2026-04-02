@@ -765,6 +765,9 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     </select>
 
     <label class="mfl">Foto do Item</label>
+    <div id="art-foto-badge" style="display:none;align-items:center;gap:6px;background:rgba(30,132,73,.18);border:1px solid rgba(30,132,73,.4);border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:.72rem;color:#58d68d;">
+      &#9989; Foto carregada e pronta para salvar
+    </div>
     <div id="art-foto-preview" style="margin-bottom:8px;display:none;">
       <img id="art-foto-img" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;">
       <button onclick="removerFotoArtigo()" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;background:rgba(192,57,43,.2);color:#ec7063;border:1px solid rgba(192,57,43,.3);font-size:.72rem;cursor:pointer;">&#10006; Remover foto</button>
@@ -1888,14 +1891,32 @@ function artigoSetView(v){
 
 function artigoFotoSelecionada(input){
   if(!input.files||!input.files[0])return;
+  var file=input.files[0];
+  var drop=document.getElementById('art-foto-drop');
+  drop.innerHTML='<div style="font-size:1.2rem;">&#9203;</div><p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Processando foto...</p>';
   var reader=new FileReader();
   reader.onload=function(e){
-    artigoFotoB64=e.target.result;
-    document.getElementById('art-foto-img').src=e.target.result;
-    document.getElementById('art-foto-preview').style.display='block';
-    document.getElementById('art-foto-drop').style.display='none';
+    var img=new Image();
+    img.onload=function(){
+      var MAX=600;
+      var w=img.width,h=img.height;
+      if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+      var canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL('image/jpeg',0.7);
+      artigoFotoB64=compressed;
+      document.getElementById('art-foto-img').src=compressed;
+      document.getElementById('art-foto-preview').style.display='block';
+      drop.style.display='none';
+      drop.innerHTML='<div style="font-size:1.5rem;">&#128247;</div><p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p><p style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">Galeria ou c\u00e2mera</p>';
+      var badge=document.getElementById('art-foto-badge');
+      if(badge)badge.style.display='flex';
+      toast('&#128247; Foto carregada com sucesso!');
+    };
+    img.src=e.target.result;
   };
-  reader.readAsDataURL(input.files[0]);
+  reader.readAsDataURL(file);
 }
 
 function removerFotoArtigo(){
@@ -1903,6 +1924,8 @@ function removerFotoArtigo(){
   document.getElementById('art-foto-preview').style.display='none';
   document.getElementById('art-foto-drop').style.display='block';
   document.getElementById('art-foto-input').value='';
+  var badge=document.getElementById('art-foto-badge');
+  if(badge)badge.style.display='none';
 }
 
 var estadoInfo={
@@ -2020,9 +2043,13 @@ function editarArtigoAtual(){
       document.getElementById('art-foto-img').src=a.foto;
       document.getElementById('art-foto-preview').style.display='block';
       document.getElementById('art-foto-drop').style.display='none';
+      var badge=document.getElementById('art-foto-badge');
+      if(badge)badge.style.display='flex';
     } else {
       document.getElementById('art-foto-preview').style.display='none';
       document.getElementById('art-foto-drop').style.display='block';
+      var badge=document.getElementById('art-foto-badge');
+      if(badge)badge.style.display='none';
     }
     openMo('mo-add-artigo');
   },300);
@@ -2056,6 +2083,8 @@ function salvarArtigo(){
     document.getElementById('art-foto-preview').style.display='none';
     document.getElementById('art-foto-drop').style.display='block';
     document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+    var badge=document.getElementById('art-foto-badge');
+    if(badge)badge.style.display='none';
     toast('Artigo salvo!');
     renderArtigos();
   });
@@ -2071,6 +2100,8 @@ function openAddArtigo(){
   document.getElementById('art-obs').value='';
   document.getElementById('art-foto-preview').style.display='none';
   document.getElementById('art-foto-drop').style.display='block';
+  var badge=document.getElementById('art-foto-badge');
+  if(badge)badge.style.display='none';
   openMo('mo-add-artigo');
 }
 
