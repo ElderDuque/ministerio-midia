@@ -439,7 +439,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <button id="art-view-grid" onclick="artigoSetView('grid')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;font-size:.75rem;font-weight:700;cursor:pointer;">&#9646;&#9646; Grade</button>
       <button id="art-view-list" onclick="artigoSetView('list')" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(201,168,76,.3);background:transparent;color:var(--gold);font-size:.75rem;font-weight:700;cursor:pointer;">&#9776; Lista</button>
     </div>
-    <button id="art-add-btn" style="display:none;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;font-size:.75rem;font-weight:700;border:none;cursor:pointer;" onclick="openMo('mo-add-artigo')">+ Adicionar</button>
+    <button id="art-add-btn" style="display:none;padding:6px 14px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#A07830);color:#0F0D07;font-size:.75rem;font-weight:700;border:none;cursor:pointer;" onclick="openAddArtigo()">+ Adicionar</button>
   </div>
 
   <!-- Search -->
@@ -772,6 +772,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div id="art-foto-drop" onclick="document.getElementById('art-foto-input').click()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;">
       <div style="font-size:1.5rem;">&#128247;</div>
       <p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p>
+      <p style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">Galeria ou câmera</p>
     </div>
     <input type="file" id="art-foto-input" accept="image/*" style="display:none;" onchange="artigoFotoSelecionada(this)">
 
@@ -793,6 +794,9 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="macts">
       <button class="btn bout" onclick="closeMo('mo-ver-artigo')">Fechar</button>
       <button class="btn bgold" id="mo-ver-edit-btn" style="display:none;" onclick="editarArtigoAtual()">&#9999; Editar</button>
+    </div>
+    <div id="mo-ver-del-wrap" style="display:none;margin-top:8px;">
+      <button class="btn bred" style="width:100%;justify-content:center;" onclick="confirmarExcluirArtigo()">&#128465; Excluir Item</button>
     </div>
   </div>
 </div>
@@ -1994,6 +1998,8 @@ function verArtigo(id){
     +'</div>':'');
   var editBtn=document.getElementById('mo-ver-edit-btn');
   if(editBtn)editBtn.style.display=isL?'block':'none';
+  var delWrap=document.getElementById('mo-ver-del-wrap');
+  if(delWrap)delWrap.style.display=isL?'block':'none';
   artigoEditId=id;
   openMo('mo-ver-artigo');
 }
@@ -2066,6 +2072,19 @@ function openAddArtigo(){
   document.getElementById('art-foto-preview').style.display='none';
   document.getElementById('art-foto-drop').style.display='block';
   openMo('mo-add-artigo');
+}
+
+function confirmarExcluirArtigo(){
+  var a=S.artigos.find(function(x){return x.id===artigoEditId;});
+  if(!a)return;
+  if(!confirm('Excluir "'+a.nome+'" permanentemente?'))return;
+  S.artigos=S.artigos.filter(function(x){return x.id!==artigoEditId;});
+  saveAll().then(function(){
+    closeMo('mo-ver-artigo');
+    artigoEditId=null;
+    toast('Item excluído!');
+    renderArtigos();
+  });
 }
 
 // ============ AFASTAR / EXCLUIR MEMBRO ============
