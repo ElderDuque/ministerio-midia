@@ -446,7 +446,10 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
   <input type="text" id="art-search" class="mfi" placeholder="&#128269; Buscar artigo..." oninput="renderArtigos()" style="margin-bottom:14px;">
 
   <!-- Items list/grid -->
-  <div id="artigos-container"></div>
+  <div id="firebase-aviso" style="display:none;background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.35);border-radius:10px;padding:12px;margin-bottom:12px;font-size:.74rem;color:#f39c12;line-height:1.6;">
+  ☁️ <strong>Cloudinary ativo!</strong> As fotos serão enviadas automaticamente para a nuvem após salvar.
+</div>
+<div id="artigos-container"></div>
 </div>
 
 
@@ -843,14 +846,81 @@ var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.a
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
 async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
-async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});setOnline(r.ok);}catch(e){setOnline(false);}}
+async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
+
+// ── Cloudinary para fotos dos artigos ──────────────────────────────
+var CLOUDINARY_CLOUD = 'dzj6rfcax';
+var CLOUDINARY_PRESET = 'ministerio_midia'; // Upload preset unsigned
+var FIREBASE_STORAGE = true; // flag de compatibilidade - Cloudinary ativo
+
+async function uploadFotoStorage(base64, artigoId) {
+  if (!base64 || !base64.startsWith('data:')) return null;
+  try {
+    var formData = new FormData();
+    formData.append('file', base64);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+    formData.append('public_id', 'ministerio/artigos/' + artigoId);
+    formData.append('overwrite', 'true');
+    var r = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', {
+      method: 'POST', body: formData
+    });
+    if (!r.ok) { console.error('Cloudinary erro:', r.status); return null; }
+    var j = await r.json();
+    return j.secure_url || null;
+  } catch(e) { console.warn('Cloudinary upload error:', e); return null; }
+}
+
+async function deleteFotoStorage(url) {
+  // Cloudinary delete requer server-side - apenas ignora (imagem fica no storage)
+}
+
+// Converte fotos base64 pendentes para URLs do Cloudinary (chamado após save)
+async function syncFotosParaStorage() {
+  var alterou = false;
+  for (var i = 0; i < (S.artigos||[]).length; i++) {
+    var a = S.artigos[i];
+    if (a.foto && a.foto.startsWith('data:')) {
+      toast('☁️ Enviando foto para nuvem...');
+      var url = await uploadFotoStorage(a.foto, a.id);
+      if (url) { a.foto = url; alterou = true; }
+    }
+  }
+  if (alterou) {
+    // Agora salva URLs definitivas no JSONBin (strings pequenas, não base64)
+    await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos});
+    // Limpa localStorage - foto já está na nuvem
+    localStorage.removeItem('art_fotos');
+    renderArtigos();
+    toast('✅ Foto salva na nuvem com sucesso!');
+  }
+}
+
+// Fallback localStorage enquanto foto ainda nao foi para Cloudinary
+function fotosSalvar(){try{var map={};(S.artigos||[]).forEach(function(a){if(a.foto&&a.foto.startsWith('data:'))map[String(a.id)]=a.foto;});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
+function fotosCarregar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);(S.artigos||[]).forEach(function(a){if(!a.foto&&map[String(a.id)])a.foto=map[String(a.id)];});}catch(e){}}
+function fotosLimpar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);var ids=(S.artigos||[]).map(function(a){return String(a.id);});Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
 
 var S={members:[],escala:[],notifs:[],pedidos:[],artigos:[]};
 var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
 
 function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
-async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;if(d.artigos)S.artigos=d.artigos;}showSync(false);}
-async function saveAll(){await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos||[]});document.getElementById('backup-alert').style.display='block';}
+async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;if(d.artigos)S.artigos=d.artigos;fotosCarregar();}showSync(false);}
+async function saveAll(){
+  // Guarda fotos base64 no localStorage como fallback imediato
+  fotosSalvar();
+  // Manda para o JSONBin: artigos com fotos base64 removidas (Storage cuida delas)
+  var artigosSemBase64=(S.artigos||[]).map(function(a){
+    var c=Object.assign({},a);
+    // Se a foto ainda é base64 (não enviada ao Storage), remove do payload da nuvem
+    if(c.foto&&c.foto.startsWith('data:'))delete c.foto;
+    return c;
+  });
+  var ok=await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64});
+  if(!ok){toast('\u26a0\ufe0f Erro ao salvar na nuvem. Verifique a conexao.');}
+  document.getElementById('backup-alert').style.display='block';
+  // Envia fotos base64 pendentes para o Firebase Storage em background
+  setTimeout(syncFotosParaStorage, 500);
+}
 
 function seedMembers(){
   if(!S.members.length)S.members=[
@@ -867,7 +937,7 @@ function seedMembers(){
   if(!S.notifs.length)S.notifs=[{id:1,icon:'&#127916;',text:'<strong>Bem-vindos!</strong> Lider ira montar a escala.',time:'Agora',unread:true}];
 }
 
-function startPolling(){setInterval(async function(){if(!CU)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();}},8000);}
+function startPolling(){setInterval(async function(){if(!CU)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},8000);}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
@@ -1939,6 +2009,8 @@ function renderArtigos(){
   var isL=CU&&CU.profile==='lider';
   var addBtn=document.getElementById('art-add-btn');
   if(addBtn)addBtn.style.display=isL?'block':'none';
+  var aviso=document.getElementById('firebase-aviso');
+  if(aviso)aviso.style.display='none';
 
   var search=(document.getElementById('art-search')||{}).value||'';
   var items=(S.artigos||[]).filter(function(a){
@@ -2073,6 +2145,7 @@ function salvarArtigo(){
   }
 
   saveAll().then(function(){
+    fotosLimpar();
     closeMo('mo-add-artigo');
     artigoEditId=null;artigoFotoB64=null;
     document.getElementById('art-nome').value='';
@@ -2109,7 +2182,10 @@ function confirmarExcluirArtigo(){
   var a=S.artigos.find(function(x){return x.id===artigoEditId;});
   if(!a)return;
   if(!confirm('Excluir "'+a.nome+'" permanentemente?'))return;
+  var fotoUrl=a.foto||null;
   S.artigos=S.artigos.filter(function(x){return x.id!==artigoEditId;});
+  fotosLimpar();
+  if(fotoUrl&&fotoUrl.includes('firebasestorage'))deleteFotoStorage(fotoUrl);
   saveAll().then(function(){
     closeMo('mo-ver-artigo');
     artigoEditId=null;
