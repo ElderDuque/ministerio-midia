@@ -767,18 +767,21 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <option value="emprestado">&#128256; Emprestado</option>
     </select>
 
-    <label class="mfl">Foto do Item</label>
-    <div id="art-foto-badge" style="display:none;align-items:center;gap:6px;background:rgba(30,132,73,.18);border:1px solid rgba(30,132,73,.4);border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:.72rem;color:#58d68d;">
-      &#9989; Foto carregada e pronta para salvar
-    </div>
-    <div id="art-foto-preview" style="margin-bottom:8px;display:none;">
-      <img id="art-foto-img" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;">
-      <button onclick="removerFotoArtigo()" style="margin-top:6px;width:100%;padding:6px;border-radius:8px;background:rgba(192,57,43,.2);color:#ec7063;border:1px solid rgba(192,57,43,.3);font-size:.72rem;cursor:pointer;">&#10006; Remover foto</button>
-    </div>
-    <div id="art-foto-drop" onclick="document.getElementById('art-foto-input').click()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;">
+    <label class="mfl">Condicao do Item</label>
+    <select class="mfs" id="art-condicao" style="margin-bottom:13px;">
+      <option value="novo">&#127381; Novo</option>
+      <option value="usado">&#128260; Usado</option>
+    </select>
+
+    <label class="mfl">Data de Aquisicao</label>
+    <input type="date" class="mfi" id="art-data-aquisicao" style="margin-bottom:13px;">
+
+    <label class="mfl">Fotos do Item <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(até 5 fotos)</span></label>
+    <div id="art-fotos-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;"></div>
+    <div id="art-foto-drop" onclick="artigoAdicionarFoto()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:16px;text-align:center;cursor:pointer;margin-bottom:12px;">
       <div style="font-size:1.5rem;">&#128247;</div>
       <p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p>
-      <p style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">Galeria ou câmera</p>
+      <p id="art-foto-count-lbl" style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">0/5 fotos · Galeria ou câmera</p>
     </div>
     <input type="file" id="art-foto-input" accept="image/*" style="display:none;" onchange="artigoFotoSelecionada(this)">
 
@@ -879,6 +882,17 @@ async function syncFotosParaStorage() {
   var alterou = false;
   for (var i = 0; i < (S.artigos||[]).length; i++) {
     var a = S.artigos[i];
+    // suporte ao novo campo fotos[] (múltiplas fotos)
+    if (a.fotos && Array.isArray(a.fotos)) {
+      for (var fi = 0; fi < a.fotos.length; fi++) {
+        if (a.fotos[fi] && a.fotos[fi].startsWith('data:')) {
+          toast('☁️ Enviando foto '+(fi+1)+' para nuvem...');
+          var url = await uploadFotoStorage(a.fotos[fi], a.id+'_'+fi);
+          if (url) { a.fotos[fi] = url; alterou = true; }
+        }
+      }
+    }
+    // compatibilidade com campo antigo foto (string única)
     if (a.foto && a.foto.startsWith('data:')) {
       toast('☁️ Enviando foto para nuvem...');
       var url = await uploadFotoStorage(a.foto, a.id);
@@ -886,12 +900,10 @@ async function syncFotosParaStorage() {
     }
   }
   if (alterou) {
-    // Agora salva URLs definitivas no JSONBin (strings pequenas, não base64)
     await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos});
-    // Limpa localStorage - foto já está na nuvem
     localStorage.removeItem('art_fotos');
     renderArtigos();
-    toast('✅ Foto salva na nuvem com sucesso!');
+    toast('✅ Fotos salvas na nuvem com sucesso!');
   }
 }
 
@@ -913,6 +925,8 @@ async function saveAll(){
     var c=Object.assign({},a);
     // Se a foto ainda é base64 (não enviada ao Storage), remove do payload da nuvem
     if(c.foto&&c.foto.startsWith('data:'))delete c.foto;
+    // Idem para o array fotos[]
+    if(c.fotos&&Array.isArray(c.fotos)){c.fotos=c.fotos.map(function(f){return (f&&f.startsWith('data:'))?null:f;}).filter(Boolean);}
     return c;
   });
   var ok=await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64});
@@ -1948,7 +1962,9 @@ function salvarNomeCulto(){
 // ============ ARTIGOS ============
 var artigoView = 'grid';
 var artigoEditId = null;
-var artigoFotoB64 = null;
+var artigoFotoB64 = null; // legado — mantido para compatibilidade
+var artigoFotosB64 = []; // array de até 5 fotos (base64 ou URL)
+var MAX_FOTOS = 5;
 
 function artigoSetView(v){
   artigoView = v;
@@ -1959,43 +1975,56 @@ function artigoSetView(v){
   renderArtigos();
 }
 
+function artigoAdicionarFoto(){
+  if(artigoFotosB64.length>=MAX_FOTOS){toast('Máximo de '+MAX_FOTOS+' fotos atingido.');return;}
+  document.getElementById('art-foto-input').click();
+}
+
 function artigoFotoSelecionada(input){
   if(!input.files||!input.files[0])return;
+  if(artigoFotosB64.length>=MAX_FOTOS){toast('Máximo de '+MAX_FOTOS+' fotos atingido.');return;}
   var file=input.files[0];
-  var drop=document.getElementById('art-foto-drop');
-  drop.innerHTML='<div style="font-size:1.2rem;">&#9203;</div><p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Processando foto...</p>';
+  input.value='';
   var reader=new FileReader();
   reader.onload=function(e){
     var img=new Image();
     img.onload=function(){
-      var MAX=600;
+      var MAX=800;
       var w=img.width,h=img.height;
       if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
       var canvas=document.createElement('canvas');
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.7);
-      artigoFotoB64=compressed;
-      document.getElementById('art-foto-img').src=compressed;
-      document.getElementById('art-foto-preview').style.display='block';
-      drop.style.display='none';
-      drop.innerHTML='<div style="font-size:1.5rem;">&#128247;</div><p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p><p style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">Galeria ou c\u00e2mera</p>';
-      var badge=document.getElementById('art-foto-badge');
-      if(badge)badge.style.display='flex';
-      toast('&#128247; Foto carregada com sucesso!');
+      var compressed=canvas.toDataURL('image/jpeg',0.75);
+      artigoFotosB64.push(compressed);
+      renderFotosModal();
+      toast('📷 Foto '+(artigoFotosB64.length)+' adicionada!');
     };
     img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function removerFotoArtigo(){
-  artigoFotoB64=null;
-  document.getElementById('art-foto-preview').style.display='none';
-  document.getElementById('art-foto-drop').style.display='block';
-  document.getElementById('art-foto-input').value='';
-  var badge=document.getElementById('art-foto-badge');
-  if(badge)badge.style.display='none';
+function removerFotoArtigo(idx){
+  artigoFotosB64.splice(idx,1);
+  renderFotosModal();
+}
+
+function renderFotosModal(){
+  var grid=document.getElementById('art-fotos-preview-grid');
+  var drop=document.getElementById('art-foto-drop');
+  var lbl=document.getElementById('art-foto-count-lbl');
+  var n=artigoFotosB64.length;
+  if(lbl)lbl.textContent=n+'/'+MAX_FOTOS+' fotos · Galeria ou câmera';
+  if(drop)drop.style.display=n>=MAX_FOTOS?'none':'block';
+  if(!grid)return;
+  grid.innerHTML=artigoFotosB64.map(function(src,i){
+    return '<div style="position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;">'
+      +'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;">'
+      +'<button onclick="removerFotoArtigo('+i+')" style="position:absolute;top:3px;right:3px;background:rgba(192,57,43,.85);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:.65rem;cursor:pointer;line-height:20px;text-align:center;padding:0;">✕</button>'
+      +(i===0?'<div style="position:absolute;bottom:3px;left:3px;font-size:.5rem;background:rgba(0,0,0,.6);color:var(--gold);padding:1px 5px;border-radius:5px;">Principal</div>':'')
+      +'</div>';
+  }).join('');
 }
 
 var estadoInfo={
@@ -2033,14 +2062,17 @@ function renderArtigos(){
     ct.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:10px;';
     ct.innerHTML=items.map(function(a){
       var ei=estadoInfo[a.estado]||estadoInfo.bom;
-      var fotoHtml=a.foto
-        ?'<img src="'+a.foto+'" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;">'
-        :'<div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:rgba(255,255,255,.03);border-radius:8px 8px 0 0;">&#128230;</div>';
+      var fotoSrc=(a.fotos&&a.fotos[0])||a.foto||null;
+      var fotoCount=(a.fotos&&a.fotos.length>1)?'<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.65);color:#fff;border-radius:9px;font-size:.58rem;padding:2px 6px;">📷'+a.fotos.length+'</div>':'';
+      var fotoHtml=fotoSrc
+        ?'<div style="position:relative;"><img src="'+fotoSrc+'" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;">'+fotoCount+'</div>'
+        :'<div style="width:100%;height:80px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:rgba(255,255,255,.03);border-radius:8px 8px 0 0;">📦</div>';
+      var condBadge=a.condicao==='novo'?'<span style="font-size:.52rem;background:rgba(30,132,73,.2);color:#58d68d;border-radius:5px;padding:1px 5px;margin-left:4px;">Novo</span>':'';
       return '<div onclick="verArtigo('+a.id+')" style="background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);border-radius:10px;cursor:pointer;overflow:hidden;">'
         +fotoHtml
         +'<div style="padding:8px;">'
-        +'<div style="font-size:.78rem;font-weight:700;color:var(--gold-l);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+'</div>'
-        +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:5px;">&#128205; '+(a.local||'Sem local')+'</div>'
+        +'<div style="font-size:.78rem;font-weight:700;color:var(--gold-l);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+condBadge+'</div>'
+        +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:5px;">📍 '+(a.local||'Sem local')+'</div>'
         +'<span style="font-size:.6rem;padding:2px 7px;border-radius:8px;background:'+ei.bg+';color:'+ei.color+';">'+ei.icon+' '+ei.label+'</span>'
         +'</div></div>';
     }).join('');
@@ -2048,17 +2080,19 @@ function renderArtigos(){
     ct.style.cssText='display:flex;flex-direction:column;gap:8px;';
     ct.innerHTML=items.map(function(a){
       var ei=estadoInfo[a.estado]||estadoInfo.bom;
-      var fotoHtml=a.foto
-        ?'<img src="'+a.foto+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
-        :'<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(255,255,255,.05);border-radius:8px;flex-shrink:0;">&#128230;</div>';
+      var fotoSrc=(a.fotos&&a.fotos[0])||a.foto||null;
+      var fotoHtml=fotoSrc
+        ?'<div style="position:relative;width:52px;height:52px;flex-shrink:0;"><img src="'+fotoSrc+'" style="width:52px;height:52px;object-fit:cover;border-radius:8px;">'+(a.fotos&&a.fotos.length>1?'<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.7);color:#fff;font-size:.48rem;border-radius:4px;padding:1px 4px;">📷'+a.fotos.length+'</div>':'')+'</div>'
+        :'<div style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(255,255,255,.05);border-radius:8px;flex-shrink:0;">📦</div>';
+      var condBadge=a.condicao==='novo'?'<span style="font-size:.52rem;background:rgba(30,132,73,.2);color:#58d68d;border-radius:5px;padding:1px 5px;margin-left:4px;">Novo</span>':'';
       return '<div onclick="verArtigo('+a.id+')" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.12);border-radius:10px;padding:10px;cursor:pointer;">'
         +fotoHtml
         +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:.82rem;font-weight:700;color:var(--gold-l);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+'</div>'
-        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.5;">&#128205; '+(a.local||'Sem local')+(a.qtd>1?' &nbsp;&#128230; x'+a.qtd:'')+'</div>'
+        +'<div style="font-size:.82rem;font-weight:700;color:var(--gold-l);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+condBadge+'</div>'
+        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.5;">📍 '+(a.local||'Sem local')+(a.qtd>1?' &nbsp;📦 x'+a.qtd:'')+'</div>'
         +'<span style="font-size:.6rem;padding:2px 6px;border-radius:7px;background:'+ei.bg+';color:'+ei.color+';">'+ei.icon+' '+ei.label+'</span>'
         +'</div>'
-        +'<span style="color:var(--gold);opacity:.4;font-size:1rem;">&#9656;</span>'
+        +'<span style="color:var(--gold);opacity:.4;font-size:1rem;">▶</span>'
         +'</div>';
     }).join('');
   }
@@ -2069,11 +2103,51 @@ function verArtigo(id){
   if(!a)return;
   var isL=CU&&CU.profile==='lider';
   var ei=estadoInfo[a.estado]||estadoInfo.bom;
-  var fotoHtml=a.foto?'<img src="'+a.foto+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-bottom:12px;">':'';
+
+  // Galeria de fotos
+  var todasFotos=[];
+  if(a.fotos&&Array.isArray(a.fotos)&&a.fotos.length){todasFotos=a.fotos;}
+  else if(a.foto){todasFotos=[a.foto];}
+
+  var galeriaHtml='';
+  if(todasFotos.length===1){
+    galeriaHtml='<img src="'+todasFotos[0]+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin-bottom:12px;">';
+  } else if(todasFotos.length>1){
+    galeriaHtml='<div id="galeria-slide" style="position:relative;margin-bottom:12px;">'
+      +'<img id="galeria-img-main" src="'+todasFotos[0]+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;">'
+      +'<div style="display:flex;gap:6px;margin-top:7px;overflow-x:auto;padding-bottom:4px;">'
+      +todasFotos.map(function(src,i){
+        return '<img src="'+src+'" onclick="galeriaSelecionar('+i+')" data-gi="'+i+'" style="width:54px;height:54px;object-fit:cover;border-radius:7px;cursor:pointer;border:2px solid '+(i===0?'var(--gold)':'rgba(255,255,255,.15)')+';flex-shrink:0;">';
+      }).join('')
+      +'</div></div>';
+  }
+
+  // Condição
+  var condicaoHtml='';
+  if(a.condicao){
+    var cLabel=a.condicao==='novo'?'🆕 Novo':'♻️ Usado';
+    var cColor=a.condicao==='novo'?'#58d68d':'#f39c12';
+    var cBg=a.condicao==='novo'?'rgba(30,132,73,.15)':'rgba(243,156,18,.12)';
+    condicaoHtml='<div style="background:'+cBg+';border-radius:8px;padding:10px;">'
+      +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">CONDIÇÃO</div>'
+      +'<div style="font-size:.78rem;font-weight:700;color:'+cColor+';">'+cLabel+'</div>'
+      +'</div>';
+  }
+
+  // Data de Aquisição
+  var dataHtml='';
+  if(a.dataAquisicao){
+    var dFormatada=new Date(a.dataAquisicao+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    dataHtml='<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
+      +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">📅 DATA DE AQUISIÇÃO</div>'
+      +'<div style="font-size:.82rem;color:var(--cream2);">'+dFormatada+'</div>'
+      +'</div>';
+  }
+
   document.getElementById('mo-ver-artigo-content').innerHTML=
     '<div class="mtitle">'+a.nome+'</div>'
-    +fotoHtml
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'
+    +galeriaHtml
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
     +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;">'
     +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">QUANTIDADE</div>'
     +'<div style="font-size:.92rem;font-weight:700;color:var(--gold-l);">'+a.qtd+'</div>'
@@ -2082,13 +2156,15 @@ function verArtigo(id){
     +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">ESTADO</div>'
     +'<div style="font-size:.78rem;font-weight:700;color:'+ei.color+';">'+ei.icon+' '+ei.label+'</div>'
     +'</div>'
+    +(condicaoHtml?'<div style="grid-column:1/-1;">'+condicaoHtml+'</div>':'')
     +'</div>'
+    +dataHtml
     +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
-    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">&#128205; ONDE ESTA</div>'
-    +'<div style="font-size:.82rem;color:var(--cream2);">'+(a.local||'Nao informado')+'</div>'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">📍 ONDE ESTÁ</div>'
+    +'<div style="font-size:.82rem;color:var(--cream2);">'+(a.local||'Não informado')+'</div>'
     +'</div>'
     +(a.obs?'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
-    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">&#128221; OBSERVACOES</div>'
+    +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:4px;">📝 OBSERVAÇÕES</div>'
     +'<div style="font-size:.78rem;color:var(--cream2);line-height:1.6;">'+a.obs+'</div>'
     +'</div>':'');
   var editBtn=document.getElementById('mo-ver-edit-btn');
@@ -2097,6 +2173,14 @@ function verArtigo(id){
   if(delWrap)delWrap.style.display=isL?'block':'none';
   artigoEditId=id;
   openMo('mo-ver-artigo');
+}
+
+function galeriaSelecionar(i){
+  var main=document.getElementById('galeria-img-main');
+  if(!main)return;
+  var thumbs=document.querySelectorAll('[data-gi]');
+  thumbs.forEach(function(t){t.style.borderColor=t.getAttribute('data-gi')==String(i)?'var(--gold)':'rgba(255,255,255,.15)';});
+  main.src=thumbs[i].src;
 }
 
 function editarArtigoAtual(){
@@ -2109,20 +2193,18 @@ function editarArtigoAtual(){
     document.getElementById('art-qtd').value=a.qtd||1;
     document.getElementById('art-local').value=a.local||'';
     document.getElementById('art-estado').value=a.estado||'bom';
+    document.getElementById('art-condicao').value=a.condicao||'usado';
+    document.getElementById('art-data-aquisicao').value=a.dataAquisicao||'';
     document.getElementById('art-obs').value=a.obs||'';
-    artigoFotoB64=a.foto||null;
-    if(a.foto){
-      document.getElementById('art-foto-img').src=a.foto;
-      document.getElementById('art-foto-preview').style.display='block';
-      document.getElementById('art-foto-drop').style.display='none';
-      var badge=document.getElementById('art-foto-badge');
-      if(badge)badge.style.display='flex';
-    } else {
-      document.getElementById('art-foto-preview').style.display='none';
-      document.getElementById('art-foto-drop').style.display='block';
-      var badge=document.getElementById('art-foto-badge');
-      if(badge)badge.style.display='none';
+    // carrega fotos existentes (novo campo fotos[] ou foto legado)
+    artigoFotosB64=[];
+    if(a.fotos&&Array.isArray(a.fotos)&&a.fotos.length){
+      artigoFotosB64=a.fotos.slice();
+    } else if(a.foto){
+      artigoFotosB64=[a.foto];
     }
+    artigoFotoB64=artigoFotosB64[0]||null;
+    renderFotosModal();
     openMo('mo-add-artigo');
   },300);
 }
@@ -2134,47 +2216,58 @@ function salvarArtigo(){
   var local=document.getElementById('art-local').value.trim();
   var estado=document.getElementById('art-estado').value;
   var obs=document.getElementById('art-obs').value.trim();
+  var condicao=document.getElementById('art-condicao').value||'usado';
+  var dataAquisicao=document.getElementById('art-data-aquisicao').value||'';
+  var fotosParaSalvar=artigoFotosB64.slice();
 
   if(!S.artigos)S.artigos=[];
 
   if(artigoEditId){
     var a=S.artigos.find(function(x){return x.id===artigoEditId;});
-    if(a){a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;if(artigoFotoB64!==null)a.foto=artigoFotoB64;}
+    if(a){
+      a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;
+      a.condicao=condicao;a.dataAquisicao=dataAquisicao;
+      if(fotosParaSalvar.length>0)a.fotos=fotosParaSalvar;
+      // compatibilidade: sync foto principal
+      a.foto=fotosParaSalvar[0]||a.foto||null;
+    }
   } else {
-    S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,foto:artigoFotoB64});
+    S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,
+      condicao:condicao,dataAquisicao:dataAquisicao,
+      fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
   }
 
   saveAll().then(function(){
     fotosLimpar();
     closeMo('mo-add-artigo');
-    artigoEditId=null;artigoFotoB64=null;
+    artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
     document.getElementById('art-nome').value='';
     document.getElementById('art-qtd').value='1';
     document.getElementById('art-local').value='';
     document.getElementById('art-estado').value='bom';
+    document.getElementById('art-condicao').value='usado';
+    document.getElementById('art-data-aquisicao').value='';
     document.getElementById('art-obs').value='';
-    document.getElementById('art-foto-preview').style.display='none';
     document.getElementById('art-foto-drop').style.display='block';
     document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
-    var badge=document.getElementById('art-foto-badge');
-    if(badge)badge.style.display='none';
+    renderFotosModal();
     toast('Artigo salvo!');
     renderArtigos();
   });
 }
 
 function openAddArtigo(){
-  artigoEditId=null;artigoFotoB64=null;
+  artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
   document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
   document.getElementById('art-nome').value='';
   document.getElementById('art-qtd').value='1';
   document.getElementById('art-local').value='';
   document.getElementById('art-estado').value='bom';
+  document.getElementById('art-condicao').value='usado';
+  document.getElementById('art-data-aquisicao').value='';
   document.getElementById('art-obs').value='';
-  document.getElementById('art-foto-preview').style.display='none';
   document.getElementById('art-foto-drop').style.display='block';
-  var badge=document.getElementById('art-foto-badge');
-  if(badge)badge.style.display='none';
+  renderFotosModal();
   openMo('mo-add-artigo');
 }
 
