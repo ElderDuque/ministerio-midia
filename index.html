@@ -2493,7 +2493,6 @@ function salvarArtigo(){
   }
 
   saveAll().then(function(){
-    fotosLimpar();
     closeMo('mo-add-artigo');
     artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
     document.getElementById('art-nome').value='';
@@ -2508,6 +2507,8 @@ function salvarArtigo(){
     renderFotosModal();
     toast('Artigo salvo!');
     renderArtigos();
+    // Envia fotos base64 pendentes para o Cloudinary em background
+    syncFotosParaStorage();
   });
 }
 
