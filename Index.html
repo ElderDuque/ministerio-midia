@@ -2,6 +2,16 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script>
+// Corrige acesso caso o arquivo seja servido com nome diferente (ex: Indice.html)
+(function(){
+  var p=window.location.pathname;
+  // Se não estiver na raiz, redireciona para a raiz
+  if(p!=='/'&&p!=='/index.html'&&p.indexOf('?')===-1){
+    window.location.replace('/');
+  }
+})();
+</script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0F0D07">
   <meta name="mobile-web-app-capable" content="yes">
