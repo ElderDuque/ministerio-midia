@@ -789,6 +789,19 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <label class="mfl">Data de Aquisicao</label>
     <input type="date" class="mfi" id="art-data-aquisicao" style="margin-bottom:13px;">
 
+    <label class="mfl">Veio em Caixa?</label>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;">
+      <label style="display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--cream2);cursor:pointer;">
+        <input type="radio" name="art-caixa" id="art-caixa-sim" value="sim" style="accent-color:var(--gold);width:16px;height:16px;"> Sim
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--cream2);cursor:pointer;">
+        <input type="radio" name="art-caixa" id="art-caixa-nao" value="nao" checked style="accent-color:var(--gold);width:16px;height:16px;"> Não
+      </label>
+    </div>
+
+    <label class="mfl">Quantidade na Caixa <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(se veio em caixa)</span></label>
+    <input type="number" class="mfi" id="art-qtd-caixa" placeholder="Ex: 2" min="1" value="" style="margin-bottom:13px;">
+
     <label class="mfl">Fotos do Item <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(até 5 fotos)</span></label>
     <div id="art-fotos-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;"></div>
     <div id="art-foto-drop" onclick="artigoAdicionarFoto()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:16px;text-align:center;cursor:pointer;margin-bottom:12px;">
@@ -893,30 +906,32 @@ async function deleteFotoStorage(url) {
 // Converte fotos base64 pendentes para URLs do Cloudinary (chamado após save)
 async function syncFotosParaStorage() {
   var alterou = false;
+  // Verifica se há alguma foto base64 pendente
+  var temPendente = (S.artigos||[]).some(function(a){
+    return (a.fotos&&a.fotos.some(function(f){return f&&f.startsWith('data:');})) ||
+           (a.foto&&a.foto.startsWith('data:'));
+  });
+  if(temPendente) toast('☁️ Enviando fotos para a nuvem...');
   for (var i = 0; i < (S.artigos||[]).length; i++) {
     var a = S.artigos[i];
     // suporte ao novo campo fotos[] (múltiplas fotos)
     if (a.fotos && Array.isArray(a.fotos)) {
       for (var fi = 0; fi < a.fotos.length; fi++) {
         if (a.fotos[fi] && a.fotos[fi].startsWith('data:')) {
-          toast('☁️ Enviando foto '+(fi+1)+' para nuvem...');
           var url = await uploadFotoStorage(a.fotos[fi], a.id+'_'+fi);
-          if (url) { a.fotos[fi] = url; alterou = true; }
+          if (url) { a.fotos[fi] = url; if(fi===0)a.foto=url; alterou = true; }
+          else { toast('⚠️ Falha ao enviar foto. Verifique a conexão.'); }
         }
       }
     }
     // compatibilidade com campo antigo foto (string única)
     if (a.foto && a.foto.startsWith('data:')) {
-      toast('☁️ Enviando foto para nuvem...');
       var url = await uploadFotoStorage(a.foto, a.id);
       if (url) { a.foto = url; alterou = true; }
     }
   }
   if (alterou) {
-    await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos});
-    localStorage.removeItem('art_fotos');
-    renderArtigos();
-    toast('✅ Fotos salvas na nuvem com sucesso!');
+    toast('✅ Fotos salvas com sucesso!');
   }
 }
 
@@ -2389,6 +2404,16 @@ function verArtigo(id){
       +'</div>';
   }
 
+  // Caixa
+  var caixaHtml='';
+  if(a.veioEmCaixa==='sim'){
+    var caixaTxt='📦 Sim'+(a.qtdCaixa&&a.qtdCaixa>1?' · '+a.qtdCaixa+' unidades na caixa':'');
+    caixaHtml='<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;">'
+      +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">📦 VEIO EM CAIXA</div>'
+      +'<div style="font-size:.78rem;font-weight:700;color:var(--gold-l);">'+caixaTxt+'</div>'
+      +'</div>';
+  }
+
   // Data de Aquisição
   var dataHtml='';
   if(a.dataAquisicao){
@@ -2412,6 +2437,7 @@ function verArtigo(id){
     +'<div style="font-size:.78rem;font-weight:700;color:'+ei.color+';">'+ei.icon+' '+ei.label+'</div>'
     +'</div>'
     +(condicaoHtml?'<div style="grid-column:1/-1;">'+condicaoHtml+'</div>':'')
+    +(caixaHtml?'<div style="grid-column:1/-1;">'+caixaHtml+'</div>':'')
     +'</div>'
     +dataHtml
     +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;margin-bottom:10px;">'
@@ -2451,6 +2477,11 @@ function editarArtigoAtual(){
     document.getElementById('art-condicao').value=a.condicao||'usado';
     document.getElementById('art-data-aquisicao').value=a.dataAquisicao||'';
     document.getElementById('art-obs').value=a.obs||'';
+    var simEl=document.getElementById('art-caixa-sim');
+    var naoEl3=document.getElementById('art-caixa-nao');
+    if(a.veioEmCaixa==='sim'){if(simEl)simEl.checked=true;}else{if(naoEl3)naoEl3.checked=true;}
+    var qcEl3=document.getElementById('art-qtd-caixa');
+    if(qcEl3)qcEl3.value=a.qtdCaixa||'';
     // carrega fotos existentes (novo campo fotos[] ou foto legado)
     artigoFotosB64=[];
     if(a.fotos&&Array.isArray(a.fotos)&&a.fotos.length){
@@ -2473,6 +2504,10 @@ function salvarArtigo(){
   var obs=document.getElementById('art-obs').value.trim();
   var condicao=document.getElementById('art-condicao').value||'usado';
   var dataAquisicao=document.getElementById('art-data-aquisicao').value||'';
+  var caixaSim=document.getElementById('art-caixa-sim');
+  var veioEmCaixa=caixaSim&&caixaSim.checked?'sim':'nao';
+  var qtdCaixaEl=document.getElementById('art-qtd-caixa');
+  var qtdCaixa=qtdCaixaEl&&qtdCaixaEl.value?parseInt(qtdCaixaEl.value)||null:null;
   var fotosParaSalvar=artigoFotosB64.slice();
 
   if(!S.artigos)S.artigos=[];
@@ -2482,6 +2517,7 @@ function salvarArtigo(){
     if(a){
       a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;
       a.condicao=condicao;a.dataAquisicao=dataAquisicao;
+      a.veioEmCaixa=veioEmCaixa;a.qtdCaixa=qtdCaixa;
       if(fotosParaSalvar.length>0)a.fotos=fotosParaSalvar;
       // compatibilidade: sync foto principal
       a.foto=fotosParaSalvar[0]||a.foto||null;
@@ -2489,26 +2525,29 @@ function salvarArtigo(){
   } else {
     S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,
       condicao:condicao,dataAquisicao:dataAquisicao,
+      veioEmCaixa:veioEmCaixa,qtdCaixa:qtdCaixa,
       fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
   }
 
-  saveAll().then(function(){
-    closeMo('mo-add-artigo');
-    artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
-    document.getElementById('art-nome').value='';
-    document.getElementById('art-qtd').value='1';
-    document.getElementById('art-local').value='';
-    document.getElementById('art-estado').value='bom';
-    document.getElementById('art-condicao').value='usado';
-    document.getElementById('art-data-aquisicao').value='';
-    document.getElementById('art-obs').value='';
-    document.getElementById('art-foto-drop').style.display='block';
-    document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
-    renderFotosModal();
-    toast('Artigo salvo!');
-    renderArtigos();
-    // Envia fotos base64 pendentes para o Cloudinary em background
-    syncFotosParaStorage();
+  // Sobe fotos para Cloudinary ANTES de salvar, garantindo URLs no payload
+  syncFotosParaStorage().then(function(){
+    saveAll().then(function(){
+      closeMo('mo-add-artigo');
+      artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
+      document.getElementById('art-nome').value='';
+      document.getElementById('art-qtd').value='1';
+      document.getElementById('art-local').value='';
+      document.getElementById('art-estado').value='bom';
+      document.getElementById('art-condicao').value='usado';
+      document.getElementById('art-data-aquisicao').value='';
+      document.getElementById('art-obs').value='';
+      document.getElementById('art-foto-drop').style.display='block';
+      document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+      var naoEl2=document.getElementById('art-caixa-nao');if(naoEl2)naoEl2.checked=true;
+      var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
+      renderFotosModal();
+      renderArtigos();
+    });
   });
 }
 
@@ -2523,6 +2562,8 @@ function openAddArtigo(){
   document.getElementById('art-data-aquisicao').value='';
   document.getElementById('art-obs').value='';
   document.getElementById('art-foto-drop').style.display='block';
+  var naoEl=document.getElementById('art-caixa-nao');if(naoEl)naoEl.checked=true;
+  var qcEl=document.getElementById('art-qtd-caixa');if(qcEl)qcEl.value='';
   renderFotosModal();
   openMo('mo-add-artigo');
 }
