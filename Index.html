@@ -2425,6 +2425,25 @@ function paneJsonSalvar(){
     saveAll().then(function(){ toast('✅ JSON salvo na nuvem!'); renderAll(); });
   }catch(e){ toast('❌ Erro de sintaxe no JSON: '+e.message); }
 }
+function paneConfirmarTodos(){
+  if(!S.escala || S.escala.length === 0){ toast('Nenhum culto na escala.'); return; }
+  var total = 0;
+  S.escala.forEach(function(dia){
+    if(!dia.membros) return;
+    dia.membros.forEach(function(m){
+      if(m.status !== 'confirmado'){
+        m.status = 'confirmado';
+        total++;
+      }
+    });
+  });
+  if(total === 0){ toast('Todos já estavam confirmados!'); return; }
+  saveAll().then(function(){
+    toast('✅ ' + total + ' membro(s) confirmado(s) em toda a escala!');
+    paneRenderEscala();
+    renderAll();
+  });
+}
 // ============ FIM RECUPERAÇÃO DE PANE ============
 
 // ============ ARTIGOS ============
