@@ -2532,6 +2532,7 @@ function salvarArtigo(){
   // Sobe fotos para Cloudinary ANTES de salvar, garantindo URLs no payload
   syncFotosParaStorage().then(function(){
     saveAll().then(function(){
+      fotosLimpar();
       closeMo('mo-add-artigo');
       artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
       document.getElementById('art-nome').value='';
@@ -2546,6 +2547,7 @@ function salvarArtigo(){
       var naoEl2=document.getElementById('art-caixa-nao');if(naoEl2)naoEl2.checked=true;
       var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
       renderFotosModal();
+      toast('Artigo salvo!');
       renderArtigos();
     });
   });
