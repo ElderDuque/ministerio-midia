@@ -1185,11 +1185,15 @@ function renderEscala(){
       var proxCultosList=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===proxKey;});
       var proxAberto=proxCultosList.some(function(d){return d.aberto||d.membros.length===0;});
       var proxTodoConfirm=proxCultosList.length>0&&proxCultosList.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
+      var proxSemPendencias=proxCultosList.length>0&&proxCultosList.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status!=='pending';});});
       var bannerProx=document.createElement('div');
       bannerProx.onclick=function(){_mesOffset++;renderEscala();};
       if(proxTodoConfirm){
         bannerProx.style.cssText='background:linear-gradient(135deg,#1a5c2a,#0d3318);border:1px solid rgba(88,214,141,.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
         bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🟢</span><div><div style="color:#58d68d;font-weight:700;font-size:.85rem;">ESCALA DE '+proxNome.toUpperCase()+' — FINALIZADA</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Todos confirmados. <span style="opacity:.85;">Toque para ver.</span></div></div></div><span style="color:#58d68d;font-size:1.3rem;">›</span>';
+      } else if(proxSemPendencias){
+        bannerProx.style.cssText='background:linear-gradient(135deg,#1a5c2a,#0d3318);border:1px solid rgba(88,214,141,.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+        bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🟢</span><div><div style="color:#58d68d;font-weight:700;font-size:.85rem;">ESCALA DE '+proxNome.toUpperCase()+' — COMPLETA</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Escala montada sem pendências. <span style="opacity:.85;">Toque para ver.</span></div></div></div><span style="color:#58d68d;font-size:1.3rem;">›</span>';
       } else if(proxAberto){
         bannerProx.style.cssText='background:linear-gradient(135deg,#b8860b,#8B6914);border-radius:12px;padding:14px 16px;margin-bottom:20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
         bannerProx.innerHTML='<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.4rem;">🗓️</span><div><div style="color:#FFD700;font-weight:700;font-size:.85rem;">NOVA ESCALA — '+proxNome.toUpperCase()+'</div><div style="color:#fff;font-size:.8rem;margin-top:2px;">Escala de <strong>'+proxNome+'</strong> disponível!<br><span style="opacity:.85;">Toque para ver e garantir sua vaga ›</span></div></div></div><span style="color:#FFD700;font-size:1.4rem;">›</span>';
@@ -1224,12 +1228,15 @@ function renderEscala(){
     var secao=document.createElement('div');
     secao.style.cssText='margin-bottom:24px;';
 
-    // Status do mês: 🔵 em aberto, 🟡 em montagem, 🟢 finalizada
+    // Status do mês: 🔵 em aberto, 🟡 em montagem, 🟢 completa (sem pendentes) ou finalizada (todos confirmados)
     var todosCultosTemMembros=grupo.days.every(function(d){return d.membros.length>0;});
     var todosCultosConfirmados=grupo.days.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
     var nenhumTemMembros=grupo.days.every(function(d){return d.membros.length===0||d.aberto;});
+    var nenhumPendente=grupo.days.every(function(d){return d.membros.every(function(m){return m.status!=='pending';});});
+    var escalaSemPendencias=todosCultosTemMembros&&nenhumPendente;
     var statusMes,statusMesTxt;
     if(todosCultosConfirmados){statusMes='🟢';statusMesTxt='Escala finalizada';}
+    else if(escalaSemPendencias){statusMes='🟢';statusMesTxt='Escala completa';}
     else if(nenhumTemMembros){statusMes='🔵';statusMesTxt='Escala em aberto';}
     else{statusMes='🟡';statusMesTxt='Escala em montagem';}
 
