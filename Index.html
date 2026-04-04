@@ -2866,20 +2866,36 @@ function confirmarExcluirMembro(){
   saveAll().then(function(){closeMo('mo-excluir-mem');toast(nome+' removido(a) da equipe.');renderAll();populateForms();});
 }
 
-window.addEventListener('load',function(){
-  // Splash screen
+function hideSplash(){
   var splash=document.getElementById('splash-screen');
+  if(!splash||splash.style.display==='none')return;
+  splash.classList.add('hide');
+  setTimeout(function(){splash.style.display='none';},650);
+}
+
+window.addEventListener('load',function(){
   var bar=document.getElementById('splash-progress');
   setTimeout(function(){bar.style.width='100%';},100);
-  setTimeout(function(){
-    splash.classList.add('hide');
-    setTimeout(function(){splash.style.display='none';},650);
-  },2200);
 
+  var splashMinDone=false;
+  var cloudDone=false;
+  function checkHideSplash(){if(splashMinDone&&cloudDone)hideSplash();}
+  setTimeout(function(){splashMinDone=true;checkHideSplash();},1800);
 
   var saved=sessionStorage.getItem('mm_cu');
-  if(saved){try{var sid=JSON.parse(saved).id;loadFromCloud().then(function(){seedMembers();var m=S.members.find(function(x){return x.id===sid;});if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}});}catch(e){}}
-  else{loadFromCloud().then(function(){seedMembers();});}
+  if(saved){
+    try{
+      var sid=JSON.parse(saved).id;
+      loadFromCloud().then(function(){
+        seedMembers();
+        var m=S.members.find(function(x){return x.id===sid;});
+        if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
+        cloudDone=true;checkHideSplash();
+      });
+    }catch(e){cloudDone=true;checkHideSplash();}
+  } else {
+    loadFromCloud().then(function(){seedMembers();cloudDone=true;checkHideSplash();});
+  }
   document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 });
 </script>
