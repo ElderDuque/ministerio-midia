@@ -433,9 +433,6 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 <div id="page-artigos" class="page">
   <div class="mhdr"><h2>&#128230; Artigos do Ministerio</h2><p>Patrimonio e localizacao dos equipamentos</p></div>
 
-  <!-- Banner status salvamento -->
-  <div id="banner-salvamento" style="display:none;"></div>
-
   <!-- View toggle + Add button (lideres) -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
     <div style="display:flex;gap:6px;">
@@ -542,22 +539,35 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div class="mhandle"></div>
     <div class="mtitle">&#128190; Backup e Restauracao</div>
 
-    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:10px;padding:13px;margin-bottom:14px;">
-      <p style="font-size:.78rem;color:var(--gold);font-weight:700;margin-bottom:4px;">&#128190; Fazer Backup</p>
-      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Salva todos os dados atuais em um arquivo JSON no seu celular.</p>
+    <!-- Info backup automático -->
+    <div id="backup-auto-info" style="background:rgba(30,132,73,.08);border:1px solid rgba(30,132,73,.28);border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:.72rem;color:#58d68d;line-height:1.6;"></div>
+
+    <!-- Backup manual -->
+    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:10px;padding:13px;margin-bottom:12px;">
+      <p style="font-size:.78rem;color:var(--gold);font-weight:700;margin-bottom:4px;">&#128190; Backup Manual (arquivo)</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Salva um arquivo .json no seu celular para guardar em local seguro.</p>
       <div id="backup-status" style="font-size:.72rem;margin-bottom:8px;"></div>
       <button class="btn bgold" style="width:100%;justify-content:center;" onclick="fazerBackupSeguro()">&#128190; Baixar Backup Agora</button>
     </div>
 
-    <div style="background:rgba(100,100,255,.06);border:1px solid rgba(100,100,255,.2);border-radius:10px;padding:13px;">
-      <p style="font-size:.78rem;color:#aab4ff;font-weight:700;margin-bottom:4px;">&#128194; Restaurar Backup</p>
-      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Substitui todos os dados pelo arquivo de backup. Use com cuidado!</p>
-      <button class="btn" style="width:100%;justify-content:center;background:rgba(100,100,255,.2);color:#aab4ff;border:1px solid rgba(100,100,255,.35);" onclick="document.getElementById('backup-file').click()">&#128194; Escolher Arquivo de Backup</button>
+    <!-- Restaurar backup local automático -->
+    <div style="background:rgba(255,165,0,.06);border:1px solid rgba(255,165,0,.28);border-radius:10px;padding:13px;margin-bottom:12px;">
+      <p style="font-size:.78rem;color:#f39c12;font-weight:700;margin-bottom:4px;">&#9889; Restaurar Backup Local</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">O app salva uma cópia automática no celular. Use se os dados da nuvem foram perdidos.</p>
+      <button class="btn" style="width:100%;justify-content:center;background:rgba(255,165,0,.18);color:#f39c12;border:1px solid rgba(255,165,0,.4);font-weight:700;" onclick="restaurarBackupLocal()">&#9889; Restaurar do Celular Agora</button>
     </div>
 
-    <div style="background:rgba(52,199,89,.06);border:1px solid rgba(52,199,89,.25);border-radius:10px;padding:13px;margin-top:14px;">
+    <!-- Restaurar arquivo -->
+    <div style="background:rgba(100,100,255,.06);border:1px solid rgba(100,100,255,.2);border-radius:10px;padding:13px;margin-bottom:12px;">
+      <p style="font-size:.78rem;color:#aab4ff;font-weight:700;margin-bottom:4px;">&#128194; Restaurar de Arquivo</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Escolha um arquivo .json de backup salvo anteriormente.</p>
+      <button class="btn" style="width:100%;justify-content:center;background:rgba(100,100,255,.2);color:#aab4ff;border:1px solid rgba(100,100,255,.35);" onclick="document.getElementById('backup-file').click()">&#128194; Escolher Arquivo .json</button>
+    </div>
+
+    <!-- Atualizar app -->
+    <div style="background:rgba(52,199,89,.06);border:1px solid rgba(52,199,89,.25);border-radius:10px;padding:13px;">
       <p style="font-size:.78rem;color:#4cd964;font-weight:700;margin-bottom:4px;">🔄 Atualização do App</p>
-      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Se o app estiver desatualizado mesmo após abrir, use este botão para forçar a atualização.</p>
+      <p style="font-size:.72rem;color:var(--cream2);opacity:.65;margin-bottom:10px;">Força a atualização do app para a versão mais recente.</p>
       <button class="btn" style="width:100%;justify-content:center;background:rgba(52,199,89,.18);color:#4cd964;border:1px solid rgba(52,199,89,.4);font-weight:700;" onclick="closeMo('mo-backup');verificarAtualizacao()">🔄 Verificar e Atualizar Agora</button>
     </div>
 
@@ -756,14 +766,8 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <label class="mfl">Nome do Item *</label>
     <input type="text" class="mfi" id="art-nome" placeholder="Ex: Camera Sony A7III">
 
-    <label class="mfl">Quantidade <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(nº de unidades/caixas)</span></label>
+    <label class="mfl">Quantidade</label>
     <input type="number" class="mfi" id="art-qtd" placeholder="1" min="1" value="1">
-
-    <label class="mfl">Itens por caixa <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(opcional — se vier em caixa)</span></label>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:13px;">
-      <input type="number" class="mfi" id="art-itens-caixa" placeholder="Ex: 10" min="0" style="margin-bottom:0;">
-      <div id="art-total-preview" style="font-size:.72rem;color:var(--gold);white-space:nowrap;min-width:70px;text-align:right;opacity:.7;"></div>
-    </div>
 
     <label class="mfl">Onde esta guardado</label>
     <input type="text" class="mfi" id="art-local" placeholder="Ex: Armario sala tecnica, gaveta 2">
@@ -916,49 +920,68 @@ async function syncFotosParaStorage() {
   }
 }
 
-function fotosSalvar(){
-  try{
-    var map={};
-    (S.artigos||[]).forEach(function(a){
-      var entry={};
-      if(a.foto&&a.foto.startsWith('data:'))entry.foto=a.foto;
-      if(a.fotos&&Array.isArray(a.fotos)&&a.fotos.some(function(f){return f&&f.startsWith('data:');}))entry.fotos=a.fotos;
-      if(Object.keys(entry).length)map[String(a.id)]=entry;
-    });
-    localStorage.setItem('art_fotos',JSON.stringify(map));
-  }catch(e){}
-}
-function fotosCarregar(){
-  try{
-    var raw=localStorage.getItem('art_fotos');if(!raw)return;
-    var map=JSON.parse(raw);
-    (S.artigos||[]).forEach(function(a){
-      var entry=map[String(a.id)];if(!entry)return;
-      if(!a.foto&&entry.foto)a.foto=entry.foto;
-      if(entry.fotos&&Array.isArray(entry.fotos)){
-        if(!a.fotos||!a.fotos.length){a.fotos=entry.fotos;}
-        else{for(var i=0;i<entry.fotos.length;i++){if(!a.fotos[i]&&entry.fotos[i])a.fotos[i]=entry.fotos[i];}}
-      }
-    });
-  }catch(e){}
-}
-function fotosLimpar(){
-  try{
-    var raw=localStorage.getItem('art_fotos');if(!raw)return;
-    var map=JSON.parse(raw);
-    var ids=(S.artigos||[]).map(function(a){return String(a.id);});
-    Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});
-    localStorage.setItem('art_fotos',JSON.stringify(map));
-  }catch(e){}
-}
+// Fallback localStorage enquanto foto ainda nao foi para Cloudinary
+function fotosSalvar(){try{var map={};(S.artigos||[]).forEach(function(a){if(a.foto&&a.foto.startsWith('data:'))map[String(a.id)]=a.foto;});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
+function fotosCarregar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);(S.artigos||[]).forEach(function(a){if(!a.foto&&map[String(a.id)])a.foto=map[String(a.id)];});}catch(e){}}
+function fotosLimpar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);var ids=(S.artigos||[]).map(function(a){return String(a.id);});Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
 
 var S={members:[],escala:[],notifs:[],pedidos:[],artigos:[]};
 var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
 
 function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
-async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;if(d.artigos)S.artigos=d.artigos;fotosCarregar();}showSync(false);}
+
+// ── Backup automático no localStorage ─────────────────────────────────────
+function backupLocalSalvar(d){
+  try{
+    if(!d||!d.members||d.members.length===0)return; // nunca salva vazio
+    var payload={ts:Date.now(),members:d.members,escala:d.escala||[],notifs:d.notifs||[],pedidos:d.pedidos||[]};
+    localStorage.setItem('mm_backup_auto',JSON.stringify(payload));
+  }catch(e){}
+}
+function backupLocalCarregar(){
+  try{
+    var raw=localStorage.getItem('mm_backup_auto');
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){return null;}
+}
+
+async function loadFromCloud(){
+  showSync(true);
+  var d=await cloudGet();
+  if(d){
+    if(d.members&&d.members.length)S.members=d.members;
+    if(d.escala)S.escala=d.escala;
+    if(d.notifs)S.notifs=d.notifs;
+    if(d.pedidos)S.pedidos=d.pedidos;
+    if(d.artigos)S.artigos=d.artigos;
+    fotosCarregar();
+    // 🛡️ Salva backup local automaticamente sempre que carregar da nuvem com dados válidos
+    backupLocalSalvar(d);
+  } else {
+    // Nuvem falhou — tenta restaurar do backup local silenciosamente
+    var bk=backupLocalCarregar();
+    if(bk&&bk.members&&bk.members.length){
+      if(!S.members.length)S.members=bk.members;
+      if(!S.escala.length)S.escala=bk.escala||[];
+      if(!S.notifs.length)S.notifs=bk.notifs||[];
+      if(!S.pedidos.length)S.pedidos=bk.pedidos||[];
+      toast('⚠️ Offline — usando dados do backup local.');
+    }
+  }
+  showSync(false);
+}
+
 async function saveAll(){
   fotosSalvar();
+
+  // 🛡️ PROTEÇÃO ANTI-SOBRESCRITA: nunca envia para nuvem com escala E membros zerados
+  if((!S.members||S.members.length===0)&&(!S.escala||S.escala.length===0)){
+    console.warn('saveAll bloqueado: dados vazios, possível perda de dados evitada.');
+    return false;
+  }
+
+  // Remove base64 grandes do payload (>80KB) para não estourar o JSONBin
   var artigosSemBase64=(S.artigos||[]).map(function(a){
     var c=Object.assign({},a);
     if(c.foto&&c.foto.startsWith('data:')&&c.foto.length>80000)delete c.foto;
@@ -970,8 +993,14 @@ async function saveAll(){
     }
     return c;
   });
-  var ok=await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64});
-  if(!ok){toast('\u26a0\ufe0f Erro ao salvar. Verifique a conexao.');}
+
+  var payload={members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64};
+
+  // 🛡️ Atualiza backup local antes de enviar
+  backupLocalSalvar(payload);
+
+  var ok=await cloudSet(payload);
+  if(!ok){toast('\u26a0\ufe0f Erro ao salvar na nuvem. Verifique a conexao.');}
   var ba=document.getElementById('backup-alert');
   if(ba)ba.style.display='block';
   return ok;
@@ -999,6 +1028,22 @@ function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-di
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 function openMo(id){
   if(id==='mo-addday'){document.getElementById('nd-checks').innerHTML=S.members.filter(function(m){return !m.afastado;}).map(function(m){return '<label style="display:flex;align-items:center;gap:8px;font-size:.79rem;color:var(--cream2);cursor:pointer;"><input type="checkbox" value="'+m.id+'" style="accent-color:var(--gold);width:15px;height:15px;"> '+m.name+' <span style="color:var(--gold);font-size:.65rem;opacity:.7;">('+m.role+')</span></label>';}).join('');}
+  if(id==='mo-backup'){
+    var bk=backupLocalCarregar();
+    var el=document.getElementById('backup-auto-info');
+    if(el){
+      if(bk&&bk.ts){
+        var ts=new Date(bk.ts).toLocaleString('pt-BR');
+        el.innerHTML='🛡️ <strong>Backup automático ativo!</strong> Último salvo em: <strong>'+ts+'</strong><br>'
+          +'<span style="opacity:.8;">'+( bk.members?bk.members.length:0)+' membros · '+((bk.escala||[]).length)+' cultos</span>';
+        el.style.display='block';
+      } else {
+        el.innerHTML='⚠️ Nenhum backup local ainda. Ele será criado automaticamente na próxima vez que os dados carregarem.';
+        el.style.background='rgba(243,156,18,.08)';el.style.borderColor='rgba(243,156,18,.3)';el.style.color='#f39c12';
+        el.style.display='block';
+      }
+    }
+  }
   document.getElementById(id).classList.add('open');
 }
 function closeMo(id){document.getElementById(id).classList.remove('open');}
@@ -1669,17 +1714,12 @@ function checkVagas(){
 }
 function fazerBackupSeguro(){
   var st=document.getElementById('backup-status');
-  // SEGURANCA: nao deixa fazer backup com dados vazios ou incompletos
   if(!S.members||S.members.length===0){
-    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: lista de membros vazia! O backup nao foi salvo para evitar perda de dados. Aguarde o app carregar completamente.</span>';
+    st.innerHTML='<span style="color:#e74c3c;">&#9888; Membros vazios! Aguarde o app carregar.</span>';
     return;
   }
-  if(!S.escala){
-    st.innerHTML='<span style="color:#e74c3c;">&#9888; Erro: escala nao carregada.</span>';
-    return;
-  }
-  st.innerHTML='<span style="color:#58d68d;">&#10003; '+S.members.length+' membros e '+S.escala.length+' cultos encontrados. Salvando...</span>';
-  var data={versao:1,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos};
+  st.innerHTML='<span style="color:#58d68d;">&#10003; '+S.members.length+' membros, '+S.escala.length+' cultos. Salvando...</span>';
+  var data={versao:2,data:new Date().toISOString(),members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos||[]};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
@@ -1687,12 +1727,43 @@ function fazerBackupSeguro(){
   a.download='backup-ministerio-'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
   URL.revokeObjectURL(url);
-  toast('Backup salvo! '+S.members.length+' membros, '+S.escala.length+' cultos.');
+  // Também salva no localStorage
+  backupLocalSalvar(data);
+  toast('✅ Backup salvo! '+S.members.length+' membros, '+S.escala.length+' cultos.');
 }
 function fazerBackup(){fazerBackupSeguro();}
+
+function restaurarBackupLocal(){
+  var bk=backupLocalCarregar();
+  if(!bk||!bk.members||!bk.members.length){
+    toast('⚠️ Nenhum backup local encontrado.');
+    return;
+  }
+  var ts=bk.ts?new Date(bk.ts).toLocaleString('pt-BR'):'data desconhecida';
+  if(!confirm('Restaurar backup local de '+ts+'?\n\n'+bk.members.length+' membros, '+(bk.escala||[]).length+' cultos.\n\nIsso substituirá os dados atuais.'))return;
+  S.members=bk.members;
+  S.escala=bk.escala||[];
+  S.notifs=bk.notifs||[];
+  S.pedidos=bk.pedidos||[];
+  saveAll().then(function(){toast('✅ Backup local restaurado!');renderAll();});
+}
+
 function restaurarBackup(input){
-  if(!input.files||!input.files[0])return;if(!confirm('Substituir todos os dados atuais?'))return;
-  var reader=new FileReader();reader.onload=function(e){try{var data=JSON.parse(e.target.result);if(!data.members||!data.escala){toast('Arquivo invalido.');return;}S.members=data.members;S.escala=data.escala;S.notifs=data.notifs||[];S.pedidos=data.pedidos||[];saveAll().then(function(){toast('Backup restaurado!');renderAll();});}catch(err){toast('Erro ao ler arquivo.');}};reader.readAsText(input.files[0]);input.value='';
+  if(!input.files||!input.files[0])return;
+  if(!confirm('Substituir todos os dados atuais pelo arquivo de backup?'))return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!data.members||!data.escala){toast('Arquivo inválido.');return;}
+      S.members=data.members;S.escala=data.escala;
+      S.notifs=data.notifs||[];S.pedidos=data.pedidos||[];
+      if(data.artigos)S.artigos=data.artigos;
+      saveAll().then(function(){toast('✅ Backup restaurado!');renderAll();});
+    }catch(err){toast('Erro ao ler arquivo.');}
+  };
+  reader.readAsText(input.files[0]);
+  input.value='';
 }
 function populateForms(){
   document.getElementById('ped-culto').innerHTML=S.escala.map(function(d){return '<option value="'+d.id+'">'+fmtDate(d.date)+' &#8212; '+d.label+'</option>';}).join('');
@@ -2130,7 +2201,7 @@ function renderArtigos(){
         +fotoHtml
         +'<div style="flex:1;min-width:0;">'
         +'<div style="font-size:.82rem;font-weight:700;color:var(--gold-l);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+a.nome+condBadge+'</div>'
-        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.5;">📍 '+(a.local||'Sem local')+(a.qtd>1||a.itensCaixa>0?' &nbsp;📦 '+(a.itensCaixa>0?(a.qtd+'cx × '+a.itensCaixa+' = '+(a.qtd*a.itensCaixa)+' itens'):('x'+a.qtd)):'')+'</div>'
+        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.5;">📍 '+(a.local||'Sem local')+(a.qtd>1?' &nbsp;📦 x'+a.qtd:'')+'</div>'
         +'<span style="font-size:.6rem;padding:2px 6px;border-radius:7px;background:'+ei.bg+';color:'+ei.color+';">'+ei.icon+' '+ei.label+'</span>'
         +'</div>'
         +'<span style="color:var(--gold);opacity:.4;font-size:1rem;">▶</span>'
@@ -2191,8 +2262,7 @@ function verArtigo(id){
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'
     +'<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px;">'
     +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">QUANTIDADE</div>'
-    +'<div style="font-size:.92rem;font-weight:700;color:var(--gold-l);">'+a.qtd+(a.itensCaixa>0?' cx':'')+' </div>'
-    +(a.itensCaixa>0?'<div style="font-size:.65rem;color:var(--cream2);opacity:.6;margin-top:2px;">'+a.itensCaixa+' itens/cx = <strong style="color:var(--gold);">'+(a.qtd*a.itensCaixa)+' total</strong></div>':'')
+    +'<div style="font-size:.92rem;font-weight:700;color:var(--gold-l);">'+a.qtd+'</div>'
     +'</div>'
     +'<div style="background:'+ei.bg+';border-radius:8px;padding:10px;">'
     +'<div style="font-size:.62rem;color:var(--cream2);opacity:.5;margin-bottom:3px;">ESTADO</div>'
@@ -2233,9 +2303,6 @@ function editarArtigoAtual(){
     document.getElementById('mo-artigo-title').textContent='\u270F\uFE0F Editar Artigo';
     document.getElementById('art-nome').value=a.nome;
     document.getElementById('art-qtd').value=a.qtd||1;
-    document.getElementById('art-itens-caixa').value=a.itensCaixa||'';
-    var prev=document.getElementById('art-total-preview');
-    if(prev){var q=a.qtd||1;var c=a.itensCaixa||0;prev.textContent=c>0?'= '+(q*c)+' itens no total':'';}
     document.getElementById('art-local').value=a.local||'';
     document.getElementById('art-estado').value=a.estado||'bom';
     document.getElementById('art-condicao').value=a.condicao||'usado';
@@ -2250,7 +2317,6 @@ function editarArtigoAtual(){
     }
     artigoFotoB64=artigoFotosB64[0]||null;
     renderFotosModal();
-    bindTotalPreview();
     openMo('mo-add-artigo');
   },300);
 }
@@ -2259,7 +2325,6 @@ function salvarArtigo(){
   var nome=document.getElementById('art-nome').value.trim();
   if(!nome){toast('Digite o nome do item.');return;}
   var qtd=parseInt(document.getElementById('art-qtd').value)||1;
-  var itensCaixa=parseInt(document.getElementById('art-itens-caixa').value)||0;
   var local=document.getElementById('art-local').value.trim();
   var estado=document.getElementById('art-estado').value;
   var obs=document.getElementById('art-obs').value.trim();
@@ -2269,87 +2334,38 @@ function salvarArtigo(){
 
   if(!S.artigos)S.artigos=[];
 
-  // Bloqueia botão e mostra banner "salvando"
-  var btnSalvar=document.querySelector('#mo-add-artigo .btn.bgold');
-  if(btnSalvar){btnSalvar.disabled=true;btnSalvar.textContent='⏳ Salvando...';}
-  var liberarBtn=function(){if(btnSalvar){btnSalvar.disabled=false;btnSalvar.textContent='✓ Salvar';}};
-
-  var artigoId=artigoEditId||Date.now();
-  mostrarBannerSalvamento('saving');
-
-  // 1. Faz upload das fotos base64 para Cloudinary ANTES de salvar no JSONBin
-  Promise.all(fotosParaSalvar.map(function(f,i){
-    if(!f||!f.startsWith('data:'))return Promise.resolve(f);
-    return uploadFotoStorage(f, artigoId+'_'+i).then(function(url){ return url||f; });
-  })).then(function(fotosResolvidas){
-
-    // 2. Atualiza objeto no estado S
-    if(artigoEditId){
-      var a=S.artigos.find(function(x){return x.id===artigoEditId;});
-      if(a){
-        a.nome=nome;a.qtd=qtd;a.itensCaixa=itensCaixa;a.local=local;a.estado=estado;a.obs=obs;
-        a.condicao=condicao;a.dataAquisicao=dataAquisicao;
-        if(fotosResolvidas.length>0){a.fotos=fotosResolvidas;}
-        a.foto=fotosResolvidas[0]||a.foto||null;
-      }
-    } else {
-      S.artigos.push({id:artigoId,nome:nome,qtd:qtd,itensCaixa:itensCaixa,local:local,estado:estado,obs:obs,
-        condicao:condicao,dataAquisicao:dataAquisicao,
-        fotos:fotosResolvidas,foto:fotosResolvidas[0]||null});
+  if(artigoEditId){
+    var a=S.artigos.find(function(x){return x.id===artigoEditId;});
+    if(a){
+      a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;
+      a.condicao=condicao;a.dataAquisicao=dataAquisicao;
+      if(fotosParaSalvar.length>0)a.fotos=fotosParaSalvar;
+      // compatibilidade: sync foto principal
+      a.foto=fotosParaSalvar[0]||a.foto||null;
     }
-
-    // 3. Salva localStorage imediatamente
-    fotosSalvar();
-
-    // 4. Salva na nuvem com o novo saveAll
-    saveAll().then(function(ok){
-      liberarBtn();
-      mostrarBannerSalvamento(ok?'success':'error');
-      fotosLimpar();
-      closeMo('mo-add-artigo');
-      artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
-      document.getElementById('art-nome').value='';
-      document.getElementById('art-qtd').value='1';
-      document.getElementById('art-itens-caixa').value='';
-      document.getElementById('art-local').value='';
-      document.getElementById('art-estado').value='bom';
-      document.getElementById('art-condicao').value='usado';
-      document.getElementById('art-data-aquisicao').value='';
-      document.getElementById('art-obs').value='';
-      document.getElementById('art-foto-drop').style.display='block';
-      document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
-      renderFotosModal();
-      renderArtigos();
-    }).catch(function(){
-      liberarBtn();
-      mostrarBannerSalvamento('error');
-    });
-  });
-}
-
-function mostrarBannerSalvamento(status){
-  var el=document.getElementById('banner-salvamento');
-  if(!el)return;
-  el.style.display='flex';
-  if(status==='saving'){
-    el.style.cssText='display:flex;align-items:center;gap:10px;border-radius:12px;padding:13px 15px;margin-bottom:14px;border:1px solid rgba(26,127,202,.5);background:linear-gradient(135deg,#1A4F7A,#0d3360);transition:all .3s;';
-    el.innerHTML='<span style="font-size:1.1rem;animation:spin 1s linear infinite;display:inline-block;">⏳</span>'
-      +'<div style="flex:1;"><div style="font-weight:700;font-size:.82rem;color:#add8f7;">Salvando artigo...</div>'
-      +'<div style="font-size:.7rem;opacity:.8;color:#add8f7;margin-top:1px;">Enviando fotos para a nuvem ☁️</div></div>';
-  } else if(status==='success'){
-    el.style.cssText='display:flex;align-items:center;gap:10px;border-radius:12px;padding:13px 15px;margin-bottom:14px;border:1px solid rgba(88,214,141,.45);background:linear-gradient(135deg,#1a5c2a,#0d3318);transition:all .3s;';
-    el.innerHTML='<span style="font-size:1.4rem;">✅</span>'
-      +'<div style="flex:1;"><div style="font-weight:700;font-size:.84rem;color:#58d68d;">Artigo salvo com sucesso!</div>'
-      +'<div style="font-size:.7rem;opacity:.8;color:#58d68d;margin-top:1px;">Fotos sincronizadas na nuvem ☁️</div></div>'
-      +'<button onclick="this.parentElement.style.display=\'none\'" style="background:transparent;border:none;color:rgba(255,255,255,.35);font-size:1.1rem;cursor:pointer;padding:2px 5px;">✕</button>';
-    setTimeout(function(){if(el&&el.style.display!=='none')el.style.display='none';},5000);
   } else {
-    el.style.cssText='display:flex;align-items:center;gap:10px;border-radius:12px;padding:13px 15px;margin-bottom:14px;border:1px solid rgba(192,57,43,.5);background:linear-gradient(135deg,#5c1a1a,#330d0d);transition:all .3s;';
-    el.innerHTML='<span style="font-size:1.4rem;">⚠️</span>'
-      +'<div style="flex:1;"><div style="font-weight:700;font-size:.84rem;color:#ec7063;">Erro ao sincronizar nuvem</div>'
-      +'<div style="font-size:.7rem;opacity:.85;color:#ec7063;margin-top:1px;">Salvo localmente. Tente novamente com internet.</div></div>'
-      +'<button onclick="this.parentElement.style.display=\'none\'" style="background:transparent;border:none;color:rgba(255,255,255,.35);font-size:1.1rem;cursor:pointer;padding:2px 5px;">✕</button>';
+    S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,
+      condicao:condicao,dataAquisicao:dataAquisicao,
+      fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
   }
+
+  saveAll().then(function(){
+    fotosLimpar();
+    closeMo('mo-add-artigo');
+    artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
+    document.getElementById('art-nome').value='';
+    document.getElementById('art-qtd').value='1';
+    document.getElementById('art-local').value='';
+    document.getElementById('art-estado').value='bom';
+    document.getElementById('art-condicao').value='usado';
+    document.getElementById('art-data-aquisicao').value='';
+    document.getElementById('art-obs').value='';
+    document.getElementById('art-foto-drop').style.display='block';
+    document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+    renderFotosModal();
+    toast('Artigo salvo!');
+    renderArtigos();
+  });
 }
 
 function openAddArtigo(){
@@ -2357,8 +2373,6 @@ function openAddArtigo(){
   document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
   document.getElementById('art-nome').value='';
   document.getElementById('art-qtd').value='1';
-  document.getElementById('art-itens-caixa').value='';
-  document.getElementById('art-total-preview').textContent='';
   document.getElementById('art-local').value='';
   document.getElementById('art-estado').value='bom';
   document.getElementById('art-condicao').value='usado';
@@ -2366,20 +2380,7 @@ function openAddArtigo(){
   document.getElementById('art-obs').value='';
   document.getElementById('art-foto-drop').style.display='block';
   renderFotosModal();
-  bindTotalPreview();
   openMo('mo-add-artigo');
-}
-
-function bindTotalPreview(){
-  var qtdEl=document.getElementById('art-qtd');
-  var cxEl=document.getElementById('art-itens-caixa');
-  var prev=document.getElementById('art-total-preview');
-  function upd(){
-    var q=parseInt(qtdEl.value)||1;
-    var c=parseInt(cxEl.value)||0;
-    prev.textContent=c>0?'= '+( q*c)+' itens no total':'';
-  }
-  qtdEl.oninput=upd;cxEl.oninput=upd;
 }
 
 function confirmarExcluirArtigo(){
