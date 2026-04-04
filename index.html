@@ -1804,27 +1804,163 @@ function waNotifyCultoCompleto(day){window.open('https://wa.me/?text='+encodeURI
 function parsearEscala(texto){
   var ano=new Date().getFullYear();
   var MESES={jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
-  var limpo=texto.replace(/\*/g,'').replace(/[\u{1F000}-\u{1FFFF}]/gu,' ').replace(/[\u{2702}-\u{27B0}]/gu,' ').replace(/\u23F3/g,' ').replace(/\u2705/g,' ').replace(/\u274C/g,' ').replace(/\|/g,' ');
-  var linhas=limpo.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-  var cultos=[],atual=null;
-  function parseData(s){s=(s||'').trim();var m=s.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);if(m){var a=m[3]?(m[3].length===2?'20'+m[3]:m[3]):String(ano);return a+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}m=s.match(/(\d{1,2})\s*[-\s]\s*([a-zA-Z]{3,})/);if(m){var mes=MESES[m[2].toLowerCase().substring(0,3)];if(mes)return String(ano)+'-'+('0'+mes).slice(-2)+'-'+('0'+m[1]).slice(-2);}return null;}
-  function normLabel(s){s=(s||'').trim().toUpperCase();if(/PROFET|PROFE/.test(s))return 'Quinta Profetica';if(/CELEBR|DOMIN/.test(s))return 'Culto de Celebracao';if(/BATISM/.test(s))return 'Culto de Batismo';if(/CONFER/.test(s))return 'Conferencia';if(/ENCONTRO|SERVO/.test(s))return 'Encontro de Servos';if(/FIRE|NIGHT|NIGTH/.test(s))return 'Fire Night';if(s.length<2)return '';return s.charAt(0)+s.slice(1).toLowerCase();}
-  var LABEL_KW=/^(FIRE|NIGHT|NIGTH|CELEBR|CELEBRACAO|PROFET|PROFETICA|BATISM|BATISMO|CONFER|CONFERENCIA|ENCONTRO|SERVOS?|DOMINGO|QUINTA|DE|DO|DA|AO|E|UM|UMA)$/i;
-  var IGNORAR=/^(GRUPO|DOMINGO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA|DE|DO|DA|E|A|ESCALA|MINISTERIO|MIDIA)$/i;
-  function ehNome(t){t=(t||'').trim();return t.length>1&&/^[A-Z\xC0-\xFF]/.test(t)&&!IGNORAR.test(t)&&!LABEL_KW.test(t)&&!/^\d/.test(t);}
-  function splitLabelNomes(resto){var tokens=resto.trim().split(/\s+/),lT=[],nT=[],inN=false,i=0;while(i<tokens.length){var tok=tokens[i],tokU=tok.toUpperCase();if(tokU==='GRUPO'&&i+1<tokens.length){i+=2;continue;}if(!inN&&LABEL_KW.test(tokU)){lT.push(tok);}else if(!inN&&ehNome(tok)){inN=true;nT.push(tok);}else if(inN&&tokU==='E'){}else if(inN&&ehNome(tok)){nT.push(tok);}i++;}return{label:lT.join(' '),nomes:nT};}
-  function extrairNomes(linha){var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();var nomes=[];s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();if(ehNome(p))nomes.push(p);});return nomes;}
-  linhas.forEach(function(linha){
-    var data=null,label='',nomesExtra=[];
-    var m1=linha.match(/(?:dom|seg|ter|qua|qui|sex|s[a\u00E1]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
-    if(m1){data=parseData(m1[1]);label=normLabel(m1[2])||m1[2].trim();}
-    if(!data){var m2=linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3,})\s+(DOMINGO|SABADO|S\xC1BADO|QUINTA|SEXTA|SEGUNDA)\s*(.*)/i);if(m2){data=parseData(m2[1]+'-'+m2[2]);if(data){var sp=splitLabelNomes(m2[4]);label=normLabel(sp.label)||normLabel(m2[3]);nomesExtra=sp.nomes;}}}
-    if(!data){var m3=linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})(.*)/i);if(m3){data=parseData(m3[2]);var r3=m3[3].replace(/[\u2014\-]/,'').trim();label=normLabel(r3)||(m3[1].toLowerCase().includes('quinta')?'Quinta Profetica':'Culto de Celebracao');}}
-    if(!data){var m4=linha.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/);if(m4){data=parseData(m4[1]);label=normLabel(m4[2])||m4[2].trim();}}
-    if(data){if(atual)cultos.push(atual);atual={date:data,label:label||'Culto',membros:[]};nomesExtra.forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});return;}
-    if(atual&&linha.length>1){extrairNomes(linha).forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});}
+
+  // Remove negrito do WhatsApp mas preserva o texto
+  var textoBase=texto.replace(/\*/g,'');
+
+  // Pré-extrai linhas com 👥 (membros) ANTES de limpar emojis
+  var membrosPorLinha={};
+  textoBase.split('\n').forEach(function(l,i){
+    // Captura "👥 Nome1, Nome2" ou variações
+    var mG=l.match(/[\uD83D][\uDC65]\s*(.+)/);
+    if(!mG){
+      // fallback: busca emoji de grupo diretamente
+      var idx=l.indexOf('\uD83D\uDC65');
+      if(idx>=0)mG=['',l.substring(idx+2)];
+    }
+    if(mG&&mG[1]){
+      var nomes=mG[1].split(',').map(function(n){return n.trim();}).filter(function(n){return n.length>1;});
+      if(nomes.length)membrosPorLinha[i]=nomes;
+    }
   });
+
+  // Limpeza de emojis para facilitar parsing de datas/labels
+  var limpo=textoBase
+    .replace(/[\uD83C-\uDBFF][\uDC00-\uDFFF]/g,' ')  // pares substitutos (emojis 4-byte)
+    .replace(/[\u2600-\u27BF\uFE00-\uFE0F]/g,' ')
+    .replace(/\u23F3|\u2705|\u274C/g,' ')
+    .replace(/\|/g,' ');
+
+  var linhas=limpo.split('\n').map(function(l){return l.trim();});
+
+  var cultos=[],atual=null,atualIdx=-1;
+
+  function parseData(s){
+    s=(s||'').trim();
+    var m=s.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?/);
+    if(m){var a=m[3]?(m[3].length===2?'20'+m[3]:m[3]):String(ano);return a+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[1]).slice(-2);}
+    m=s.match(/(\d{1,2})\s*[-\s]\s*([a-zA-Z]{3,})/);
+    if(m){var mes=MESES[m[2].toLowerCase().substring(0,3)];if(mes)return String(ano)+'-'+('0'+mes).slice(-2)+'-'+('0'+m[1]).slice(-2);}
+    return null;
+  }
+
+  function normLabel(s){
+    s=(s||'').trim().toUpperCase();
+    s=s.replace(/[\u2014\-]\s*\d{1,2}:\d{2}[Hh]?\s*$/,'').trim();
+    if(/PROFET|PROFE/.test(s))return 'Quinta Profetica';
+    if(/CELEBR/.test(s))return 'Culto de Celebracao';
+    if(/BATISM/.test(s))return 'Culto de Batismo';
+    if(/CONFER/.test(s))return 'Conferencia';
+    if(/ENCONTRO|SERVO/.test(s))return 'Encontro de Servos';
+    if(/FIRE|NIGHT|NIGTH/.test(s))return 'Fire Night';
+    if(/QUINTA/.test(s))return 'Quinta Profetica';
+    if(/DOMIN|DOMINGO/.test(s))return 'Culto de Celebracao';
+    if(s.length<2)return '';
+    return s.charAt(0)+s.slice(1).toLowerCase();
+  }
+
+  var LABEL_KW=/^(FIRE|NIGHT|NIGTH|CELEBR|CELEBRACAO|PROFET|PROFETICA|BATISM|BATISMO|CONFER|CONFERENCIA|ENCONTRO|SERVOS?|DOMINGO|QUINTA|DE|DO|DA|AO|E|UM|UMA)$/i;
+  var IGNORAR=/^(GRUPO|DOMINGO|SABADO|QUINTA|SEXTA|SEGUNDA|TERCA|QUARTA|DE|DO|DA|E|A|ESCALA|MINISTERIO|MIDIA|CONFIRME|SUA|PRESENCA|NO|APP|EQUIPE)$/i;
+
+  function ehNome(t){
+    t=(t||'').trim();
+    return t.length>1&&/^[A-Z\xC0-\xFF]/.test(t)&&!IGNORAR.test(t)&&!LABEL_KW.test(t)&&!/^\d/.test(t)&&!/^https?:/i.test(t);
+  }
+
+  function splitLabelNomes(resto){
+    var tokens=resto.trim().split(/\s+/),lT=[],nT=[],inN=false,i=0;
+    while(i<tokens.length){
+      var tok=tokens[i],tokU=tok.toUpperCase();
+      if(tokU==='GRUPO'&&i+1<tokens.length){i+=2;continue;}
+      if(!inN&&LABEL_KW.test(tokU)){lT.push(tok);}
+      else if(!inN&&ehNome(tok)){inN=true;nT.push(tok);}
+      else if(inN&&tokU==='E'){}
+      else if(inN&&ehNome(tok)){nT.push(tok);}
+      i++;
+    }
+    return{label:lT.join(' '),nomes:nT};
+  }
+
+  function extrairNomesLinha(linha){
+    if(/^https?:\/\//.test(linha.trim()))return [];
+    if(/^\d{1,2}:\d{2}/.test(linha.trim()))return [];
+    var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();
+    var nomes=[];
+    s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){
+      p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();
+      if(ehNome(p))nomes.push(p);
+    });
+    return nomes;
+  }
+
+  linhas.forEach(function(linha,idx){
+    if(!linha||!linha.trim())return;
+    linha=linha.trim();
+    var data=null,label='',nomesExtra=[];
+
+    // PADRÃO 1 — formato exato do próprio app:
+    // "Dom. 06/04 — 09:45h" (após remoção de emojis 📅)
+    var mApp=linha.match(/^(dom|seg|ter|qua|qui|sex|s[aá]b)[.\s,]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*(?:[\u2014\-]+\s*(\d{1,2}:\d{2})[hH]?)?(.*)?/i);
+    if(mApp){
+      data=parseData(mApp[2]);
+      var horaApp=mApp[3]||null;
+      var diaSemApp=(mApp[1]||'').toLowerCase();
+      // Determina label pelo dia da semana
+      if(/qui/.test(diaSemApp))label='Quinta Profetica';
+      else label='Culto de Celebracao';
+      // Se sobrar texto adicional, tenta extrair label dele
+      var restoApp=(mApp[4]||'').replace(/[\u2014\-]/g,'').trim();
+      if(restoApp.length>2){var lbl2=normLabel(restoApp);if(lbl2&&lbl2.length>2)label=lbl2;}
+      if(data){
+        if(atual)cultos.push(atual);
+        if(horaApp)atual={date:data,label:label,membros:[],hora:horaApp};
+        else atual={date:data,label:label,membros:[]};
+        atualIdx=idx;
+        return;
+      }
+    }
+
+    // PADRÃO 2 — "dom., 06/04 — Label do Culto"
+    var m1=linha.match(/(?:dom|seg|ter|qua|qui|sex|s[aá]b)[.,\s]+(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/i);
+    if(!data&&m1){data=parseData(m1[1]);label=normLabel(m1[2])||m1[2].trim();}
+
+    // PADRÃO 3 — "06-Abr DOMINGO ..."
+    if(!data){var m2=linha.match(/^(\d{1,2})\s*[-\/]\s*([A-Za-z]{3,})\s+(DOMINGO|SABADO|S\xC1BADO|QUINTA|SEXTA|SEGUNDA)\s*(.*)/i);if(m2){data=parseData(m2[1]+'-'+m2[2]);if(data){var sp=splitLabelNomes(m2[4]);label=normLabel(sp.label)||normLabel(m2[3]);nomesExtra=sp.nomes;}}}
+
+    // PADRÃO 4 — "domingo 06/04 ..."
+    if(!data){var m3=linha.match(/(domingo|segunda|terca|quarta|quinta|sexta|sabado)\s+(\d{1,2}[\/\-]\d{1,2})(.*)/i);if(m3){data=parseData(m3[2]);var r3=m3[3].replace(/[\u2014\-]/,'').trim();label=normLabel(r3)||(m3[1].toLowerCase().indexOf('quinta')>=0?'Quinta Profetica':'Culto de Celebracao');}}
+
+    // PADRÃO 5 — "06/04 — Label"
+    if(!data){var m4=linha.match(/^(\d{1,2}[\/\-]\d{1,2}(?:[\/\-]\d{2,4})?)\s*[\u2014\-]+\s*(.+)/);if(m4){data=parseData(m4[1]);label=normLabel(m4[2])||m4[2].trim();}}
+
+    if(data){
+      if(atual)cultos.push(atual);
+      atual={date:data,label:label||'Culto',membros:[]};
+      atualIdx=idx;
+      nomesExtra.forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
+      return;
+    }
+
+    // Linha de membros com emoji 👥 já mapeada
+    if(atual&&membrosPorLinha[idx]){
+      membrosPorLinha[idx].forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
+      return;
+    }
+
+    // Linha imediatamente após a data = label do culto (ex: "   Culto de Celebração")
+    if(atual&&idx===atualIdx+1&&linha.length>2&&!atual._labelSet){
+      var lbl3=normLabel(linha);
+      if(lbl3&&lbl3.length>2){atual.label=lbl3;atual._labelSet=true;return;}
+    }
+
+    // Linha de nomes soltos
+    if(atual&&linha.length>1){
+      extrairNomesLinha(linha).forEach(function(n){if(atual.membros.indexOf(n)<0)atual.membros.push(n);});
+    }
+  });
+
   if(atual)cultos.push(atual);
+  cultos.forEach(function(c){delete c._labelSet;});
   return cultos.filter(function(c){return c.date;});
 }
 
