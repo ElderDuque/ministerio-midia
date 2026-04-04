@@ -433,6 +433,9 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 <div id="page-artigos" class="page">
   <div class="mhdr"><h2>&#128230; Artigos do Ministerio</h2><p>Patrimonio e localizacao dos equipamentos</p></div>
 
+  <!-- Banner de status de salvamento -->
+  <div id="banner-salvamento" style="display:none;align-items:center;gap:10px;border-radius:12px;padding:13px 15px;margin-bottom:14px;border:1px solid;transition:all .3s;"></div>
+
   <!-- View toggle + Add button (lideres) -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
     <div style="display:flex;gap:6px;">
@@ -877,24 +880,20 @@ async function deleteFotoStorage(url) {
   // Cloudinary delete requer server-side - apenas ignora (imagem fica no storage)
 }
 
-// Converte fotos base64 pendentes para URLs do Cloudinary (chamado após save)
+// Sync legado: chamado opcionalmente para artigos antigos com base64 pendente
 async function syncFotosParaStorage() {
   var alterou = false;
   for (var i = 0; i < (S.artigos||[]).length; i++) {
     var a = S.artigos[i];
-    // suporte ao novo campo fotos[] (múltiplas fotos)
     if (a.fotos && Array.isArray(a.fotos)) {
       for (var fi = 0; fi < a.fotos.length; fi++) {
         if (a.fotos[fi] && a.fotos[fi].startsWith('data:')) {
-          toast('☁️ Enviando foto '+(fi+1)+' para nuvem...');
           var url = await uploadFotoStorage(a.fotos[fi], a.id+'_'+fi);
           if (url) { a.fotos[fi] = url; alterou = true; }
         }
       }
     }
-    // compatibilidade com campo antigo foto (string única)
     if (a.foto && a.foto.startsWith('data:')) {
-      toast('☁️ Enviando foto para nuvem...');
       var url = await uploadFotoStorage(a.foto, a.id);
       if (url) { a.foto = url; alterou = true; }
     }
@@ -903,14 +902,54 @@ async function syncFotosParaStorage() {
     await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos});
     localStorage.removeItem('art_fotos');
     renderArtigos();
-    toast('✅ Fotos salvas na nuvem com sucesso!');
   }
 }
 
-// Fallback localStorage enquanto foto ainda nao foi para Cloudinary
-function fotosSalvar(){try{var map={};(S.artigos||[]).forEach(function(a){if(a.foto&&a.foto.startsWith('data:'))map[String(a.id)]=a.foto;});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
-function fotosCarregar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);(S.artigos||[]).forEach(function(a){if(!a.foto&&map[String(a.id)])a.foto=map[String(a.id)];});}catch(e){}}
-function fotosLimpar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);var ids=(S.artigos||[]).map(function(a){return String(a.id);});Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
+// Fallback localStorage enquanto fotos ainda nao foram para Cloudinary
+function fotosSalvar(){
+  try{
+    var map={};
+    (S.artigos||[]).forEach(function(a){
+      var entry={};
+      if(a.foto&&a.foto.startsWith('data:'))entry.foto=a.foto;
+      if(a.fotos&&Array.isArray(a.fotos)){
+        var b64s=a.fotos.filter(function(f){return f&&f.startsWith('data:');});
+        if(b64s.length)entry.fotos=a.fotos; // salva array completo (misto url+b64)
+      }
+      if(Object.keys(entry).length)map[String(a.id)]=entry;
+    });
+    localStorage.setItem('art_fotos',JSON.stringify(map));
+  }catch(e){}
+}
+function fotosCarregar(){
+  try{
+    var raw=localStorage.getItem('art_fotos');if(!raw)return;
+    var map=JSON.parse(raw);
+    (S.artigos||[]).forEach(function(a){
+      var entry=map[String(a.id)];if(!entry)return;
+      if(!a.foto&&entry.foto)a.foto=entry.foto;
+      if(entry.fotos&&Array.isArray(entry.fotos)){
+        // Restaura fotos que ainda eram base64 e sumiram da nuvem
+        if(!a.fotos||!a.fotos.length){a.fotos=entry.fotos;}
+        else{
+          // Preenche slots que ficaram vazios (upload falhou)
+          for(var i=0;i<entry.fotos.length;i++){
+            if(!a.fotos[i]&&entry.fotos[i])a.fotos[i]=entry.fotos[i];
+          }
+        }
+      }
+    });
+  }catch(e){}
+}
+function fotosLimpar(){
+  try{
+    var raw=localStorage.getItem('art_fotos');if(!raw)return;
+    var map=JSON.parse(raw);
+    var ids=(S.artigos||[]).map(function(a){return String(a.id);});
+    Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});
+    localStorage.setItem('art_fotos',JSON.stringify(map));
+  }catch(e){}
+}
 
 var S={members:[],escala:[],notifs:[],pedidos:[],artigos:[]};
 var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
@@ -918,22 +957,25 @@ var CU=null,resetTargetId=null,editMemId=null,editFoneId=null;
 function showSync(v){document.getElementById('sync-banner').style.display=v?'flex':'none';}
 async function loadFromCloud(){showSync(true);var d=await cloudGet();if(d){if(d.members&&d.members.length)S.members=d.members;if(d.escala)S.escala=d.escala;if(d.notifs)S.notifs=d.notifs;if(d.pedidos)S.pedidos=d.pedidos;if(d.artigos)S.artigos=d.artigos;fotosCarregar();}showSync(false);}
 async function saveAll(){
-  // Guarda fotos base64 no localStorage como fallback imediato
+  // Guarda fotos no localStorage como fallback imediato
   fotosSalvar();
-  // Manda para o JSONBin: artigos com fotos base64 removidas (Storage cuida delas)
+  // Manda para o JSONBin: remove apenas base64 muito grandes (>100KB) que ainda não foram ao Cloudinary
   var artigosSemBase64=(S.artigos||[]).map(function(a){
     var c=Object.assign({},a);
-    // Se a foto ainda é base64 (não enviada ao Storage), remove do payload da nuvem
-    if(c.foto&&c.foto.startsWith('data:'))delete c.foto;
-    // Idem para o array fotos[]
-    if(c.fotos&&Array.isArray(c.fotos)){c.fotos=c.fotos.map(function(f){return (f&&f.startsWith('data:'))?null:f;}).filter(Boolean);}
+    // Remove base64 somente se for muito grande (evita estourar JSONBin)
+    if(c.foto&&c.foto.startsWith('data:')&&c.foto.length>100000)delete c.foto;
+    if(c.fotos&&Array.isArray(c.fotos)){
+      c.fotos=c.fotos.map(function(f){
+        if(f&&f.startsWith('data:')&&f.length>100000)return null;
+        return f;
+      }).filter(Boolean);
+    }
     return c;
   });
   var ok=await cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64});
   if(!ok){toast('\u26a0\ufe0f Erro ao salvar na nuvem. Verifique a conexao.');}
   document.getElementById('backup-alert').style.display='block';
-  // Envia fotos base64 pendentes para o Firebase Storage em background
-  setTimeout(syncFotosParaStorage, 500);
+  return ok;
 }
 
 function seedMembers(){
@@ -2222,38 +2264,93 @@ function salvarArtigo(){
 
   if(!S.artigos)S.artigos=[];
 
-  if(artigoEditId){
-    var a=S.artigos.find(function(x){return x.id===artigoEditId;});
-    if(a){
-      a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;
-      a.condicao=condicao;a.dataAquisicao=dataAquisicao;
-      if(fotosParaSalvar.length>0)a.fotos=fotosParaSalvar;
-      // compatibilidade: sync foto principal
-      a.foto=fotosParaSalvar[0]||a.foto||null;
-    }
-  } else {
-    S.artigos.push({id:Date.now(),nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,
-      condicao:condicao,dataAquisicao:dataAquisicao,
-      fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
-  }
+  // Desabilita botão e mostra banner de progresso
+  var btnSalvar=document.querySelector('#mo-add-artigo .btn.bgold');
+  if(btnSalvar){btnSalvar.disabled=true;btnSalvar.textContent='⏳ Salvando...';}
+  mostrarBannerSalvamento('saving');
 
-  saveAll().then(function(){
-    fotosLimpar();
-    closeMo('mo-add-artigo');
-    artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
-    document.getElementById('art-nome').value='';
-    document.getElementById('art-qtd').value='1';
-    document.getElementById('art-local').value='';
-    document.getElementById('art-estado').value='bom';
-    document.getElementById('art-condicao').value='usado';
-    document.getElementById('art-data-aquisicao').value='';
-    document.getElementById('art-obs').value='';
-    document.getElementById('art-foto-drop').style.display='block';
-    document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
-    renderFotosModal();
-    toast('Artigo salvo!');
-    renderArtigos();
+  var artigoId=artigoEditId||Date.now();
+
+  // Faz upload das fotos base64 para Cloudinary ANTES de salvar
+  Promise.all(fotosParaSalvar.map(function(f,i){
+    if(!f||!f.startsWith('data:'))return Promise.resolve(f); // já é URL
+    return uploadFotoStorage(f, artigoId+'_'+i).then(function(url){
+      return url||f; // se falhar, mantém base64 como fallback
+    });
+  })).then(function(fotosResolvidas){
+    if(artigoEditId){
+      var a=S.artigos.find(function(x){return x.id===artigoEditId;});
+      if(a){
+        a.nome=nome;a.qtd=qtd;a.local=local;a.estado=estado;a.obs=obs;
+        a.condicao=condicao;a.dataAquisicao=dataAquisicao;
+        if(fotosResolvidas.length>0){a.fotos=fotosResolvidas;}
+        a.foto=fotosResolvidas[0]||a.foto||null;
+      }
+    } else {
+      S.artigos.push({id:artigoId,nome:nome,qtd:qtd,local:local,estado:estado,obs:obs,
+        condicao:condicao,dataAquisicao:dataAquisicao,
+        fotos:fotosResolvidas,foto:fotosResolvidas[0]||null});
+    }
+
+    // Salva localStorage imediatamente (fotos já resolvidas ou base64 fallback)
+    fotosSalvar();
+
+    // Salva na nuvem (sem stripping agressivo — fotos já estão como URL ou b64 curto)
+    cloudSet({members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:S.artigos})
+    .then(function(ok){
+      if(btnSalvar){btnSalvar.disabled=false;btnSalvar.textContent='✓ Salvar';}
+      if(ok){
+        mostrarBannerSalvamento('success');
+      } else {
+        mostrarBannerSalvamento('error');
+      }
+      fotosLimpar();
+      closeMo('mo-add-artigo');
+      artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
+      document.getElementById('art-nome').value='';
+      document.getElementById('art-qtd').value='1';
+      document.getElementById('art-local').value='';
+      document.getElementById('art-estado').value='bom';
+      document.getElementById('art-condicao').value='usado';
+      document.getElementById('art-data-aquisicao').value='';
+      document.getElementById('art-obs').value='';
+      document.getElementById('art-foto-drop').style.display='block';
+      document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+      renderFotosModal();
+      renderArtigos();
+    });
   });
+}
+
+// Banner de status de salvamento (substituí o toast simples)
+function mostrarBannerSalvamento(status){
+  var el=document.getElementById('banner-salvamento');
+  if(!el)return;
+  el.style.display='flex';
+  if(status==='saving'){
+    el.style.background='linear-gradient(135deg,#1A4F7A,#0d3360)';
+    el.style.borderColor='rgba(26,127,202,.6)';
+    el.innerHTML='<span style="font-size:1.1rem;animation:spin 1s linear infinite;display:inline-block;">⏳</span>'
+      +'<div style="flex:1;"><div style="font-weight:700;font-size:.82rem;color:#add8f7;">Salvando artigo...</div>'
+      +'<div style="font-size:.7rem;opacity:.75;color:#add8f7;margin-top:1px;">Enviando fotos para a nuvem</div></div>';
+  } else if(status==='success'){
+    el.style.background='linear-gradient(135deg,#1a5c2a,#0d3318)';
+    el.style.borderColor='rgba(88,214,141,.5)';
+    el.innerHTML='<span style="font-size:1.3rem;">✅</span>'
+      +'<div style="flex:1;"><div style="font-weight:700;font-size:.82rem;color:#58d68d;">Artigo salvo com sucesso!</div>'
+      +'<div style="font-size:.7rem;opacity:.75;color:#58d68d;margin-top:1px;">Fotos sincronizadas na nuvem</div></div>'
+      +'<button onclick="document.getElementById(\'banner-salvamento\').style.display=\'none\'" '
+      +'style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:1rem;cursor:pointer;">✕</button>';
+    setTimeout(function(){if(el)el.style.display='none';},4000);
+  } else if(status==='error'){
+    el.style.background='linear-gradient(135deg,#5c1a1a,#330d0d)';
+    el.style.borderColor='rgba(192,57,43,.6)';
+    el.innerHTML='<span style="font-size:1.3rem;">⚠️</span>'
+      +'<div style="flex:1;"><div style="font-weight:700;font-size:.82rem;color:#ec7063;">Erro ao sincronizar nuvem</div>'
+      +'<div style="font-size:.7rem;opacity:.85;color:#ec7063;margin-top:1px;">Dados salvos localmente. Tente novamente com internet.</div></div>'
+      +'<button onclick="document.getElementById(\'banner-salvamento\').style.display=\'none\'" '
+      +'style="background:transparent;border:none;color:rgba(255,255,255,.4);font-size:1rem;cursor:pointer;">✕</button>';
+  }
 }
 
 function openAddArtigo(){
