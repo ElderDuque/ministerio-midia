@@ -903,33 +903,32 @@ function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML
 async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
 async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
 
-// ── Cloudinary para fotos dos artigos ──────────────────────────────
-var CLOUDINARY_CLOUD = 'dzj6rfcax';
-var CLOUDINARY_PRESET = 'ministerio_midia'; // Upload preset unsigned
-var FIREBASE_STORAGE = true; // flag de compatibilidade - Cloudinary ativo
+// ── ImgBB para fotos dos artigos ──────────────────────────────
+var IMGBB_API_KEY = '205e5437a1a7ad38399968e34933dd7d';
 
 async function uploadFotoStorage(base64, artigoId) {
   if (!base64 || !base64.startsWith('data:')) return null;
   try {
+    // Remove o prefixo "data:image/...;base64," para enviar só o base64 puro
+    var base64puro = base64.split(',')[1];
+    if (!base64puro) return null;
     var formData = new FormData();
-    formData.append('file', base64);
-    formData.append('upload_preset', CLOUDINARY_PRESET);
-    formData.append('public_id', 'ministerio/artigos/' + artigoId);
-    formData.append('overwrite', 'true');
-    var r = await fetch('https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD + '/image/upload', {
+    formData.append('image', base64puro);
+    formData.append('name', 'artigo_' + artigoId);
+    var r = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, {
       method: 'POST', body: formData
     });
-    if (!r.ok) { console.error('Cloudinary erro:', r.status); return null; }
+    if (!r.ok) { console.error('ImgBB erro:', r.status); return null; }
     var j = await r.json();
-    return j.secure_url || null;
-  } catch(e) { console.warn('Cloudinary upload error:', e); return null; }
+    return (j.data && j.data.url) ? j.data.url : null;
+  } catch(e) { console.warn('ImgBB upload error:', e); return null; }
 }
 
 async function deleteFotoStorage(url) {
-  // Cloudinary delete requer server-side - apenas ignora (imagem fica no storage)
+  // ImgBB delete requer server-side - apenas ignora
 }
 
-// Converte fotos base64 pendentes para URLs do Cloudinary (chamado após save)
+// Converte fotos base64 pendentes para URLs do ImgBB (chamado após save)
 async function syncFotosParaStorage() {
   var alterou = false;
   var falhou = false;
