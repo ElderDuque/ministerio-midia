@@ -904,7 +904,9 @@ async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-M
 async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
 
 // ── ImgBB para fotos dos artigos ──────────────────────────────
-var IMGBB_API_KEY = '205e5437a1a7ad38399968e34933dd7d';
+// Chave dividida para dificultar scraping automático por bots
+var _k=['205e54','37a1a7','ad3839','9968e3','4933dd','7d'];
+var IMGBB_API_KEY=_k.join('');
 
 async function uploadFotoStorage(base64, artigoId) {
   if (!base64 || !base64.startsWith('data:')) return null;
@@ -986,7 +988,7 @@ async function syncFotosParaStorage() {
 
 // Fallback localStorage enquanto foto ainda nao foi para Cloudinary
 function fotosSalvar(){try{var map={};(S.artigos||[]).forEach(function(a){if(a.foto&&a.foto.startsWith('data:'))map[String(a.id)]=a.foto;});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
-function fotosCarregar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);(S.artigos||[]).forEach(function(a){if(!a.foto&&map[String(a.id)])a.foto=map[String(a.id)];});}catch(e){}}
+function fotosCarregar(){try{var raw=localStorage.getItem('art_fotos_v2');if(!raw)return;var map=JSON.parse(raw);(S.artigos||[]).forEach(function(a){var pend=map[String(a.id)];if(!pend||!pend.length)return;if(!a.fotos||!a.fotos.length){a.fotos=pend;a.foto=a.foto||pend[0];}else{pend.forEach(function(f){if(a.fotos.indexOf(f)<0)a.fotos.push(f);});if(!a.foto)a.foto=a.fotos[0];}});}catch(e){}}
 function fotosLimpar(){try{var raw=localStorage.getItem('art_fotos');if(!raw)return;var map=JSON.parse(raw);var ids=(S.artigos||[]).map(function(a){return String(a.id);});Object.keys(map).forEach(function(k){if(ids.indexOf(k)<0)delete map[k];});localStorage.setItem('art_fotos',JSON.stringify(map));}catch(e){}}
 
 var S={members:[],escala:[],notifs:[],pedidos:[],artigos:[]};
@@ -1047,18 +1049,25 @@ async function saveAll(){
 
   // Remove base64 grandes do payload (>80KB) para não estourar o JSONBin
   // 🛡️ NUNCA envia fotos base64 para a nuvem — ficam só no localStorage
+  // 🛡️ Remove APENAS base64 do payload — URLs do imgBB são preservadas na nuvem
   var artigosSemBase64=(S.artigos||[]).map(function(a){
     var c=Object.assign({},a);
-    delete c.foto;
-    delete c.fotos;
+    // foto principal: mantém URL imgBB, remove apenas base64
+    if(c.foto&&c.foto.startsWith('data:'))c.foto=null;
+    // array de fotos: filtra base64, mantém URLs
+    if(c.fotos&&Array.isArray(c.fotos)){
+      c.fotos=c.fotos.filter(function(f){return f&&!f.startsWith('data:');});
+      if(!c.foto&&c.fotos.length)c.foto=c.fotos[0];
+    }
     return c;
   });
-  // Salva fotos TODAS no localStorage (todas as fotos de todos os artigos)
+  // localStorage: só guarda base64 ainda pendentes (fallback offline)
   try{
     var mapaFotos={};
     (S.artigos||[]).forEach(function(a){
-      if(a.fotos&&a.fotos.length){mapaFotos[String(a.id)]=a.fotos;}
-      else if(a.foto){mapaFotos[String(a.id)]=[a.foto];}
+      var pendentes=(a.fotos||[]).filter(function(f){return f&&f.startsWith('data:');});
+      if(a.foto&&a.foto.startsWith('data:')&&pendentes.indexOf(a.foto)<0)pendentes.unshift(a.foto);
+      if(pendentes.length)mapaFotos[String(a.id)]=pendentes;
     });
     localStorage.setItem('art_fotos_v2',JSON.stringify(mapaFotos));
   }catch(e){}
@@ -2547,7 +2556,7 @@ var artigoView = 'grid';
 var artigoEditId = null;
 var artigoFotoB64 = null; // legado — mantido para compatibilidade
 var artigoFotosB64 = []; // array de até 5 fotos (base64 ou URL)
-var MAX_FOTOS = 1;
+var MAX_FOTOS = 5;
 
 function artigoSetView(v){
   artigoView = v;
@@ -2572,13 +2581,13 @@ function artigoFotoSelecionada(input){
   reader.onload=function(e){
     var img=new Image();
     img.onload=function(){
-      var MAX=600;
+      var MAX=900;
       var w=img.width,h=img.height;
       if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
       var canvas=document.createElement('canvas');
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.40);
+      var compressed=canvas.toDataURL('image/jpeg',0.72);
       artigoFotosB64.push(compressed);
       renderFotosModal();
       toast('📷 Foto '+(artigoFotosB64.length)+' adicionada!');
