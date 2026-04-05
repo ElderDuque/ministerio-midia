@@ -933,25 +933,23 @@ async function deleteFotoStorage(url) {
 async function syncFotosParaStorage() {
   var alterou = false;
   var falhou = false;
-  // Verifica se há alguma foto base64 pendente
   var temPendente = (S.artigos||[]).some(function(a){
     return (a.fotos&&a.fotos.some(function(f){return f&&f.startsWith('data:');})) ||
            (a.foto&&a.foto.startsWith('data:'));
   });
-  if(temPendente) toast('☁️ Enviando fotos para a nuvem...');
+  if(!temPendente) return;
+  toast('☁️ Enviando fotos para o Cloudinary...');
   for (var i = 0; i < (S.artigos||[]).length; i++) {
     var a = S.artigos[i];
-    // suporte ao novo campo fotos[] (múltiplas fotos)
     if (a.fotos && Array.isArray(a.fotos)) {
       for (var fi = 0; fi < a.fotos.length; fi++) {
         if (a.fotos[fi] && a.fotos[fi].startsWith('data:')) {
           var url = await uploadFotoStorage(a.fotos[fi], a.id+'_'+fi);
           if (url) { a.fotos[fi] = url; if(fi===0)a.foto=url; alterou = true; }
-          else { falhou = true; } // falhou mas NAO bloqueia o save
+          else { falhou = true; }
         }
       }
     }
-    // compatibilidade com campo antigo foto (string única)
     if (a.foto && a.foto.startsWith('data:')) {
       var url = await uploadFotoStorage(a.foto, a.id);
       if (url) { a.foto = url; alterou = true; }
@@ -959,11 +957,10 @@ async function syncFotosParaStorage() {
     }
   }
   if (falhou) {
-    // Salva as fotos no localStorage como fallback mesmo sem Cloudinary
     fotosSalvar();
-    toast('⚠️ Foto salva localmente (nuvem indisponível).');
+    toast('⚠️ Foto salva localmente. Cloudinary indisponível.');
   } else if (alterou) {
-    toast('✅ Fotos salvas com sucesso!');
+    toast('✅ Fotos enviadas para a nuvem!');
   }
 }
 
@@ -1029,17 +1026,22 @@ async function saveAll(){
   }
 
   // Remove base64 grandes do payload (>80KB) para não estourar o JSONBin
+  // 🛡️ NUNCA envia fotos base64 para a nuvem — ficam só no localStorage
   var artigosSemBase64=(S.artigos||[]).map(function(a){
     var c=Object.assign({},a);
-    if(c.foto&&c.foto.startsWith('data:')&&c.foto.length>30000)delete c.foto;
-    if(c.fotos&&Array.isArray(c.fotos)){
-      c.fotos=c.fotos.map(function(f){
-        if(f&&f.startsWith('data:')&&f.length>30000)return null;
-        return f;
-      }).filter(Boolean);
-    }
+    delete c.foto;
+    delete c.fotos;
     return c;
   });
+  // Salva fotos TODAS no localStorage (todas as fotos de todos os artigos)
+  try{
+    var mapaFotos={};
+    (S.artigos||[]).forEach(function(a){
+      if(a.fotos&&a.fotos.length){mapaFotos[String(a.id)]=a.fotos;}
+      else if(a.foto){mapaFotos[String(a.id)]=[a.foto];}
+    });
+    localStorage.setItem('art_fotos_v2',JSON.stringify(mapaFotos));
+  }catch(e){}
 
   var payload={members:S.members,escala:S.escala,notifs:S.notifs,pedidos:S.pedidos,artigos:artigosSemBase64};
 
@@ -2820,10 +2822,8 @@ function salvarArtigo(){
       fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
   }
 
-  // Salva o item PRIMEIRO, depois tenta subir fotos para o Cloudinary em segundo plano
-  saveAll().then(function(){
-    fotosLimpar();
-    closeMo('mo-add-artigo');
+  function _limparFormArtigo(){
+    fotosLimpar();closeMo('mo-add-artigo');
     artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
     document.getElementById('art-nome').value='';
     document.getElementById('art-qtd').value='1';
@@ -2836,11 +2836,15 @@ function salvarArtigo(){
     document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
     var naoEl2=document.getElementById('art-caixa-nao');if(naoEl2)naoEl2.checked=true;
     var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
-    renderFotosModal();
-    toast('\u2705 Artigo salvo!');
-    renderArtigos();
-    // Tenta subir fotos para nuvem em segundo plano (nao bloqueia)
-    syncFotosParaStorage().then(function(){ saveAll(); renderArtigos(); });
+    renderFotosModal();renderArtigos();
+  }
+  // 1️⃣ Sobe fotos pro Cloudinary PRIMEIRO, depois salva no JSONBin com URLs
+  toast('\u23F3 Enviando fotos...');
+  syncFotosParaStorage().then(function(){
+    saveAll().then(function(){
+      toast('\u2705 Artigo salvo na nuvem!');
+      _limparFormArtigo();
+    });
   });
 }
 
