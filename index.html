@@ -1031,10 +1031,10 @@ async function saveAll(){
   // Remove base64 grandes do payload (>80KB) para não estourar o JSONBin
   var artigosSemBase64=(S.artigos||[]).map(function(a){
     var c=Object.assign({},a);
-    if(c.foto&&c.foto.startsWith('data:')&&c.foto.length>80000)delete c.foto;
+    if(c.foto&&c.foto.startsWith('data:')&&c.foto.length>30000)delete c.foto;
     if(c.fotos&&Array.isArray(c.fotos)){
       c.fotos=c.fotos.map(function(f){
-        if(f&&f.startsWith('data:')&&f.length>80000)return null;
+        if(f&&f.startsWith('data:')&&f.length>30000)return null;
         return f;
       }).filter(Boolean);
     }
@@ -2550,13 +2550,13 @@ function artigoFotoSelecionada(input){
   reader.onload=function(e){
     var img=new Image();
     img.onload=function(){
-      var MAX=800;
+      var MAX=600;
       var w=img.width,h=img.height;
       if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
       var canvas=document.createElement('canvas');
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.75);
+      var compressed=canvas.toDataURL('image/jpeg',0.40);
       artigoFotosB64.push(compressed);
       renderFotosModal();
       toast('📷 Foto '+(artigoFotosB64.length)+' adicionada!');
@@ -2820,67 +2820,28 @@ function salvarArtigo(){
       fotos:fotosParaSalvar,foto:fotosParaSalvar[0]||null});
   }
 
-  // 🛡️ COMPRIME fotos antes de salvar para não estourar o JSONBin (max ~60KB por foto)
-  function comprimirFoto(dataUrl, callback){
-    try{
-      var img=new Image();
-      img.onload=function(){
-        var canvas=document.createElement('canvas');
-        var MAX=800;var w=img.width,h=img.height;
-        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-        if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
-        canvas.width=w;canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
-        callback(canvas.toDataURL('image/jpeg',0.55));
-      };
-      img.onerror=function(){callback(dataUrl);};
-      img.src=dataUrl;
-    }catch(e){callback(dataUrl);}
-  }
-  function comprimirTodasFotos(fotos,done){
-    if(!fotos||!fotos.length){done([]);return;}
-    var res=[],idx=0;
-    function nxt(){
-      if(idx>=fotos.length){done(res);return;}
-      var f=fotos[idx++];
-      if(f&&f.startsWith('data:')){comprimirFoto(f,function(c){res.push(c);nxt();});}
-      else{res.push(f);nxt();}
-    }
-    nxt();
-  }
-
-  function _finalizarSalvarArtigo(fotosFinais){
-    // Atualiza fotos comprimidas no artigo
-    if(artigoEditId){
-      var ax=S.artigos.find(function(x){return x.id===artigoEditId;});
-      if(ax&&fotosFinais.length>0){ax.fotos=fotosFinais;ax.foto=fotosFinais[0]||null;}
-    } else {
-      var ult=S.artigos[S.artigos.length-1];
-      if(ult&&fotosFinais.length>0){ult.fotos=fotosFinais;ult.foto=fotosFinais[0]||null;}
-    }
-    saveAll().then(function(){
-      fotosLimpar();closeMo('mo-add-artigo');
-      artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
-      document.getElementById('art-nome').value='';
-      document.getElementById('art-qtd').value='1';
-      document.getElementById('art-local').value='';
-      document.getElementById('art-estado').value='bom';
-      document.getElementById('art-condicao').value='usado';
-      document.getElementById('art-data-aquisicao').value='';
-      document.getElementById('art-obs').value='';
-      document.getElementById('art-foto-drop').style.display='block';
-      document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
-      var naoEl2=document.getElementById('art-caixa-nao');if(naoEl2)naoEl2.checked=true;
-      var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
-      renderFotosModal();
-      toast('\u2705 Artigo salvo!');
-      renderArtigos();
-      syncFotosParaStorage().then(function(){saveAll();renderArtigos();});
-    });
-  }
-
-  // Comprime e salva
-  comprimirTodasFotos(fotosParaSalvar, _finalizarSalvarArtigo);
+  // Salva o item PRIMEIRO, depois tenta subir fotos para o Cloudinary em segundo plano
+  saveAll().then(function(){
+    fotosLimpar();
+    closeMo('mo-add-artigo');
+    artigoEditId=null;artigoFotoB64=null;artigoFotosB64=[];
+    document.getElementById('art-nome').value='';
+    document.getElementById('art-qtd').value='1';
+    document.getElementById('art-local').value='';
+    document.getElementById('art-estado').value='bom';
+    document.getElementById('art-condicao').value='usado';
+    document.getElementById('art-data-aquisicao').value='';
+    document.getElementById('art-obs').value='';
+    document.getElementById('art-foto-drop').style.display='block';
+    document.getElementById('mo-artigo-title').textContent='\u{1F4E6} Novo Artigo';
+    var naoEl2=document.getElementById('art-caixa-nao');if(naoEl2)naoEl2.checked=true;
+    var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
+    renderFotosModal();
+    toast('\u2705 Artigo salvo!');
+    renderArtigos();
+    // Tenta subir fotos para nuvem em segundo plano (nao bloqueia)
+    syncFotosParaStorage().then(function(){ saveAll(); renderArtigos(); });
+  });
 }
 
 function openAddArtigo(){
@@ -2992,7 +2953,7 @@ window.addEventListener('load',function(){
 
   var splashMinDone=false;
   var cloudDone=false;
-  function checkHideSplash(){if(splashMinDone&&cloudDone)hideSplash();}
+  var splashHidden=false;function checkHideSplash(){if(splashMinDone&&cloudDone&&!splashHidden){splashHidden=true;hideSplash();}}
   setTimeout(function(){splashMinDone=true;checkHideSplash();},1800);
 
   var saved=sessionStorage.getItem('mm_cu');
