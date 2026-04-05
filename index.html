@@ -1051,14 +1051,17 @@ async function saveAll(){
   // 🛡️ NUNCA envia fotos base64 para a nuvem — ficam só no localStorage
   // 🛡️ Remove APENAS base64 do payload — URLs do imgBB são preservadas na nuvem
   var artigosSemBase64=(S.artigos||[]).map(function(a){
+    // deep copy para não mutar S.artigos ao filtrar base64
     var c=Object.assign({},a);
     // foto principal: mantém URL imgBB, remove apenas base64
     if(c.foto&&c.foto.startsWith('data:'))c.foto=null;
-    // array de fotos: filtra base64, mantém URLs
-    if(c.fotos&&Array.isArray(c.fotos)){
-      c.fotos=c.fotos.filter(function(f){return f&&!f.startsWith('data:');});
-      if(!c.foto&&c.fotos.length)c.foto=c.fotos[0];
+    // array de fotos: cópia nova, filtra base64, mantém URLs do ImgBB
+    if(Array.isArray(a.fotos)){
+      c.fotos=a.fotos.filter(function(f){return f&&!f.startsWith('data:');});
+    } else {
+      c.fotos=[];
     }
+    if(!c.foto&&c.fotos.length)c.foto=c.fotos[0];
     return c;
   });
   // localStorage: só guarda base64 ainda pendentes (fallback offline)
@@ -1099,7 +1102,9 @@ function seedMembers(){
   if(!S.notifs.length)S.notifs=[{id:1,icon:'&#127916;',text:'<strong>Bem-vindos!</strong> Lider ira montar a escala.',time:'Agora',unread:true}];
 }
 
-function startPolling(){setInterval(async function(){if(!CU)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},8000);}
+var _salvando=false;
+function startPolling(){setInterval(async function(){if(!CU||_salvando)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){// mescla URLs de fotos que já estão em memória (não sobrescreve com versão sem fotos da nuvem durante save)
+d.artigos.forEach(function(na){var old=S.artigos.find(function(x){return x.id===na.id;});if(old){if(!na.fotos||!na.fotos.length){na.fotos=old.fotos||[];na.foto=old.foto||null;}else if(!na.foto){na.foto=na.fotos[0]||null;}}});S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},8000);}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
@@ -2867,14 +2872,17 @@ function salvarArtigo(){
     var qcEl2=document.getElementById('art-qtd-caixa');if(qcEl2)qcEl2.value='';
     renderFotosModal();renderArtigos();
   }
-  // 1️⃣ Sobe fotos pro Cloudinary PRIMEIRO, depois salva no JSONBin com URLs
+  // 1️⃣ Bloqueia polling, sobe fotos pro ImgBB, depois salva na nuvem com URLs
+  _salvando=true;
   toast('\u23F3 Enviando fotos...');
   syncFotosParaStorage().then(function(){
+    // Neste ponto S.artigos já tem as URLs do ImgBB — salva imediatamente
     saveAll().then(function(){
+      _salvando=false;
       toast('\u2705 Artigo salvo na nuvem!');
       _limparFormArtigo();
-    });
-  });
+    }).catch(function(){_salvando=false;});
+  }).catch(function(){_salvando=false;});
 }
 
 function openAddArtigo(){
