@@ -828,12 +828,12 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <label class="mfl">Quantidade na Caixa <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(se veio em caixa)</span></label>
     <input type="number" class="mfi" id="art-qtd-caixa" placeholder="Ex: 2" min="1" value="" style="margin-bottom:13px;">
 
-    <label class="mfl">Fotos do Item <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(até 5 fotos)</span></label>
+    <label class="mfl">Fotos do Item <span style="font-size:.6rem;font-weight:400;opacity:.55;text-transform:none;">(1 foto)</span></label>
     <div id="art-fotos-preview-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px;"></div>
     <div id="art-foto-drop" onclick="artigoAdicionarFoto()" style="border:2px dashed rgba(201,168,76,.3);border-radius:10px;padding:16px;text-align:center;cursor:pointer;margin-bottom:12px;">
       <div style="font-size:1.5rem;">&#128247;</div>
       <p style="font-size:.72rem;color:var(--gold);margin-top:4px;">Toque para adicionar foto</p>
-      <p id="art-foto-count-lbl" style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">0/5 fotos · Galeria ou câmera</p>
+      <p id="art-foto-count-lbl" style="font-size:.63rem;color:var(--cream2);opacity:.45;margin-top:2px;">0/1 foto · Galeria ou câmera</p>
     </div>
     <input type="file" id="art-foto-input" accept="image/*" style="display:none;" onchange="artigoFotoSelecionada(this)">
 
@@ -2548,7 +2548,7 @@ var artigoView = 'grid';
 var artigoEditId = null;
 var artigoFotoB64 = null; // legado — mantido para compatibilidade
 var artigoFotosB64 = []; // array de até 5 fotos (base64 ou URL)
-var MAX_FOTOS = 5;
+var MAX_FOTOS = 1;
 
 function artigoSetView(v){
   artigoView = v;
