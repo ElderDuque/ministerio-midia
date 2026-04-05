@@ -938,12 +938,27 @@ async function syncFotosParaStorage() {
            (a.foto&&a.foto.startsWith('data:'));
   });
   if(!temPendente) return;
-  toast('☁️ Enviando fotos para o Cloudinary...');
+
+  // Conta total de fotos para mostrar progresso
+  var totalFotos=0;
+  (S.artigos||[]).forEach(function(a){
+    if(a.fotos&&Array.isArray(a.fotos))totalFotos+=a.fotos.filter(function(f){return f&&f.startsWith('data:');}).length;
+    else if(a.foto&&a.foto.startsWith('data:'))totalFotos++;
+  });
+  var fotoAtual=0;
+  toast('☁️ Enviando foto 1 de '+totalFotos+'...');
+
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
   for (var i = 0; i < (S.artigos||[]).length; i++) {
     var a = S.artigos[i];
     if (a.fotos && Array.isArray(a.fotos)) {
       for (var fi = 0; fi < a.fotos.length; fi++) {
         if (a.fotos[fi] && a.fotos[fi].startsWith('data:')) {
+          fotoAtual++;
+          toast('☁️ Enviando foto '+fotoAtual+' de '+totalFotos+'...');
+          // Pausa entre uploads para não sobrecarregar o Cloudinary
+          if(fotoAtual>1) await sleep(1200);
           var url = await uploadFotoStorage(a.fotos[fi], a.id+'_'+fi);
           if (url) { a.fotos[fi] = url; if(fi===0)a.foto=url; alterou = true; }
           else { falhou = true; }
@@ -951,16 +966,22 @@ async function syncFotosParaStorage() {
       }
     }
     if (a.foto && a.foto.startsWith('data:')) {
+      fotoAtual++;
+      toast('☁️ Enviando foto '+fotoAtual+' de '+totalFotos+'...');
+      if(fotoAtual>1) await sleep(1200);
       var url = await uploadFotoStorage(a.foto, a.id);
       if (url) { a.foto = url; alterou = true; }
       else { falhou = true; }
     }
   }
-  if (falhou) {
+  if (falhou && !alterou) {
     fotosSalvar();
-    toast('⚠️ Foto salva localmente. Cloudinary indisponível.');
+    toast('⚠️ Fotos salvas localmente. Tente novamente.');
+  } else if (falhou && alterou) {
+    fotosSalvar();
+    toast('⚠️ Algumas fotos salvas localmente.');
   } else if (alterou) {
-    toast('✅ Fotos enviadas para a nuvem!');
+    toast('✅ Todas as fotos na nuvem!');
   }
 }
 
@@ -3037,11 +3058,20 @@ window.addEventListener('appinstalled', function(){
 });
 
 async function instalarApp(){
-  if(!_installPrompt) return;
-  _installPrompt.prompt();
-  var result = await _installPrompt.userChoice;
-  if(result.outcome === 'accepted') fecharBannerPWA();
-  _installPrompt = null;
+  if(!_installPrompt){
+    // Chrome ainda nao disparou o evento — mostra instrucoes manuais
+    document.getElementById('mo-instrucao-install').classList.add('open');
+    return;
+  }
+  try{
+    _installPrompt.prompt();
+    var result = await _installPrompt.userChoice;
+    if(result.outcome === 'accepted') fecharBannerPWA();
+    _installPrompt = null;
+  }catch(e){
+    // Fallback: mostra instrucoes manuais
+    document.getElementById('mo-instrucao-install').classList.add('open');
+  }
 }
 
 function fecharBannerInstall(){ fecharBannerPWA(); }
