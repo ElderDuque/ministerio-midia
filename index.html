@@ -2953,22 +2953,55 @@ window.addEventListener('load',function(){
 
   var splashMinDone=false;
   var cloudDone=false;
-  function checkHideSplash(){if(splashMinDone&&cloudDone)hideSplash();}
+  var splashHidden=false;
+  function checkHideSplash(){if(splashMinDone&&cloudDone&&!splashHidden){splashHidden=true;hideSplash();}}
+
+  // ⛑️ FAILSAFE: se em 6s a splash ainda estiver visível, força esconder
+  setTimeout(function(){
+    if(!splashHidden){splashHidden=true;hideSplash();}
+  },6000);
+
   setTimeout(function(){splashMinDone=true;checkHideSplash();},1800);
 
   var saved=sessionStorage.getItem('mm_cu');
   if(saved){
     try{
       var sid=JSON.parse(saved).id;
+      // ⛑️ Timeout de 5s para o loadFromCloud não travar para sempre
+      var cloudTimeout=setTimeout(function(){
+        if(!cloudDone){
+          // Tenta usar backup local como fallback
+          var bk=backupLocalCarregar();
+          if(bk&&bk.members&&bk.members.length){
+            S.members=bk.members;S.escala=bk.escala||[];S.notifs=bk.notifs||[];S.pedidos=bk.pedidos||[];
+          }
+          seedMembers();
+          var m=S.members.find(function(x){return x.id===sid;});
+          if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
+          cloudDone=true;checkHideSplash();
+        }
+      },5000);
       loadFromCloud().then(function(){
+        clearTimeout(cloudTimeout);
+        seedMembers();
+        var m=S.members.find(function(x){return x.id===sid;});
+        if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
+        cloudDone=true;checkHideSplash();
+      }).catch(function(){
+        clearTimeout(cloudTimeout);
+        var bk=backupLocalCarregar();
+        if(bk&&bk.members&&bk.members.length){S.members=bk.members;S.escala=bk.escala||[];S.notifs=bk.notifs||[];S.pedidos=bk.pedidos||[];}
         seedMembers();
         var m=S.members.find(function(x){return x.id===sid;});
         if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
         cloudDone=true;checkHideSplash();
       });
-    }catch(e){cloudDone=true;checkHideSplash();}
+    }catch(e){
+      sessionStorage.removeItem('mm_cu'); // limpa sessão corrompida
+      cloudDone=true;checkHideSplash();
+    }
   } else {
-    loadFromCloud().then(function(){seedMembers();cloudDone=true;checkHideSplash();});
+    loadFromCloud().then(function(){seedMembers();cloudDone=true;checkHideSplash();}).catch(function(){seedMembers();cloudDone=true;checkHideSplash();});
   }
   document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 });
