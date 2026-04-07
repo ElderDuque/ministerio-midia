@@ -218,7 +218,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <div class="sbox"><div class="snum" id="st-cultos">0</div><div class="slbl">Cultos</div></div>
       <div class="sbox"><div class="snum" id="st-membros">0</div><div class="slbl">Membros</div></div>
       <div class="sbox"><div class="snum" id="st-pend">0</div><div class="slbl">Pendentes</div></div>
-      <div class="sbox" id="sbox-arealizar" style="border-color:rgba(88,214,141,.22);"><div class="snum" id="st-arealizar" style="color:#58d68d;">0</div><div class="slbl" style="color:#58d68d;opacity:.7;">A Realizar</div></div>
+      <div class="sbox" id="sbox-arealizar" style="border-color:rgba(88,214,141,.22);cursor:pointer;" onclick="toggleInfoCard()" title="Alternar visualizacao"><div class="snum" id="st-arealizar" style="color:#58d68d;transition:opacity .3s,color .3s;">0</div><div class="slbl" id="slbl-arealizar" style="color:#58d68d;opacity:.7;transition:opacity .3s,color .3s;">A Realizar</div></div>
     </div>
     <!-- Barra de progresso do mês -->
     <div id="progresso-wrap" style="margin-bottom:14px;">
@@ -1312,7 +1312,9 @@ function renderEscala(){
   document.getElementById('st-cultos').textContent=cultosDoMes.length;
   document.getElementById('st-membros').textContent=S.members.filter(function(m){return !m.afastado;}).length;
   document.getElementById('st-pend').textContent=pend;
-  document.getElementById('st-arealizar').textContent=aRealizar;
+  // Guarda valores globais para a alternância do ícone de info
+  window._infoRealizados=realizados;window._infoARealizar=aRealizar;
+  atualizarInfoCard();
   // Atualiza barra de progresso
   var pct=cultosDoMes.length>0?Math.round((realizados/cultosDoMes.length)*100):0;
   var fillEl=document.getElementById('progress-bar-fill');
@@ -1321,11 +1323,7 @@ function renderEscala(){
   var lblDir=document.getElementById('progresso-label-dir');
   if(lblEsq)lblEsq.textContent=realizados+' realizado'+(realizados!==1?'s':'');
   if(lblDir)lblDir.textContent=aRealizar+' a realizar';
-  // Cor do sbox "A Realizar"
-  var sboxAr=document.getElementById('sbox-arealizar');
-  if(sboxAr){sboxAr.style.borderColor=aRealizar===0?'rgba(201,168,76,.16)':'rgba(88,214,141,.3)';}
-  var stAr=document.getElementById('st-arealizar');
-  if(stAr){stAr.style.color=aRealizar===0?'var(--gold)':'#58d68d';}
+  // Cor do sbox "A Realizar" — gerenciado por atualizarInfoCard()
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
 
@@ -3044,6 +3042,46 @@ window.addEventListener('load',function(){
   }
   document.getElementById('li-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 });
+
+// ---- Alternância do ícone de info (realizados / a realizar) ----
+window._infoRealizados=0;window._infoARealizar=0;window._infoModo=1;// 1=a realizar, 0=realizados
+window._infoIntervalId=null;
+
+function atualizarInfoCard(){
+  var stAr=document.getElementById('st-arealizar');
+  var slblAr=document.getElementById('slbl-arealizar');
+  var sboxAr=document.getElementById('sbox-arealizar');
+  if(!stAr||!slblAr||!sboxAr)return;
+  if(window._infoModo===1){
+    // Modo: A Realizar (verde)
+    stAr.textContent=window._infoARealizar;
+    stAr.style.color=window._infoARealizar===0?'var(--gold)':'#58d68d';
+    slblAr.textContent='A Realizar';
+    slblAr.style.color=window._infoARealizar===0?'var(--gold)':'#58d68d';
+    sboxAr.style.borderColor=window._infoARealizar===0?'rgba(201,168,76,.16)':'rgba(88,214,141,.3)';
+  } else {
+    // Modo: Realizados (vermelho)
+    stAr.textContent=window._infoRealizados;
+    stAr.style.color='#e74c3c';
+    slblAr.textContent='Realizados';
+    slblAr.style.color='#e74c3c';
+    sboxAr.style.borderColor='rgba(231,76,60,.35)';
+  }
+}
+
+function toggleInfoCard(){
+  window._infoModo=window._infoModo===1?0:1;
+  var stAr=document.getElementById('st-arealizar');
+  if(stAr){stAr.style.opacity='0';}
+  var slblAr=document.getElementById('slbl-arealizar');
+  if(slblAr){slblAr.style.opacity='0';}
+  setTimeout(function(){atualizarInfoCard();if(stAr)stAr.style.opacity='1';if(slblAr)slblAr.style.opacity='1';},300);
+}
+
+// Alternância automática a cada 3 segundos
+if(window._infoIntervalId)clearInterval(window._infoIntervalId);
+window._infoIntervalId=setInterval(function(){toggleInfoCard();},3000);
+
 </script>
 <script>
 // ---- Instalação e Atualização PWA ----
