@@ -58,7 +58,10 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 .page{display:none;padding:16px 14px 100px;} .page.active{display:block;}
 .card{background:linear-gradient(135deg,var(--d3),var(--d2));border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:15px;margin-bottom:13px;}
 .card-title{font-family:'Cinzel',serif;font-size:.88rem;color:var(--gold);margin-bottom:11px;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;}
+.progress-bar-wrap{background:rgba(255,255,255,.06);border-radius:6px;height:7px;margin-bottom:14px;overflow:hidden;}
+.progress-bar-fill{height:100%;border-radius:6px;transition:width .5s ease;background:linear-gradient(90deg,#C9A84C,#58d68d);}
+.progress-bar-label{display:flex;justify-content:space-between;font-size:.59rem;color:var(--cream2);opacity:.5;margin-bottom:4px;}
 .sbox{background:linear-gradient(135deg,var(--d3),var(--dark));border:1px solid rgba(201,168,76,.16);border-radius:10px;padding:11px 5px;text-align:center;}
 .snum{font-family:'Cinzel',serif;font-size:1.65rem;color:var(--gold);line-height:1;}
 .slbl{font-size:.58rem;color:var(--cream2);opacity:.52;margin-top:2px;text-transform:uppercase;}
@@ -215,6 +218,17 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
       <div class="sbox"><div class="snum" id="st-cultos">0</div><div class="slbl">Cultos</div></div>
       <div class="sbox"><div class="snum" id="st-membros">0</div><div class="slbl">Membros</div></div>
       <div class="sbox"><div class="snum" id="st-pend">0</div><div class="slbl">Pendentes</div></div>
+      <div class="sbox" id="sbox-arealizar" style="border-color:rgba(88,214,141,.22);"><div class="snum" id="st-arealizar" style="color:#58d68d;">0</div><div class="slbl" style="color:#58d68d;opacity:.7;">A Realizar</div></div>
+    </div>
+    <!-- Barra de progresso do mês -->
+    <div id="progresso-wrap" style="margin-bottom:14px;">
+      <div class="progress-bar-label">
+        <span id="progresso-label-esq">0 realizados</span>
+        <span id="progresso-label-dir">0 a realizar</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar-fill" style="width:0%;"></div>
+      </div>
     </div>
     <!-- Card PENDENTES: cultos sem inscritos -->
     <div id="card-pendentes" style="display:none;background:linear-gradient(135deg,rgba(192,57,43,.12),rgba(192,57,43,.06));border:1px solid rgba(192,57,43,.35);border-radius:12px;padding:13px 14px;margin-bottom:14px;">
@@ -1292,9 +1306,26 @@ function renderEscala(){
   var agora2=new Date();
   var pend=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');if(k!==mesExibKey)return false;var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');if(pd<=agora2)return false;return d.membros.length===0||d.membros.some(function(m){return m.status==='pending';});}).length;
   var cultosDoMes=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===mesExibKey;});
+  var agora3=new Date();
+  var realizados=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');return pd<=agora3;}).length;
+  var aRealizar=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');return pd>agora3;}).length;
   document.getElementById('st-cultos').textContent=cultosDoMes.length;
   document.getElementById('st-membros').textContent=S.members.filter(function(m){return !m.afastado;}).length;
   document.getElementById('st-pend').textContent=pend;
+  document.getElementById('st-arealizar').textContent=aRealizar;
+  // Atualiza barra de progresso
+  var pct=cultosDoMes.length>0?Math.round((realizados/cultosDoMes.length)*100):0;
+  var fillEl=document.getElementById('progress-bar-fill');
+  if(fillEl){fillEl.style.width=pct+'%';}
+  var lblEsq=document.getElementById('progresso-label-esq');
+  var lblDir=document.getElementById('progresso-label-dir');
+  if(lblEsq)lblEsq.textContent=realizados+' realizado'+(realizados!==1?'s':'');
+  if(lblDir)lblDir.textContent=aRealizar+' a realizar';
+  // Cor do sbox "A Realizar"
+  var sboxAr=document.getElementById('sbox-arealizar');
+  if(sboxAr){sboxAr.style.borderColor=aRealizar===0?'rgba(201,168,76,.16)':'rgba(88,214,141,.3)';}
+  var stAr=document.getElementById('st-arealizar');
+  if(stAr){stAr.style.color=aRealizar===0?'var(--gold)':'#58d68d';}
   var c=document.getElementById('escala-list');c.innerHTML='';
   var isL=CU&&CU.profile==='lider';
 
