@@ -3035,8 +3035,8 @@ window.addEventListener('load',function(){
       loadFromCloud().then(function(){
         seedMembers();
         var m=S.members.find(function(x){return x.id===sid;});
-        if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';updateHeader();renderAll();startPolling();}
-        cloudDone=true;checkHideSplash();
+        if(m){CU=m;document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';cloudDone=true;checkHideSplash();updateHeader();renderAll();startPolling();}
+        else{cloudDone=true;checkHideSplash();}
       });
     }catch(e){cloudDone=true;checkHideSplash();}
   } else {
