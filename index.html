@@ -74,6 +74,9 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 .dc.open .dc-arr{transform:rotate(180deg);}
 .dc-body{display:none;padding:9px 13px;} .dc.open .dc-body{display:block;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes pulseRed{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(231,76,60,.5)}50%{opacity:.85;box-shadow:0 0 0 5px rgba(231,76,60,0)}}
+.badge-aovivo{font-size:.58rem;background:rgba(231,76,60,.25);color:#ff6b6b;border:1px solid rgba(231,76,60,.7);padding:1px 7px;border-radius:7px;animation:pulseRed 1.2s infinite;display:inline-flex;align-items:center;gap:3px;}
+.badge-aovivo::before{content:'';display:inline-block;width:6px;height:6px;background:#ff4444;border-radius:50%;animation:pulse 1s infinite;}
 .miss-alert{background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.28);border-radius:6px;padding:6px 9px;margin-bottom:7px;font-size:.7rem;color:#e74c3c;}
 .mrow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .mrow:last-child{border-bottom:none;}
@@ -1307,8 +1310,9 @@ function renderEscala(){
   var pend=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');if(k!==mesExibKey)return false;var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');if(pd<=agora2)return false;return d.membros.length===0||d.membros.some(function(m){return m.status==='pending';});}).length;
   var cultosDoMes=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===mesExibKey;});
   var agora3=new Date();
-  var realizados=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');return pd<=agora3;}).length;
-  var aRealizar=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');return pd>agora3;}).length;
+  // Eventos acontecendo agora (dentro de 2h após início) não contam como realizados ainda
+  var realizados=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');var duasH=new Date(pd.getTime()+2*60*60*1000);return pd<=agora3&&agora3>=duasH;}).length;
+  var aRealizar=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');var duasH=new Date(pd.getTime()+2*60*60*1000);return pd>agora3||agora3<duasH;}).length;
   document.getElementById('st-cultos').textContent=cultosDoMes.length;
   document.getElementById('st-membros').textContent=S.members.filter(function(m){return !m.afastado;}).length;
   document.getElementById('st-pend').textContent=pend;
@@ -1429,12 +1433,16 @@ function renderEscala(){
 
       var dh=day.hora||'23:59';
       var dayDate=new Date(day.date+'T'+dh+':00');
-      var passou=dayDate<=agora;
+      var duasHorasDepois=new Date(dayDate.getTime()+2*60*60*1000);
+      var acontecendoAgora=dayDate<=agora&&agora<duasHorasDepois;
+      var passou=dayDate<=agora&&!acontecendoAgora;
       var isProximo=day.id===proximoId;
 
       var euEstouEscalado=CU&&day.membros.find(function(m){return m.id===CU.id;});
 
-      if(passou){
+      if(acontecendoAgora){
+        div.style.cssText='border:2px solid rgba(231,76,60,.7);box-shadow:0 0 16px rgba(231,76,60,.3);background:linear-gradient(135deg,rgba(231,76,60,.07),rgba(231,76,60,.03));';
+      } else if(passou){
         div.style.cssText='opacity:.5;filter:grayscale(40%);';
       } else if(euEstouEscalado){
         div.style.cssText='border:2px solid var(--gold);box-shadow:0 0 14px rgba(201,168,76,.25);background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(201,168,76,.03));';
@@ -1442,13 +1450,15 @@ function renderEscala(){
         div.style.cssText='border:1px solid rgba(201,168,76,.6);box-shadow:0 0 10px rgba(201,168,76,.15);';
       }
 
-      // Badge do culto: Inscrição livre / Pendente / Realizado / Próximo
+      // Badge do culto: Inscrição livre / Pendente / Realizado / Agora / Próximo
       var todosConfirmados=day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';});
       var temMembros=day.membros.length>0;
       var temPendente=day.membros.some(function(m){return m.status==='pending';});
       var abBadge='';
       var statusBadge='';
-      if(passou){
+      if(acontecendoAgora){
+        statusBadge=' <span class="badge-aovivo">Agora</span>';
+      } else if(passou){
         statusBadge=' <span style="font-size:.58rem;background:rgba(88,214,141,.12);color:#58d68d;border:1px solid rgba(88,214,141,.3);padding:1px 7px;border-radius:7px;">✓ Realizado</span>';
       } else if(isProximo){
         statusBadge=' <span style="font-size:.58rem;background:rgba(201,168,76,.2);color:var(--gold);border:1px solid rgba(201,168,76,.5);padding:1px 7px;border-radius:7px;animation:pulse 1.5s infinite;">▶ Próximo</span>';
