@@ -1587,7 +1587,12 @@ function respPresenca(dayId,memId,status){
   var m=day.membros.find(function(x){return x.id===memId;});if(!m)return;
   m.status=status;
   S.notifs.unshift({id:Date.now(),icon:status==='confirmed'?'&#9989;':'&#10060;',text:'<strong>'+CU.name+'</strong> '+(status==='confirmed'?'confirmou':'recusou')+' presenca em <strong>'+fmtDate(day.date)+'</strong>'+(status==='declined'?' &#8212; Vaga: '+m.role:'')+'.',time:nowStr(),unread:true});
-  saveAll().then(function(){toast(status==='confirmed'?'Presenca confirmada!':'Recusado.');renderAll();if(status==='confirmed')autoCheckNotify(dayId);if(status==='declined')setTimeout(function(){if(confirm('Vaga: '+m.role+'\nNotificar no WhatsApp?'))waVaga(day.date,day.label,m.role);},200);});
+  saveAll().then(function(){toast(status==='confirmed'?'Presenca confirmada!':'Recusado.');renderAll();if(status==='confirmed')autoCheckNotify(dayId);if(status==='declined')setTimeout(function(){if(confirm('Vaga: '+m.role+'\nNotificar no WhatsApp?'))waVaga(day.date,day.label,m.role);},200);
+    // Notifica lideres sobre confirmacao/recusa
+    var emoji=status==='confirmed'?'\u2705':'\u274C';
+    var acao=status==='confirmed'?'confirmou presenca':'RECUSOU presenca';
+    notifLideres(emoji+' *'+CU.name+'* '+acao+' em:\n\uD83D\uDCC5 *'+fmtDate(day.date)+' \u2014 '+day.label+'*\nFuncao: '+m.role, CU.id);
+  });
 }
 function autoCheckNotify(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
@@ -1622,6 +1627,13 @@ function salvarAddMemCulto(){
     document.getElementById('mo-add-mem-culto').classList.remove('open');
     toast(mem.name+' adicionado(a)!');
     renderAll();
+    // Notifica o membro adicionado
+    var memAtual=S.members.find(function(x){return x.id===mem.id;});
+    if(memAtual&&memAtual.phone&&memAtual.phone.length>=10&&status!=='confirmed'){
+      setTimeout(function(){
+        window.open('https://wa.me/55'+memAtual.phone+'?text='+encodeURIComponent('\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n\uD83D\uDD14 Voce foi escalado(a)!\n\n\uD83D\uDCC5 *'+fmtDate(day.date)+' \u2014 '+day.label+'*\n\uD83C\uDFAD Funcao: *'+mem.role+'*\n\nPor favor confirme sua presenca no app:\n'+APP_URL+'\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');
+      },400);
+    }
   });
 }
 
@@ -1654,7 +1666,9 @@ function renderPedidos(){
     var acts='';
     if(p.status==='pending'&&isL)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'approved\')">&#10003; Aprovar</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">&#10007; Recusar</button></div>';
     else if(p.status==='aguardando_sub'&&isSub)acts='<div style="display:flex;gap:7px;margin-top:9px;"><button class="btn bgreen bsm" style="flex:1;justify-content:center;" onclick="aceitarSub('+i+')">&#10003; Aceito</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="recusarSub('+i+')">&#10007; Recuso</button></div>';
-    return '<div class="rcard '+(p.tipo==='sub'?'sub':'aus')+'">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><strong style="font-size:.84rem;">'+(p.tipo==='sub'?'Substituicao':'Ausencia')+' &#8212; '+p.solicitante+'</strong><span class="sb '+stCls+'">'+stTxt+'</span></div>'+'<p style="font-size:.74rem;color:var(--cream2);opacity:.62;">'+p.culto+' &middot; '+p.role+'</p>'+(p.tipo==='sub'&&p.substituto?'<p style="font-size:.72rem;opacity:.52;margin-top:2px;">Substituto: '+p.substituto+'</p>':'')+'<p style="font-size:.71rem;opacity:.46;margin-top:2px;">Motivo: '+(p.motivo||'-')+'</p>'+acts+'</div>';
+    else if(p.status==='aguardando_sub'&&isL)acts='<div style="margin-top:10px;"><div style="font-size:.64rem;color:rgba(201,168,76,.55);margin-bottom:6px;padding:5px 8px;background:rgba(201,168,76,.06);border-radius:6px;border-left:2px solid rgba(201,168,76,.3);">&#9888; Substituto ainda nao respondeu no app</div><div style="display:flex;gap:7px;"><button class="btn bgold bsm" style="flex:1;justify-content:center;" onclick="liderAutorizarSub('+i+')">&#9997; Autorizar como Lider</button><button class="btn bred bsm" style="flex:1;justify-content:center;" onclick="respPedido('+i+',\'denied\')">&#10007; Cancelar</button></div></div>';
+    var liderTag=p.autorizadoPorLider?'<span style="font-size:.6rem;background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.35);padding:1px 6px;border-radius:7px;margin-left:5px;">&#9997; Lider</span>':'';
+    return '<div class="rcard '+(p.tipo==='sub'?'sub':'aus')+'">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;"><strong style="font-size:.84rem;">'+(p.tipo==='sub'?'Substituicao':'Ausencia')+' &#8212; '+p.solicitante+'</strong><span class="sb '+stCls+'">'+stTxt+liderTag+'</span></div>'+'<p style="font-size:.74rem;color:var(--cream2);opacity:.62;">'+p.culto+' &middot; '+p.role+'</p>'+(p.tipo==='sub'&&p.substituto?'<p style="font-size:.72rem;opacity:.52;margin-top:2px;">Substituto: '+p.substituto+'</p>':'')+'<p style="font-size:.71rem;opacity:.46;margin-top:2px;">Motivo: '+(p.motivo||'-')+'</p>'+acts+'</div>';
   }).join('');
 }
 function respPedido(idx,resp){
@@ -1668,10 +1682,58 @@ function respPedido(idx,resp){
     });
   }
   S.notifs.unshift({id:Date.now(),icon:resp==='approved'?'&#9989;':'&#10060;',text:'Pedido de <strong>'+p.solicitante+'</strong> foi <strong>'+(resp==='approved'?'aprovado':'recusado')+'</strong>'+(resp==='approved'&&p.tipo==='sub'&&p.substituto?' &#8212; <strong>'+p.substituto+'</strong> assumiu.':'')+'.',time:nowStr(),unread:true});
-  saveAll().then(function(){toast(resp==='approved'?'Aprovado!':'Recusado.');renderAll();updateBadge();});
+  saveAll().then(function(){toast(resp==='approved'?'Aprovado!':'Recusado.');renderAll();updateBadge();
+    // Notifica o solicitante via WhatsApp
+    var solicitante=S.members.find(function(x){return String(x.id)===String(p.solicitanteId);});
+    if(solicitante&&solicitante.phone&&solicitante.phone.length>=10){
+      var emoji=resp==='approved'?'\u2705':'\u274C';
+      var acao=resp==='approved'?'APROVADO':'RECUSADO';
+      var msgSol=emoji+' *Seu pedido foi '+acao+'*\n\n\uD83D\uDCC5 '+p.culto+(resp==='approved'&&p.tipo==='sub'&&p.substituto?'\n\uD83D\uDD04 Substituto: *'+p.substituto+'*':'');
+      setTimeout(function(){window.open('https://wa.me/55'+solicitante.phone+'?text='+encodeURIComponent('\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n'+msgSol+'\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');},300);
+    }
+    // Notifica o substituto se aprovado
+    if(resp==='approved'&&p.tipo==='sub'&&p.substitutoId){
+      var sub=S.members.find(function(x){return String(x.id)===String(p.substitutoId);});
+      if(sub&&sub.phone&&sub.phone.length>=10){
+        setTimeout(function(){window.open('https://wa.me/55'+sub.phone+'?text='+encodeURIComponent('\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n\uD83D\uDD04 *Sua substituicao foi confirmada!*\n\n\uD83D\uDCC5 '+p.culto+'\nVoce esta escalado(a) no lugar de *'+p.solicitante+'*.\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');},1700);
+      }
+    }
+  });
 }
-function aceitarSub(idx){S.pedidos[idx].status='pending';S.notifs.unshift({id:Date.now(),icon:'&#129309;',text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Aceito! Aguardando lider.');renderPedidos();updateBadge();});}
-function recusarSub(idx){S.pedidos[idx].status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou substituir <strong>'+S.pedidos[idx].solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Recusado.');renderPedidos();updateBadge();});}
+function aceitarSub(idx){
+  var p=S.pedidos[idx];
+  p.status='pending';
+  S.notifs.unshift({id:Date.now(),icon:'&#129309;',text:'<strong>'+CU.name+'</strong> aceitou a troca com <strong>'+p.solicitante+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('Aceito! Aguardando lider.');renderPedidos();updateBadge();
+    notifLideres('\uD83E\uDD1D *'+CU.name+'* aceitou substituir *'+p.solicitante+'*\n\uD83D\uDCC5 '+p.culto+'\n\n\u23F3 Aguardando sua aprovacao.', null);
+  });
+}
+function recusarSub(idx){var p=S.pedidos[idx];p.status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou substituir <strong>'+p.solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Recusado.');renderPedidos();updateBadge();notifLideres('\u274C *'+CU.name+'* recusou substituir *'+p.solicitante+'*\n\uD83D\uDCC5 '+p.culto+'\n\n\u26A0\uFE0F A vaga ainda nao foi coberta.',null);});}
+function liderAutorizarSub(idx){
+  var p=S.pedidos[idx];
+  if(!confirm('Autorizar substituicao de '+p.solicitante+' por '+p.substituto+' em '+p.culto+'?\n\nIsso aprovara a troca sem aguardar a confirmacao do substituto.'))return;
+  p.status='approved';
+  p.autorizadoPorLider=true;
+  S.escala.forEach(function(day){
+    if(String(day.id)===String(p.cultoId)||fmtDate(day.date)+' \u2014 '+day.label===p.culto||(p.culto&&p.culto.indexOf(day.label)>=0)){
+      var mi=day.membros.findIndex(function(m){return String(m.id)===String(p.solicitanteId)||m.name===p.solicitante;});
+      if(mi>=0){var sub=S.members.find(function(x){return String(x.id)===String(p.substitutoId);});if(sub)day.membros[mi]={id:sub.id,name:sub.name,role:day.membros[mi].role,status:'confirmed'};}
+    }
+  });
+  S.notifs.unshift({id:Date.now(),icon:'&#9997;',text:'Lider <strong>'+CU.name+'</strong> autorizou substituicao de <strong>'+p.solicitante+'</strong> por <strong>'+p.substituto+'</strong> em '+p.culto+'.',time:nowStr(),unread:true});
+  saveAll().then(function(){toast('\u270F\uFE0F Substituicao autorizada pelo lider!');renderAll();updateBadge();
+    // Notifica solicitante
+    var solicitante=S.members.find(function(x){return String(x.id)===String(p.solicitanteId);});
+    if(solicitante&&solicitante.phone&&solicitante.phone.length>=10){
+      setTimeout(function(){window.open('https://wa.me/55'+solicitante.phone+'?text='+encodeURIComponent('\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n\u2705 *Sua substituicao foi autorizada pelo lider!*\n\n\uD83D\uDCC5 '+p.culto+'\n\uD83D\uDD04 Substituto: *'+p.substituto+'*\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');},300);
+    }
+    // Notifica substituto
+    var sub=S.members.find(function(x){return String(x.id)===String(p.substitutoId);});
+    if(sub&&sub.phone&&sub.phone.length>=10){
+      setTimeout(function(){window.open('https://wa.me/55'+sub.phone+'?text='+encodeURIComponent('\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n\uD83D\uDD04 *Voce foi escalado(a) como substituto!*\n\n\uD83D\uDCC5 '+p.culto+'\nVoce esta no lugar de *'+p.solicitante+'*.\n\n_Autorizado pelo lider._\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');},1700);
+    }
+  });
+}
 
 function sendPedido(){
   var cultoEl=document.getElementById('ped-culto');
@@ -1730,6 +1792,20 @@ function notificarPedidoTroca(tipo, culto, subId, subNome, motivo){
       setTimeout(function(){window.open('https://wa.me/55'+lider.phone+'?text='+encodeURIComponent(txt),'_blank');},i*1500);
     });
   },tipo==='sub'&&subId?1800:300);
+}
+
+// ─── Notificações WhatsApp para líderes ───────────────────────────────────────
+// Envia msg para todos os líderes (exceto quem gerou o evento, se passado)
+function notifLideres(msg, excludeId){
+  var lideres=S.members.filter(function(m){
+    return m.profile==='lider' && m.phone && m.phone.length>=10 && (!excludeId||String(m.id)!==String(excludeId));
+  });
+  var header='\uD83C\uDFA5 *MINISTERIO DE MIDIA*\n\n';
+  lideres.forEach(function(lider,i){
+    setTimeout(function(){
+      window.open('https://wa.me/55'+lider.phone+'?text='+encodeURIComponent(header+msg+'\n\n\uD83D\uDD17 '+APP_URL+'\n\n\uD83D\uDE4F _Ministerio de Midia_'),'_blank');
+    }, i*1400);
+  });
 }
 
 function renderEquipe(){
