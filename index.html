@@ -319,11 +319,34 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <div id="notifs-list"></div>
     <div id="admin-notifs" style="display:none;">
       <div class="hdiv"></div>
-      <p class="stitle">Enviar Aviso</p>
+      <p class="stitle">Enviar Comunicado</p>
       <div class="card">
         <div class="fg2"><label class="fl2">Destinatario</label><select class="fs2" id="notif-dest"></select></div>
-        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Mensagem</label><input class="fi2" id="notif-msg" placeholder="Digite o aviso..."></div>
-        <button class="btn bgold bblock" style="margin-top:12px;" onclick="sendAviso()">Enviar Aviso</button>
+        <div class="fg2" style="margin-bottom:0;"><label class="fl2">Mensagem</label><input class="fi2" id="notif-msg" placeholder="Digite o comunicado..."></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn bgold" style="flex:1;justify-content:center;" onclick="sendAviso()">&#128276; Salvar no App</button>
+          <button class="btn" style="flex:1;justify-content:center;background:#25D366;color:#fff;border:none;" onclick="sendAvisoCallMeBot()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            &nbsp;&#9889; Enviar Agora
+          </button>
+        </div>
+        <p style="font-size:.63rem;color:var(--cream2);opacity:.38;margin-top:8px;line-height:1.5;text-align:center;">&#9889; "Enviar Agora" usa CallMeBot — chega direto no WhatsApp dos líderes configurados.</p>
+      </div>
+
+      <!-- CallMeBot Config -->
+      <div class="hdiv"></div>
+      <p class="stitle">&#9889; CallMeBot — Notificações Automáticas</p>
+      <div class="card">
+        <div style="background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.25);border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:.72rem;color:#58d68d;line-height:1.7;">
+          <strong>Como ativar (cada líder faz 1 vez):</strong><br>
+          1. Adicione <strong>+34 644 62 87 25</strong> nos contatos<br>
+          2. Mande: <strong>I allow callmebot to send me messages</strong><br>
+          3. Aguarde a resposta com sua <strong>API Key</strong><br>
+          4. Cadastre abaixo o número + API Key
+        </div>
+        <div id="cmb-destinatarios-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+        <button class="btn bgold" style="width:100%;justify-content:center;" onclick="openMo('mo-cmb-add')">+ Adicionar Destinatário</button>
+        <div id="cmb-status-geral" style="display:none;margin-top:10px;font-size:.72rem;text-align:center;"></div>
       </div>
     </div>
   </div>
@@ -1179,7 +1202,7 @@ function doLogin(){
     CU=m;sessionStorage.setItem('mm_cu',JSON.stringify({id:m.id}));
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
-    updateHeader();renderAll();startPolling();
+    updateHeader();renderAll();startPolling();cmbInicializar();
     setTimeout(verificarBannerEscala,1500);
   });
 }
@@ -1241,7 +1264,7 @@ function doLoginEmergencia(){
 }
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
 function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='escala'){_mesOffset=0;renderEscala();}if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
-function renderAll(){renderEscala();renderCardPendentes();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();}
+function renderAll(){renderEscala();renderCardPendentes();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();carregarGrupoWA();}
 function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
 function excluirCulto(dayId,event){
@@ -1592,6 +1615,8 @@ function respPresenca(dayId,memId,status){
     var emoji=status==='confirmed'?'\u2705':'\u274C';
     var acao=status==='confirmed'?'confirmou presenca':'RECUSOU presenca';
     notifLideres(emoji+' *'+CU.name+'* '+acao+' em:\n\uD83D\uDCC5 *'+fmtDate(day.date)+' \u2014 '+day.label+'*\nFuncao: '+m.role, CU.id);
+    // Notifica grupo sobre resposta (se grupo configurado)
+    notifGrupoResposta(CU.name, status, day.date, day.label, m.role);
   });
 }
 function autoCheckNotify(dayId){
@@ -1755,6 +1780,10 @@ function sendPedido(){
     setTimeout(function(){
       notificarPedidoTroca(tipo, cultoTxt, subId, subNome, motivo);
     }, 500);
+    // Notifica grupo sobre pedido de substituição
+    setTimeout(function(){
+      notifGrupoSub(CU.name, cultoTxt, CU.role, tipo==='sub'?subNome:null);
+    }, 2500);
   });
 }
 
@@ -1903,6 +1932,212 @@ function sendAviso(){
   saveAll().then(function(){document.getElementById('notif-msg').value='';toast('Aviso enviado!');updateBadge();});
 }
 
+// ═══════════════════════════════════════════════════════════════
+// CALLMEBOT — Sistema de Notificações Automáticas via WhatsApp
+// ═══════════════════════════════════════════════════════════════
+
+// Carrega lista de destinatários do localStorage
+function cmbGetDestinatarios(){
+  try{ return JSON.parse(localStorage.getItem('cmb_destinatarios')||'[]'); }
+  catch(e){ return []; }
+}
+function cmbSetDestinatarios(lista){
+  localStorage.setItem('cmb_destinatarios', JSON.stringify(lista));
+}
+
+// Pré-carrega o destinatário padrão do líder se ainda não estiver salvo
+function cmbInicializar(){
+  var lista = cmbGetDestinatarios();
+  var jaTemPadrao = lista.find(function(d){ return d.phone==='553193800471'; });
+  if(!jaTemPadrao){
+    lista.unshift({nome:'Líder Principal', phone:'553193800471', apikey:'1258409'});
+    cmbSetDestinatarios(lista);
+  }
+}
+
+// Envia mensagem via CallMeBot para UM destinatário
+async function cmbEnviarUm(phone, apikey, texto){
+  var url = 'https://api.callmebot.com/whatsapp.php'
+    +'?phone='+encodeURIComponent(phone)
+    +'&apikey='+encodeURIComponent(apikey)
+    +'&text='+encodeURIComponent(texto);
+  try{
+    await fetch(url, {mode:'no-cors'});
+    return true;
+  } catch(e){
+    console.warn('CallMeBot erro:', e);
+    return false;
+  }
+}
+
+// Envia para TODOS os destinatários cadastrados
+async function cmbEnviarTodos(texto){
+  var lista = cmbGetDestinatarios();
+  if(!lista.length) return false;
+  var resultados = await Promise.all(lista.map(function(d){
+    return cmbEnviarUm(d.phone, d.apikey, texto);
+  }));
+  return resultados.some(Boolean);
+}
+
+// Renderiza lista de destinatários na tela
+function cmbRenderLista(){
+  var lista = cmbGetDestinatarios();
+  var el = document.getElementById('cmb-destinatarios-lista');
+  if(!el) return;
+  if(!lista.length){
+    el.innerHTML = '<div style="font-size:.72rem;color:var(--cream2);opacity:.5;text-align:center;padding:10px;">Nenhum destinatário cadastrado ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.map(function(d, i){
+    return '<div style="display:flex;align-items:center;gap:10px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:9px;padding:10px 12px;">'
+      +'<div style="font-size:1.3rem;">📱</div>'
+      +'<div style="flex:1;">'
+        +'<div style="font-size:.82rem;color:var(--cream);font-weight:700;">'+d.nome+'</div>'
+        +'<div style="font-size:.65rem;color:var(--cream2);opacity:.55;">+'+d.phone+' · Key: ****'+d.apikey.slice(-3)+'</div>'
+      +'</div>'
+      +'<button onclick="cmbRemover('+i+')" style="background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.4);color:#ec7063;border-radius:6px;padding:3px 9px;font-size:.65rem;font-weight:700;cursor:pointer;font-family:\'Nunito\',sans-serif;">✕</button>'
+    +'</div>';
+  }).join('');
+}
+
+function cmbSalvarDestinatario(){
+  var nome   = document.getElementById('cmb-add-nome').value.trim();
+  var phone  = document.getElementById('cmb-add-phone').value.replace(/\D/g,'');
+  var apikey = document.getElementById('cmb-add-apikey').value.trim();
+  var erro   = document.getElementById('cmb-add-erro');
+  if(!nome){ erro.textContent='Informe o nome.'; erro.style.display='block'; return; }
+  if(phone.length < 12){ erro.textContent='Número inválido. Use DDI+DDD+número (Ex: 5593991234567).'; erro.style.display='block'; return; }
+  if(!apikey){ erro.textContent='Informe a API Key do CallMeBot.'; erro.style.display='block'; return; }
+  erro.style.display='none';
+  var lista = cmbGetDestinatarios();
+  // Verifica duplicado
+  if(lista.find(function(d){ return d.phone===phone; })){
+    erro.textContent='Este número já está cadastrado.'; erro.style.display='block'; return;
+  }
+  lista.push({nome:nome, phone:phone, apikey:apikey});
+  cmbSetDestinatarios(lista);
+  document.getElementById('cmb-add-nome').value='';
+  document.getElementById('cmb-add-phone').value='';
+  document.getElementById('cmb-add-apikey').value='';
+  closeMo('mo-cmb-add');
+  cmbRenderLista();
+  toast('✅ '+nome+' adicionado! Envie uma mensagem de teste.');
+}
+
+function cmbRemover(idx){
+  var lista = cmbGetDestinatarios();
+  if(!confirm('Remover '+lista[idx].nome+' das notificações?')) return;
+  lista.splice(idx,1);
+  cmbSetDestinatarios(lista);
+  cmbRenderLista();
+  toast('Destinatário removido.');
+}
+
+async function cmbTestarDestinatario(){
+  var phone  = document.getElementById('cmb-add-phone').value.replace(/\D/g,'');
+  var apikey = document.getElementById('cmb-add-apikey').value.trim();
+  var erro   = document.getElementById('cmb-add-erro');
+  if(phone.length < 12 || !apikey){
+    erro.textContent='Preencha o número e a API Key antes de testar.'; erro.style.display='block'; return;
+  }
+  erro.style.display='none';
+  toast('⚡ Enviando mensagem de teste...');
+  await cmbEnviarUm(phone, apikey, '🎙 *MINISTÉRIO DE MÍDIA*\n\n✅ Teste bem-sucedido! Notificações automáticas ativas.\n\n🙏 _Ministério de Mídia_');
+  toast('✅ Mensagem enviada! Verifique o WhatsApp.');
+}
+
+// Envio de comunicado manual via CallMeBot
+async function sendAvisoCallMeBot(){
+  var msg = document.getElementById('notif-msg').value.trim();
+  if(!msg){ toast('Digite uma mensagem primeiro.'); return; }
+  var destEl = document.getElementById('notif-dest');
+  var dest   = destEl.options[destEl.selectedIndex] ? destEl.options[destEl.selectedIndex].text : 'Equipe';
+  var lista  = cmbGetDestinatarios();
+  if(!lista.length){
+    toast('⚠️ Nenhum destinatário cadastrado. Configure em Avisos → CallMeBot.');
+    return;
+  }
+  var texto = '🎙 *MINISTÉRIO DE MÍDIA*\n\n📣 *Comunicado — '+dest+'*\n\n'+msg+'\n\n_'+nowStr()+'_\n🙏 _Ministério de Mídia_';
+  toast('⚡ Enviando para '+lista.length+' destinatário(s)...');
+  await cmbEnviarTodos(texto);
+  toast('✅ Comunicado enviado via WhatsApp!');
+}
+
+// ─── Notificações automáticas CallMeBot ──────────────────────────────────────
+
+// Ações do LÍDER — mostra modal para revisar antes de repassar ao grupo
+function getMeuPhone(){ return CU&&CU.phone&&CU.phone.length>=10?CU.phone:null; }
+
+function abrirModalComunicado(eventoLabel, mensagem){
+  document.getElementById('wa-grupo-evento-badge').textContent='📣 '+eventoLabel;
+  document.getElementById('wa-grupo-msg').value=mensagem;
+  var aviso=document.getElementById('wa-grupo-sem-link');
+  if(aviso){ aviso.style.display='none'; }
+  openMo('mo-wa-grupo');
+}
+
+function executarEnvioGrupo(){
+  var msg=document.getElementById('wa-grupo-msg').value.trim();
+  if(!msg){toast('Mensagem vazia.');return;}
+  var phone=getMeuPhone();
+  var url=phone
+    ?'https://wa.me/55'+phone+'?text='+encodeURIComponent(msg)
+    :'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+  closeMo('mo-wa-grupo');
+}
+
+function sendAvisoGrupoWA(){
+  var msg=document.getElementById('notif-msg').value.trim();
+  if(!msg){toast('Digite uma mensagem primeiro.');return;}
+  var destEl=document.getElementById('notif-dest');
+  var dest=destEl.options[destEl.selectedIndex]?destEl.options[destEl.selectedIndex].text:'Equipe';
+  var texto='🎙 *MINISTÉRIO DE MÍDIA*\n\n📣 *Comunicado — '+dest+'*\n\n'+msg+'\n\n_'+nowStr()+'_\n🙏 _Ministério de Mídia_';
+  abrirModalComunicado('Comunicado Manual', texto);
+}
+
+// Novo culto (ação do líder → modal para repassar)
+function notifGrupoNovoCulto(date, label, membros){
+  var membrosStr=membros.length
+    ?membros.map(function(m){return '  • '+m.name+' — '+m.role;}).join('\n')
+    :'  Inscrição aberta para todos';
+  var txt='🎙 *MINISTÉRIO DE MÍDIA*\n\n📅 *Novo culto adicionado!*\n\n📌 *'+fmtDate(date)+' — '+label+'*\n\n👥 *Equipe escalada:*\n'+membrosStr+'\n\n✅ Confirme sua presença:\n'+APP_URL+'\n\n🙏 _Ministério de Mídia_';
+  abrirModalComunicado('Novo Culto Adicionado', txt);
+}
+
+// Culto editado (ação do líder → modal para repassar)
+function notifGrupoAlteracaoCulto(date, nomeNovo, horaNova){
+  var txt='🎙 *MINISTÉRIO DE MÍDIA*\n\n✏️ *Culto atualizado!*\n\n📅 Data: *'+fmtDate(date)+'*\n🎙 Nome: *'+nomeNovo+'*\n🕐 Horário: *'+horaNova+'h*\n\nVerifique a escala:\n'+APP_URL+'\n\n🙏 _Ministério de Mídia_';
+  abrirModalComunicado('Alteração de Culto', txt);
+}
+
+// Membro confirmou/recusou → CallMeBot automático para todos os líderes
+function notifGrupoResposta(memNome, status, date, label, role){
+  var emoji = status==='confirmed'?'✅':'❌';
+  var acao  = status==='confirmed'?'confirmou presença':'recusou presença';
+  var txt = '🎙 *MINISTÉRIO DE MÍDIA*\n\n'+emoji+' *'+memNome+'* '+acao+' em:\n📅 *'+fmtDate(date)+' — '+label+'*\n🎭 Função: '+role+'\n\n'+APP_URL+'\n\n🙏 _Ministério de Mídia_';
+  setTimeout(function(){ cmbEnviarTodos(txt); }, 600);
+}
+
+// Vaga em aberto → CallMeBot automático para todos os líderes
+function notifGrupoVaga(date, label, role){
+  var txt = '🎙 *MINISTÉRIO DE MÍDIA*\n\n🔔 *Vaga em aberto!*\n\n📅 *'+fmtDate(date)+' — '+label+'*\n🎭 Função: *'+role+'*\n\nAlguém pode cobrir?\n'+APP_URL+'\n\n🙏 _Ministério de Mídia_';
+  cmbEnviarTodos(txt);
+}
+
+// Pedido de substituição → CallMeBot automático para todos os líderes
+function notifGrupoSub(solicitante, culto, role, substituto){
+  var txt = '🎙 *MINISTÉRIO DE MÍDIA*\n\n🔄 *Pedido de substituição*\n\n👤 Membro: *'+solicitante+'*\n📅 Culto: *'+culto+'*\n🎭 Função: *'+role+'*\n'+(substituto?'🔁 Substituto: *'+substituto+'*\n':'')+'\nAprovar no app:\n'+APP_URL+'\n\n🙏 _Ministério de Mídia_';
+  setTimeout(function(){ cmbEnviarTodos(txt); }, 2500);
+}
+
+// Manter compatibilidade
+function enviarParaLider(msg){ cmbEnviarTodos(msg); }
+function carregarGrupoWA(){ cmbRenderLista(); }
+function getPhoneLiderPrincipal(){ return getMeuPhone(); }
+
+
 function addCulto(){
   var date=document.getElementById('nd-date').value;
   var label=document.getElementById('nd-label').value.trim();
@@ -1928,6 +2163,8 @@ function addCulto(){
         abrirConfirmNotificacao(membrosEsc,date,label);
       },400);
     }
+    // Notifica grupo WhatsApp sobre novo culto
+    setTimeout(function(){notifGrupoNovoCulto(date,label,membrosEsc);},membrosEsc.length>0&&modo!=='aberto'?2200:400);
   });
 }
 
@@ -2057,7 +2294,10 @@ function enviarWaEscala(){
   var url=phone?'https://wa.me/55'+phone+'?text='+encodeURIComponent(txt):'https://wa.me/?text='+encodeURIComponent(txt);
   window.open(url,'_blank');closeMo('mo-wa-escala');
 }
-function waVaga(date,label,role){window.open('https://wa.me/?text='+encodeURIComponent('\uD83C\uDFA5 MINISTERIO DE MIDIA \u2014 VAGA EM ABERTO\n\n\uD83D\uDCC5 '+fmtDate(date)+' \u2014 '+label+'\nFuncao: '+role+'\n\nAlguem pode cobrir?\n'+APP_URL),'_blank');}
+function waVaga(date,label,role){
+  notifGrupoVaga(date,label,role);
+  window.open('https://wa.me/?text='+encodeURIComponent('\uD83C\uDFA5 MINISTERIO DE MIDIA \u2014 VAGA EM ABERTO\n\n\uD83D\uDCC5 '+fmtDate(date)+' \u2014 '+label+'\nFuncao: '+role+'\n\nAlguem pode cobrir?\n'+APP_URL),'_blank');
+}
 function waNotifyCultoCompleto(day){window.open('https://wa.me/?text='+encodeURIComponent('\uD83C\uDFA5 MINISTERIO DE MIDIA\n\n\u2705 Escala confirmada!\n\n\uD83D\uDCC5 '+fmtDate(day.date)+' \u2014 '+day.label+'\n\n'+day.membros.map(function(m){return '\u2705 '+m.name+' \u2014 '+m.role;}).join('\n')),'_blank');}
 
 // PARSER
@@ -2464,6 +2704,8 @@ function salvarNomeCulto(){
     closeMo('mo-edit-culto');
     toast('Culto atualizado!');
     renderEscala();
+    // Notifica grupo sobre alteração
+    setTimeout(function(){notifGrupoAlteracaoCulto(day.date, nome, hora);},400);
   });
 }
 
@@ -3703,7 +3945,59 @@ if('serviceWorker' in navigator){
   </div>
 </div>
 
-<!-- Banner de nova versão disponível -->
+<!-- MODAL COMUNICADO GRUPO WHATSAPP -->
+<div class="mo" id="mo-wa-grupo" onclick="closeMo('mo-wa-grupo')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;">
+    <div class="mhandle"></div>
+    <div class="mtitle" style="display:flex;align-items:center;gap:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Comunicado para Você
+    </div>
+    <div id="wa-grupo-evento-badge" style="font-size:.68rem;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:8px;padding:5px 10px;margin-bottom:12px;color:#58d68d;"></div>
+    <label class="mfl">Mensagem para o Grupo</label>
+    <textarea id="wa-grupo-msg" class="mfi" rows="7" style="height:180px;resize:vertical;font-size:.76rem;font-family:monospace;line-height:1.6;white-space:pre-wrap;"></textarea>
+    <p style="font-size:.64rem;color:var(--cream2);opacity:.42;margin-bottom:14px;margin-top:-8px;">&#9998; Edite a mensagem antes de enviar se quiser.</p>
+    <div id="wa-grupo-sem-link" style="display:none;background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.35);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.72rem;color:#f39c12;line-height:1.6;">
+      &#9888; Nenhum grupo configurado. O WhatsApp abrirá para você escolher o destino.<br>
+      <span style="opacity:.75;">Configure o link do grupo em <strong>Avisos → Grupo do WhatsApp</strong> para envio direto.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <button class="btn" style="width:100%;justify-content:center;background:#25D366;color:#fff;border:none;font-size:.88rem;" onclick="executarEnvioGrupo()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        &nbsp;Enviar para o Meu WhatsApp
+      </button>
+      <p style="font-size:.63rem;color:var(--cream2);opacity:.4;text-align:center;margin-top:6px;line-height:1.5;">&#128241; Vai direto para você — repasse para quem quiser.</p>
+      <button class="btn bout" style="width:100%;justify-content:center;color:var(--cream2);border-color:rgba(255,255,255,.2);" onclick="closeMo('mo-wa-grupo')">Agora não</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL CALLMEBOT — ADICIONAR DESTINATÁRIO -->
+<div class="mo" id="mo-cmb-add" onclick="closeMo('mo-cmb-add')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">&#9889; Adicionar Destinatário</div>
+    <p style="font-size:.75rem;color:var(--cream2);opacity:.7;margin-bottom:14px;line-height:1.6;">Cadastre o número e a API Key que o CallMeBot enviou por WhatsApp.</p>
+    <label class="mfl">Nome (Ex: Pastor João)</label>
+    <input type="text" class="mfi" id="cmb-add-nome" placeholder="Nome do líder">
+    <label class="mfl">Número com DDI+DDD (Ex: 5593991234567)</label>
+    <input type="tel" class="mfi" id="cmb-add-phone" placeholder="5593991234567" inputmode="numeric">
+    <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin:-8px 0 12px;line-height:1.5;">&#128161; Sempre começa com <strong style="color:var(--gold);">55</strong> + DDD + número. Ex: <strong style="color:var(--gold);">5593991234567</strong></p>
+    <label class="mfl">API Key do CallMeBot</label>
+    <input type="text" class="mfi" id="cmb-add-apikey" placeholder="Ex: 1234567">
+    <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin:-8px 0 14px;line-height:1.5;">&#128161; A API Key chegou por WhatsApp do número <strong style="color:var(--gold);">+34 644 62 87 25</strong></p>
+    <div id="cmb-add-erro" style="display:none;color:#e74c3c;font-size:.72rem;margin-bottom:10px;"></div>
+    <div class="macts">
+      <button class="btn bout" onclick="closeMo('mo-cmb-add')">Cancelar</button>
+      <button class="btn bgold" onclick="cmbSalvarDestinatario()">&#10003; Salvar</button>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn bout bsm" style="width:100%;justify-content:center;" onclick="cmbTestarDestinatario()">&#128225; Testar Conexão</button>
+    </div>
+  </div>
+</div>
+
 <div id="update-banner" style="
   display:none;
   position:fixed;
