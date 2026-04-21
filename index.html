@@ -960,7 +960,7 @@ var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
 var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
-async function cloudGet(){try{var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'}});if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
+async function cloudGet(){try{var ctrl=new AbortController();var tid=setTimeout(function(){ctrl.abort();},8000);var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'},signal:ctrl.signal});clearTimeout(tid);if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
 async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
 
 // ── ImgBB para fotos dos artigos ──────────────────────────────
@@ -3424,6 +3424,8 @@ window.addEventListener('load',function(){
   var cloudDone=false;
   var splashHidden=false;function checkHideSplash(){if(splashMinDone&&cloudDone&&!splashHidden){splashHidden=true;hideSplash();}}
   setTimeout(function(){splashMinDone=true;checkHideSplash();},1800);
+  // Fallback de emergência: garante que a splash SEMPRE desapareça em 10s
+  setTimeout(function(){if(!splashHidden){cloudDone=true;splashMinDone=true;checkHideSplash();}},10000);
 
   var saved=sessionStorage.getItem('mm_cu');
   if(saved){
