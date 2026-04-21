@@ -940,7 +940,34 @@ var BIN_URL='https://api.jsonbin.io/v3/b/69e7466eaaba8821972049a1';
 var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
-async function cloudGet(){try{var ctrl=new AbortController();var tid=setTimeout(function(){ctrl.abort();},8000);var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'},signal:ctrl.signal});clearTimeout(tid);if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
+async function cloudGet(tentativas){
+  tentativas=tentativas||0;
+  try{
+    var ctrl=new AbortController();
+    // Timeout aumentado para 15s (antes era 8s) — melhor para redes móveis lentas
+    var tid=setTimeout(function(){ctrl.abort();},15000);
+    var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'},signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!r.ok){
+      // Retry automático em caso de erro temporário (até 2 tentativas)
+      if(tentativas<2){
+        await new Promise(function(res){setTimeout(res,3000);});
+        return cloudGet(tentativas+1);
+      }
+      setOnline(false);return null;
+    }
+    var j=await r.json();
+    setOnline(true);
+    return j.record!==undefined?j.record:j;
+  }catch(e){
+    // Retry em caso de timeout/rede instável
+    if(tentativas<2){
+      await new Promise(function(res){setTimeout(res,3000);});
+      return cloudGet(tentativas+1);
+    }
+    setOnline(false);return null;
+  }
+}
 async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
 
 // ── ImgBB para fotos dos artigos ──────────────────────────────
@@ -1156,8 +1183,27 @@ async function ntfy(titulo,msg){
   }catch(e){console.warn('Ntfy erro:',e);}
 }
 
-function startPolling(){setInterval(async function(){if(!CU||_salvando)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){// mescla URLs de fotos que já estão em memória (não sobrescreve com versão sem fotos da nuvem durante save)
-d.artigos.forEach(function(na){var old=S.artigos.find(function(x){return x.id===na.id;});if(old){if(!na.fotos||!na.fotos.length){na.fotos=old.fotos||[];na.foto=old.foto||null;}else if(!na.foto){na.foto=na.fotos[0]||null;}}});S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},60000);}
+function startPolling(){
+  var falhasConsecutivas=0;
+  setInterval(async function(){
+    if(!CU||_salvando)return;
+    var d=await cloudGet();
+    if(!d){
+      falhasConsecutivas++;
+      // Só mostra offline após 3 falhas seguidas (evita piscar online/offline em rede instável)
+      if(falhasConsecutivas>=3)setOnline(false);
+      return;
+    }
+    falhasConsecutivas=0;
+    var ch=false;
+    ['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});
+    if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){
+      d.artigos.forEach(function(na){var old=S.artigos.find(function(x){return x.id===na.id;});if(old){if(!na.fotos||!na.fotos.length){na.fotos=old.fotos||[];na.foto=old.foto||null;}else if(!na.foto){na.foto=na.fotos[0]||null;}}});
+      S.artigos=d.artigos;fotosCarregar();ch=true;
+    }
+    if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}
+  },60000);
+}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
