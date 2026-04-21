@@ -333,6 +333,26 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
         <p style="font-size:.63rem;color:var(--cream2);opacity:.38;margin-top:8px;line-height:1.5;text-align:center;">&#9889; "Enviar Agora" usa CallMeBot — chega direto no WhatsApp dos líderes configurados.</p>
       </div>
 
+      <!-- Ntfy Config -->
+      <div class="hdiv"></div>
+      <p class="stitle">🔔 Ntfy — Notificações Push (Líderes)</p>
+      <div class="card">
+        <div style="background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.25);border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:.72rem;color:#7aa8d4;line-height:1.7;">
+          <strong style="color:#fff;">Como configurar:</strong><br>
+          1. Baixe o app <strong style="color:#fff;">Ntfy</strong> na Play Store (grátis)<br>
+          2. Inscreva-se no tópico abaixo dentro do app<br>
+          3. Todos os líderes fazem isso no próprio celular
+        </div>
+        <div class="fg2">
+          <label class="fl2">Tópico Ntfy dos Líderes</label>
+          <input class="fi2" id="ntfy-topic-midia" placeholder="Ex: midia-ibc-lideres-2026" maxlength="60">
+          <p style="font-size:.65rem;color:var(--cream2);opacity:.45;margin-top:5px;">Use um nome secreto. Qualquer pessoa com esse nome pode se inscrever.</p>
+        </div>
+        <button class="btn bgold" style="width:100%;justify-content:center;" onclick="salvarNtfyMidia()">💾 Salvar Tópico</button>
+        <button class="btn bout" style="width:100%;justify-content:center;margin-top:8px;" onclick="testarNtfyMidia()">📤 Enviar Teste</button>
+        <div id="ntfy-midia-status" style="font-size:.72rem;text-align:center;margin-top:8px;min-height:16px;"></div>
+      </div>
+
       <!-- CallMeBot Config -->
       <div class="hdiv"></div>
       <p class="stitle">&#9889; CallMeBot — Notificações Automáticas</p>
@@ -1264,7 +1284,7 @@ function doLoginEmergencia(){
 }
 function updateHeader(){document.getElementById('hdr-name').textContent=CU.name;document.getElementById('hdr-badge').textContent=CU.profile==='lider'?'Lider':'Membro';document.getElementById('hdr-av').textContent=CU.name.charAt(0).toUpperCase();}
 function goPage(id,el){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');el.classList.add('active');if(id==='escala'){_mesOffset=0;renderEscala();}if(id==='minha')renderMinha();if(id==='pedidos')renderPedidos();if(id==='equipe')renderEquipe();if(id==='notifs')renderNotifs();if(id==='fones')renderFones();}
-function renderAll(){renderEscala();renderCardPendentes();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();carregarGrupoWA();}
+function renderAll(){renderEscala();renderCardPendentes();renderMinha();renderPedidos();renderEquipe();renderNotifs();renderFones();populateForms();carregarNtfyMidiaConfig();var isL=CU&&CU.profile==='lider';['admin-escala','admin-equipe','admin-notifs'].forEach(function(id){document.getElementById(id).style.display=isL?'block':'none';});updateBadge();carregarGrupoWA();}
 function updateBadge(){var u=S.notifs.filter(function(n){return n.unread;}).length;document.getElementById('tab-notifs').innerHTML='&#128276; Avisos'+(u>0?'<span class="nbadge">'+u+'</span>':'');}
 
 function excluirCulto(dayId,event){
@@ -1621,7 +1641,7 @@ function respPresenca(dayId,memId,status){
 }
 function autoCheckNotify(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
-  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();}
+  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();ntfyMidiaEnviar('🎉 Escala Completa!',fmtDate(day.date)+' — '+day.label+': todos os membros confirmaram presença! ✅');}
 }
 function abrirAddMemCulto(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
@@ -1784,6 +1804,13 @@ function sendPedido(){
     setTimeout(function(){
       notifGrupoSub(CU.name, cultoTxt, CU.role, tipo==='sub'?subNome:null);
     }, 2500);
+    // Ntfy para líderes
+    var tipoTxt = tipo==='sub' ? '🔄 Pedido de Substituição' : '⚠️ Pedido de Ausência';
+    var msgNtfy = CU.name + ' pediu ' + (tipo==='sub'?'substituição':'ausência') + ' em ' + cultoTxt;
+    if(tipo==='sub' && subNome) msgNtfy += ' — Substituto: ' + subNome;
+    if(motivo) msgNtfy += '
+Motivo: ' + motivo;
+    ntfyMidiaEnviar(tipoTxt, msgNtfy);
   });
 }
 
@@ -1825,6 +1852,47 @@ function notificarPedidoTroca(tipo, culto, subId, subNome, motivo){
 
 // ─── Notificações WhatsApp para líderes ───────────────────────────────────────
 // Envia msg para todos os líderes (exceto quem gerou o evento, se passado)
+// ===== NTFY — NOTIFICAÇÕES PUSH PARA LÍDERES =====
+function getNtfyMidiaTopic(){
+  return localStorage.getItem('ntfy_midia_topic') || '';
+}
+
+function salvarNtfyMidia(){
+  var topic = document.getElementById('ntfy-topic-midia').value.trim();
+  if(!topic){ alert('Digite o nome do tópico!'); return; }
+  localStorage.setItem('ntfy_midia_topic', topic);
+  document.getElementById('ntfy-midia-status').style.color='#58d68d';
+  document.getElementById('ntfy-midia-status').textContent='✅ Tópico salvo!';
+}
+
+async function ntfyMidiaEnviar(titulo, mensagem){
+  var topic = getNtfyMidiaTopic();
+  if(!topic) return;
+  try {
+    await fetch('https://ntfy.sh/', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic: topic, title: titulo, message: mensagem, priority: 4 })
+    });
+  } catch(e){ console.warn('Ntfy Midia erro:', e); }
+}
+
+async function testarNtfyMidia(){
+  var topic = getNtfyMidiaTopic();
+  var st = document.getElementById('ntfy-midia-status');
+  if(!topic){ st.style.color='#e74c3c'; st.textContent='⚠️ Salve o tópico primeiro!'; return; }
+  st.style.color='#7aa8d4'; st.textContent='Enviando...';
+  await ntfyMidiaEnviar('✅ Teste — Ministério de Mídia', 'Notificação de teste! O sistema está funcionando. 🎥🙏');
+  st.style.color='#58d68d'; st.textContent='✅ Enviado! Verifique o app Ntfy.';
+}
+
+// Carrega tópico salvo no campo de config
+function carregarNtfyMidiaConfig(){
+  var el = document.getElementById('ntfy-topic-midia');
+  if(el) el.value = getNtfyMidiaTopic();
+}
+
 function notifLideres(msg, excludeId){
   var lideres=S.members.filter(function(m){
     return m.profile==='lider' && m.phone && m.phone.length>=10 && (!excludeId||String(m.id)!==String(excludeId));
@@ -2165,6 +2233,9 @@ function addCulto(){
     }
     // Notifica grupo WhatsApp sobre novo culto
     setTimeout(function(){notifGrupoNovoCulto(date,label,membrosEsc);},membrosEsc.length>0&&modo!=='aberto'?2200:400);
+    // Ntfy para líderes — nova escala montada
+    var modoTxt = modo==='aberto' ? '(aberto para inscrição)' : '('+membrosEsc.length+' membros escalados)';
+    ntfyMidiaEnviar('📅 Nova Escala Montada', label + ' — ' + fmtDate(date) + ' ' + modoTxt);
   });
 }
 
