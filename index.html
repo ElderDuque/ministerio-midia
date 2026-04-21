@@ -935,8 +935,8 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
 
 <div id="toast"></div>
 <script>
-var BIN_KEY='$2a$10$FKadCIke3uWJuvYLXw1yqeOZ9YDXr3goe.nLSgiBeeit50PCKUp3S';
-var BIN_URL='https://api.jsonbin.io/v3/b/69a8de6343b1c97be9b48c0f';
+var BIN_KEY='$2a$10$ZLactEHzy.x1ryC6Shv.QujkcDC1FjFvybYHQ5FJqpToS7rhOSJji';
+var BIN_URL='https://api.jsonbin.io/v3/b/69e7466eaaba8821972049a1';
 var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
@@ -1143,8 +1143,21 @@ function seedMembers(){
 }
 
 var _salvando=false;
+// ─── NTFY — Notificações Push para Líderes ────────────────────────────────────
+var NTFY_TOPIC='midia-ibc-lideres';
+async function ntfy(titulo,msg){
+  try{
+    await fetch('https://ntfy.sh/'+NTFY_TOPIC,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title:titulo,message:msg,priority:4})
+    });
+  }catch(e){console.warn('Ntfy erro:',e);}
+}
+
 function startPolling(){setInterval(async function(){if(!CU||_salvando)return;var d=await cloudGet();if(!d)return;var ch=false;['escala','notifs','pedidos','members'].forEach(function(k){if(JSON.stringify(d[k])!==JSON.stringify(S[k])){S[k]=d[k]||S[k];ch=true;}});if(d.artigos&&JSON.stringify(d.artigos)!==JSON.stringify((S.artigos||[]).map(function(a){var c=Object.assign({},a);delete c.foto;return c;}))){// mescla URLs de fotos que já estão em memória (não sobrescreve com versão sem fotos da nuvem durante save)
-d.artigos.forEach(function(na){var old=S.artigos.find(function(x){return x.id===na.id;});if(old){if(!na.fotos||!na.fotos.length){na.fotos=old.fotos||[];na.foto=old.foto||null;}else if(!na.foto){na.foto=na.fotos[0]||null;}}});S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},8000);}
+d.artigos.forEach(function(na){var old=S.artigos.find(function(x){return x.id===na.id;});if(old){if(!na.fotos||!na.fotos.length){na.fotos=old.fotos||[];na.foto=old.foto||null;}else if(!na.foto){na.foto=na.fotos[0]||null;}}});S.artigos=d.artigos;fotosCarregar();ch=true;}if(ch){renderEscala();renderMinha();renderPedidos();updateBadge();renderArtigos();}},60000);}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});}
 function nowStr(){return 'As '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
@@ -1621,7 +1634,7 @@ function respPresenca(dayId,memId,status){
 }
 function autoCheckNotify(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
-  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();}
+  if(day.membros.length>0&&day.membros.every(function(m){return m.status==='confirmed';})){S.notifs.unshift({id:Date.now()+1,icon:'&#127881;',text:'<strong>Escala completa!</strong> Todos confirmaram: <strong>'+fmtDate(day.date)+' &#8212; '+day.label+'</strong>.',time:nowStr(),unread:true});saveAll();updateBadge();ntfy('🎉 Escala Completa!',fmtDate(day.date)+' — '+day.label+': todos confirmaram presença! ✅');}
 }
 function abrirAddMemCulto(dayId){
   var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
@@ -1678,7 +1691,7 @@ function liderConfirmarMembro(dayId, memId){
 }
 
 function inscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day||day.membros.find(function(m){return m.id===CU.id;})){toast('Ja inscrito!');return;}day.membros.push({id:CU.id,name:CU.name,role:CU.role,status:'confirmed'});S.notifs.unshift({id:Date.now(),icon:'&#128587;',text:'<strong>'+CU.name+'</strong> se inscreveu em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao confirmada!');renderAll();});}
-function desinscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;day.membros=day.membros.filter(function(m){return m.id!==CU.id;});S.notifs.unshift({id:Date.now(),icon:'&#8617;',text:'<strong>'+CU.name+'</strong> cancelou inscricao em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao cancelada.');renderAll();});}
+function desinscreverCulto(dayId){var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;day.membros=day.membros.filter(function(m){return m.id!==CU.id;});S.notifs.unshift({id:Date.now(),icon:'&#8617;',text:'<strong>'+CU.name+'</strong> cancelou inscricao em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Inscricao cancelada.');renderAll();ntfy('⚠️ Desistência',CU.name+' cancelou inscrição em '+fmtDate(day.date)+' — '+day.label);});}
 
 function renderPedidos(){
   var c=document.getElementById('pedidos-list');
@@ -1733,7 +1746,7 @@ function aceitarSub(idx){
     notifLideres('\uD83E\uDD1D *'+CU.name+'* aceitou substituir *'+p.solicitante+'*\n\uD83D\uDCC5 '+p.culto+'\n\n\u23F3 Aguardando sua aprovacao.', null);
   });
 }
-function recusarSub(idx){var p=S.pedidos[idx];p.status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou substituir <strong>'+p.solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Recusado.');renderPedidos();updateBadge();notifLideres('\u274C *'+CU.name+'* recusou substituir *'+p.solicitante+'*\n\uD83D\uDCC5 '+p.culto+'\n\n\u26A0\uFE0F A vaga ainda nao foi coberta.',null);});}
+function recusarSub(idx){var p=S.pedidos[idx];p.status='sub_recusou';S.notifs.unshift({id:Date.now(),icon:'&#10060;',text:'<strong>'+CU.name+'</strong> recusou substituir <strong>'+p.solicitante+'</strong>.',time:nowStr(),unread:true});saveAll().then(function(){toast('Recusado.');renderPedidos();updateBadge();notifLideres('\u274C *'+CU.name+'* recusou substituir *'+p.solicitante+'*\n\uD83D\uDCC5 '+p.culto+'\n\n\u26A0\uFE0F A vaga ainda nao foi coberta.',null);ntfy('❌ Substituto Recusou',CU.name+' recusou substituir '+p.solicitante+'\n📅 '+p.culto+'\n⚠️ Vaga ainda não coberta!');});}
 function liderAutorizarSub(idx){
   var p=S.pedidos[idx];
   if(!confirm('Autorizar substituicao de '+p.solicitante+' por '+p.substituto+' em '+p.culto+'?\n\nIsso aprovara a troca sem aguardar a confirmacao do substituto.'))return;
@@ -1772,6 +1785,7 @@ function sendPedido(){
   var pedStatus=(tipo==='sub'&&subId)?'aguardando_sub':'pending';
   S.pedidos.unshift({id:Date.now(),tipo:tipo,solicitante:CU.name,solicitanteId:CU.id,substitutoId:tipo==='sub'?subId:null,substituto:tipo==='sub'?subNome:null,cultoId:cultoId,culto:cultoTxt,role:CU.role,motivo:motivo,status:pedStatus});
   S.notifs.unshift({id:Date.now()+1,icon:'&#128259;',text:'<strong>'+CU.name+'</strong> pediu '+(tipo==='sub'?'substituicao':'ausencia')+' em <strong>'+cultoTxt+'</strong>.',time:nowStr(),unread:true});
+  ntfy(tipo==='sub'?'🔄 Pedido de Substituição':'⚠️ Pedido de Ausência', CU.name+' — '+cultoTxt+(motivo?'\nMotivo: '+motivo:'')+(tipo==='sub'&&subNome?'\nSubstituto: '+subNome:''));
   saveAll().then(function(){
     document.getElementById('ped-motivo').value='';
     toast(pedStatus==='aguardando_sub'?'Aguardando '+subNome+'.':'Pedido enviado!');
@@ -2154,6 +2168,7 @@ function addCulto(){
   S.escala.push({id:Date.now(),date:date,hora:hora,label:label,membros:membrosEsc,aberto:modo==='aberto'});
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
   S.notifs.unshift({id:Date.now()+1,icon:'&#128197;',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+(modo==='aberto'?' &#8212; aberto para inscricao!':'.')+'',time:nowStr(),unread:true});
+  ntfy('📅 Nova Escala', label+' — '+fmtDate(date)+(modo==='aberto'?' (aberto para inscrição!)':' ('+membrosEsc.length+' escalados)'));
   saveAll().then(function(){
     closeMo('mo-addday');
     document.getElementById('nd-date').value='';document.getElementById('nd-label').value='';document.getElementById('nd-hora').value='19:00';document.getElementById('nd-modo').value='fixo';toggleModo();
@@ -3353,7 +3368,6 @@ window.addEventListener('load',function(){
   var cloudDone=false;
   var splashHidden=false;function checkHideSplash(){if(splashMinDone&&cloudDone&&!splashHidden){splashHidden=true;hideSplash();}}
   setTimeout(function(){splashMinDone=true;checkHideSplash();},1800);
-  // Fallback emergência: splash some em 10s no máximo
   setTimeout(function(){if(!splashHidden){cloudDone=true;splashMinDone=true;checkHideSplash();}},10000);
 
   var saved=sessionStorage.getItem('mm_cu');
