@@ -940,8 +940,8 @@ var BIN_URL='https://api.jsonbin.io/v3/b/69e7466eaaba8821972049a1';
 var APP_URL='https://ministerio-midia-ehcivbz50-ejfduque-4550s-projects.vercel.app';
 
 function setOnline(ok){var el=document.getElementById('hdr-online');el.innerHTML=ok?'&#128994; online':'&#128308; offline';el.style.color=ok?'#58d68d':'#e74c3c';}
-async function cloudGet(){try{var ctrl=new AbortController();var tid=setTimeout(function(){ctrl.abort();},8000);var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'},signal:ctrl.signal});clearTimeout(tid);if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
-async function cloudSet(d){try{var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d)});if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
+async function cloudGet(){try{var ctrl=new AbortController();var tid=setTimeout(function(){ctrl.abort();},15000);var r=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':BIN_KEY,'X-Bin-Meta':'false'},signal:ctrl.signal});clearTimeout(tid);if(!r.ok){setOnline(false);return null;}var j=await r.json();setOnline(true);return j.record!==undefined?j.record:j;}catch(e){setOnline(false);return null;}}
+async function cloudSet(d){try{var ctrl2=new AbortController();var tid2=setTimeout(function(){ctrl2.abort();},15000);var r=await fetch(BIN_URL,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':BIN_KEY,'X-Bin-Versioning':'false'},body:JSON.stringify(d),signal:ctrl2.signal});clearTimeout(tid2);if(!r.ok){console.error('cloudSet erro '+r.status);}setOnline(r.ok);return r.ok;}catch(e){setOnline(false);return false;}}
 
 // ── ImgBB para fotos dos artigos ──────────────────────────────
 // Chave dividida para dificultar scraping automático por bots
@@ -1301,13 +1301,13 @@ function renderEscala(){
   var agora=new Date();
   // Calcula o mês exibido com base no offset
   var mesExib=new Date(agora.getFullYear(),agora.getMonth()+_mesOffset,1);
-  var mesExibKey=mesExib.getFullYear()+'-'+String(mesExib.getMonth()).padStart(2,'0');
-  var mesAtualKey=agora.getFullYear()+'-'+String(agora.getMonth()).padStart(2,'0');
+  var mesExibKey=mesExib.getFullYear()+'-'+String(mesExib.getMonth()+1).padStart(2,'0');
+  var mesAtualKey=agora.getFullYear()+'-'+String(agora.getMonth()+1).padStart(2,'0');
   var isMesAtual=mesExibKey===mesAtualKey;
 
   // Verificar se existem meses disponíveis antes/depois
   var chaves=[];
-  S.escala.forEach(function(day){var dt=new Date(day.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');if(chaves.indexOf(k)<0)chaves.push(k);});
+  S.escala.forEach(function(day){var dt=new Date(day.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');if(chaves.indexOf(k)<0)chaves.push(k);});
   chaves.sort();
   var temAnterior=chaves.some(function(k){return k<mesExibKey;});
   var temProximo=chaves.some(function(k){return k>mesExibKey;});
@@ -1336,15 +1336,15 @@ function renderEscala(){
     if(proxKey){
       var proxDt=new Date(proxKey+'-15T12:00:00');
       var proxNome=proxDt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-      var proxCultos=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===proxKey;});
+      var proxCultos=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');return k===proxKey;});
       var proxAberto=proxCultos.some(function(d){return d.aberto||d.membros.length===0;});
       if(btnProx){btnProx.title='Ver '+proxNome+(proxAberto?' — Inscrições abertas!':'');}
     }
   }
 
   var agora2=new Date();
-  var pend=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');if(k!==mesExibKey)return false;var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');if(pd<=agora2)return false;return d.membros.length===0||d.membros.some(function(m){return m.status==='pending';});}).length;
-  var cultosDoMes=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===mesExibKey;});
+  var pend=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');if(k!==mesExibKey)return false;var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');if(pd<=agora2)return false;return d.membros.length===0||d.membros.some(function(m){return m.status==='pending';});}).length;
+  var cultosDoMes=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');return k===mesExibKey;});
   var agora3=new Date();
   // Eventos acontecendo agora (dentro de 2h após início) não contam como realizados ainda
   var realizados=cultosDoMes.filter(function(d){var dh=d.hora||'23:59';var pd=new Date(d.date+'T'+dh+':00');var duasH=new Date(pd.getTime()+2*60*60*1000);return pd<=agora3&&agora3>=duasH;}).length;
@@ -1378,7 +1378,7 @@ function renderEscala(){
   // Filtrar cultos do mês selecionado
   var cultosMes=S.escala.filter(function(day){
     var dt=new Date(day.date+'T12:00:00');
-    var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
     return k===mesExibKey;
   });
 
@@ -1389,7 +1389,7 @@ function renderEscala(){
     if(proxKey){
       var proxDt=new Date(proxKey+'-15T12:00:00');
       var proxNome=proxDt.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-      var proxCultosList=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');return k===proxKey;});
+      var proxCultosList=S.escala.filter(function(d){var dt=new Date(d.date+'T12:00:00');var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');return k===proxKey;});
       var proxAberto=proxCultosList.some(function(d){return d.aberto||d.membros.length===0;});
       var proxTodoConfirm=proxCultosList.length>0&&proxCultosList.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status==='confirmed';});});
       var proxSemPendencias=proxCultosList.length>0&&proxCultosList.every(function(d){return d.membros.length>0&&d.membros.every(function(m){return m.status!=='pending';});});
@@ -1589,7 +1589,7 @@ function compartilharMes(key){
   var grupos={};
   S.escala.forEach(function(day){
     var dt=new Date(day.date+'T12:00:00');
-    var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
     if(!grupos[k])grupos[k]={dt:dt,days:[]};
     grupos[k].days.push(day);
   });
@@ -3621,11 +3621,11 @@ function verificarBannerEscala(){
   var diasRestantes=ultimoDiaMes.getDate()-agora.getDate();
   if(diasRestantes>4)return;
   var proxAno=agora.getMonth()===11?agora.getFullYear()+1:agora.getFullYear();
-  var proxMes=agora.getMonth()===11?0:agora.getMonth()+1;
+  var proxMes=agora.getMonth()===11?1:agora.getMonth()+2;
   var proxKey=proxAno+'-'+String(proxMes).padStart(2,'0');
   var temEscalaProxMes=S.escala.some(function(d){
     var dt=new Date(d.date+'T12:00:00');
-    var k=dt.getFullYear()+'-'+String(dt.getMonth()).padStart(2,'0');
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
     return k===proxKey;
   });
   if(temEscalaProxMes)return;
