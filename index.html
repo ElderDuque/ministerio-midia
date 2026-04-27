@@ -445,7 +445,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <label class="mfl">Nome Completo</label><input type="text" class="mfi" id="nm-nome" placeholder="Nome completo">
     <label class="mfl">Telefone com DDD</label><input type="tel" class="mfi" id="nm-tel" placeholder="Ex: 93991234567" inputmode="numeric">
     <label class="mfl">Funcao</label>
-    <select class="mfs" id="nm-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
+    <select class="mfs" id="nm-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Fotografo</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
     <label class="mfl">Perfil</label>
     <select class="mfs" id="nm-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
     <p style="font-size:.69rem;color:var(--cream2);opacity:.45;margin-bottom:4px;">Senha inicial: <strong style="color:var(--gold);">12345</strong></p>
@@ -471,7 +471,7 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     <input type="tel" class="mfi" id="em-tel" placeholder="Ex: 93991234567" inputmode="numeric">
     <p style="font-size:.68rem;color:var(--cream2);opacity:.5;margin-bottom:12px;margin-top:-8px;">Exemplo: <strong style="color:var(--gold);">93991234567</strong></p>
     <label class="mfl">Funcao</label>
-    <select class="mfs" id="em-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
+    <select class="mfs" id="em-funcao"><option>Projecao</option><option>Camera</option><option>Transmissao ao Vivo</option><option>Edicao ao Vivo</option><option>Audio</option><option>Fotografo</option><option>Lider de Midia</option><option>Assistente Tecnico</option></select>
     <label class="mfl">Perfil</label>
     <select class="mfs" id="em-perfil"><option value="membro">Membro</option><option value="lider">Lider</option></select>
     <div class="macts"><button class="btn bout" onclick="closeMo('mo-editmem')">Cancelar</button><button class="btn bgold" onclick="salvarEdicaoMembro()">Salvar</button></div>
@@ -2414,7 +2414,7 @@ function parsearEscala(texto){
   function extrairNomesLinha(linha){
     if(/^https?:\/\//.test(linha.trim()))return [];
     if(/^\d{1,2}:\d{2}/.test(linha.trim()))return [];
-    var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente).*/i,'').trim();
+    var s=linha.replace(/\s*[\u2014\-]\s*(Projecao|Camera|Audio|Transmissao|Edicao|Lider|Social|Assistente|Fotografo).*/i,'').trim();
     var nomes=[];
     s.split(/[,]|\s+[Ee]\s+/).forEach(function(p){
       p=p.replace(/\s*[\u2014\-]\s*.*/,'').trim();
