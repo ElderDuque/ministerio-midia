@@ -434,6 +434,26 @@ header{background:linear-gradient(135deg,var(--d3),var(--d2));border-bottom:2px 
     </select>
     <div id="nd-checks-wrap"><label class="mfl">Membros Escalados</label><div id="nd-checks" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div></div>
     <div id="nd-aberto-info" style="display:none;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.76rem;color:var(--cream2);">Culto aberto para inscricao livre.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:9px;padding:11px 13px;margin-bottom:14px;">
+      <div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--cream);">📷 Precisa de Fotógrafo?</div>
+        <div style="font-size:.65rem;color:var(--cream2);opacity:.55;margin-top:2px;">Habilita vaga de fotógrafo neste culto</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;">
+        <input type="checkbox" id="nd-fotografo" style="opacity:0;width:0;height:0;">
+        <span onclick="this.previousElementSibling.click()" style="position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:24px;transition:.3s;border:1px solid rgba(201,168,76,.3);">
+          <span id="nd-fotografo-knob" style="position:absolute;height:18px;width:18px;left:3px;top:2px;background:#888;border-radius:50%;transition:.3s;"></span>
+        </span>
+      </label>
+    </div>
+    <script>
+    document.getElementById('nd-fotografo').addEventListener('change',function(){
+      var knob=document.getElementById('nd-fotografo-knob');
+      var track=knob.parentElement;
+      if(this.checked){knob.style.transform='translateX(18px)';knob.style.background='#C9A84C';track.style.background='rgba(201,168,76,.25)';}
+      else{knob.style.transform='';knob.style.background='#888';track.style.background='rgba(255,255,255,.1)';}
+    });
+    </script>
     <div class="macts"><button class="btn bout" onclick="closeMo('mo-addday')">Cancelar</button><button class="btn bgold" onclick="addCulto()">Adicionar</button></div>
   </div>
 </div>
@@ -1565,7 +1585,7 @@ function renderEscala(){
       if(day.aberto&&CU&&!temMembros){var jaInsc=day.membros.find(function(m){return m.id===CU.id;});inscBtn=jaInsc?'<button class="btn bred" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="desinscreverCulto('+day.id+')">Cancelar inscricao</button>':'<button class="btn bgold" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="inscreverCulto('+day.id+')">Quero participar</button>';}
       // Vaga de Fotografo
       var fotoBtn='';
-      if(!passou&&CU){
+      if(!passou&&CU&&day.precisaFotografo){
         var jaFoto=day.fotografo&&String(day.fotografo.id)===String(CU.id);
         var temFoto=!!day.fotografo;
         if(jaFoto){
@@ -1577,11 +1597,16 @@ function renderEscala(){
       // Botão para líderes adicionarem membros manualmente
       var addMemBtn='';
       if(isL&&!passou){addMemBtn='<button class="btn bout bsm" style="width:100%;justify-content:center;margin-bottom:8px;border-color:rgba(201,168,76,.5);gap:5px;" onclick="abrirAddMemCulto('+day.id+')">👤 + Adicionar Membro</button>';}
+      // Botão para líderes designarem fotógrafo
+      var designarFotoBtn='';
+      if(isL&&!passou&&day.precisaFotografo&&!day.fotografo){
+        designarFotoBtn='<button class="btn bout bsm" style="width:100%;justify-content:center;margin-bottom:8px;border-color:rgba(201,168,76,.5);color:var(--gold-l);gap:5px;" onclick="abrirDesignarFotografo('+day.id+')">📷 Designar Fotógrafo</button>';
+      }
       div.innerHTML='<div class="dc-head" onclick="this.parentElement.classList.toggle(\'open\')">'+
         '<div style="flex:1;"><div style="display:flex;align-items:center;gap:4px;"><span class="dc-date">'+fmtDate(day.date)+(day.hora?' <span style="font-weight:400;font-size:.72rem;color:var(--cream2);opacity:.7;">'+day.hora+'h</span>':'')+'</span>'+statusBadge+abBadge+delBtn+'</div><div class="dc-lbl">'+day.label+' &middot; <span style="color:var(--cream2);opacity:.8;">'+(function(){if(day.membros.length===0)return 'Nenhum inscrito';if(day.membros.length===1)return day.membros[0].name;if(day.membros.length===2)return day.membros[0].name+' e '+day.membros[1].name;return day.membros[0].name+', '+day.membros[1].name+' +'+(day.membros.length-2);}())+'</span></div></div>'+
         '<span class="dc-arr">&#9660;</span></div>'+
         '<div class="dc-body">'+
-        (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+addMemBtn+
+        (declined.length?'<div class="miss-alert">Vaga: '+declined.map(function(m){return m.role;}).join(', ')+'</div>':'')+inscBtn+addMemBtn+designarFotoBtn+
         (day.membros.length?day.membros.map(function(m){
           var statusEl='<span class="sb '+(m.status==='confirmed'?'sc':m.status==='pending'?'sp':'sd')+'">'+(m.status==='confirmed'?'&#10003; Confirmado':m.status==='pending'?'Pendente':'&#10007; Recusado')+'</span>';
           var liderBtn='';
@@ -1595,20 +1620,22 @@ function renderEscala(){
           var souEu=CU&&m.id===CU.id;
           return '<div class="mrow" style="'+(souEu?'background:rgba(201,168,76,.1);border-radius:8px;padding:6px 8px;':'')+'"><div><div class="mn" style="'+(souEu?'color:var(--gold);font-weight:700;':'')+'">'+m.name+(souEu?' ⭐':'')+'</div><div class="mr">'+m.role+'</div></div><div style="display:flex;align-items:center;">'+statusEl+liderBtn+removeBtn+'</div></div>';
         }).join(''):'<p style="font-size:.76rem;opacity:.4;text-align:center;padding:8px;">Nenhum inscrito ainda.</p>')+
-        // Bloco do Fotografo
-        '<div style="border-top:1px solid rgba(201,168,76,.12);margin-top:6px;padding-top:8px;">'+
-        '<div style="font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);opacity:.55;margin-bottom:6px;">📷 Fotógrafo</div>'+
-        (day.fotografo?
-          '<div class="mrow" style="'+(CU&&String(day.fotografo.id)===String(CU.id)?'background:rgba(201,168,76,.1);border-radius:8px;padding:6px 8px;':'')+'">'+
-            '<div><div class="mn" style="'+(CU&&String(day.fotografo.id)===String(CU.id)?'color:var(--gold);font-weight:700;':'')+'">'+day.fotografo.name+(CU&&String(day.fotografo.id)===String(CU.id)?' ⭐':'')+'</div>'+
-            '<div class="mr">Fotografo</div></div>'+
-            '<div style="display:flex;align-items:center;">'+
-            '<span class="sb sc">&#10003; Confirmado</span>'+
-            (isL&&!passou?'<button onclick="liderRemoverFotografo('+day.id+')" style="background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.45);color:#ec7063;border-radius:6px;padding:2px 7px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:4px;font-family:\'Nunito\',sans-serif;">&#10007;</button>':'')+
-            '</div></div>'
-        :'<p style="font-size:.72rem;opacity:.38;text-align:center;padding:4px 0;">Vaga aberta — nenhum fotógrafo inscrito</p>')+
-        fotoBtn+
-        '</div>'+
+        // Bloco do Fotografo (só se culto precisar)
+        (day.precisaFotografo?
+          '<div style="border-top:1px solid rgba(201,168,76,.12);margin-top:6px;padding-top:8px;">'+
+          '<div style="font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);opacity:.55;margin-bottom:6px;">📷 Fotógrafo</div>'+
+          (day.fotografo?
+            '<div class="mrow" style="'+(CU&&String(day.fotografo.id)===String(CU.id)?'background:rgba(201,168,76,.1);border-radius:8px;padding:6px 8px;':'')+'">'+
+              '<div><div class="mn" style="'+(CU&&String(day.fotografo.id)===String(CU.id)?'color:var(--gold);font-weight:700;':'')+'">'+day.fotografo.name+(CU&&String(day.fotografo.id)===String(CU.id)?' ⭐':'')+'</div>'+
+              '<div class="mr">Fotografo</div></div>'+
+              '<div style="display:flex;align-items:center;">'+
+              '<span class="sb sc">&#10003; Confirmado</span>'+
+              (isL&&!passou?'<button onclick="liderRemoverFotografo('+day.id+')" style="background:rgba(192,57,43,.2);border:1px solid rgba(192,57,43,.45);color:#ec7063;border-radius:6px;padding:2px 7px;font-size:.65rem;font-weight:700;cursor:pointer;margin-left:4px;font-family:\'Nunito\',sans-serif;">&#10007;</button>':'')+
+              '</div></div>'
+          :'<p style="font-size:.72rem;opacity:.38;text-align:center;padding:4px 0;">Vaga aberta — nenhum fotógrafo inscrito</p>')+
+          fotoBtn+
+          '</div>'
+        :'')+
         '</div>';
       secao.appendChild(div);
     });
@@ -1803,6 +1830,65 @@ function liderRemoverFotografo(dayId){
   if(!confirm('Remover '+day.fotografo.name+' da vaga de fotografo em '+fmtDate(day.date)+'?'))return;
   day.fotografo=null;
   saveAll().then(function(){toast('Fotografo removido.');renderAll();});
+}
+
+// Toggle no modal de editar culto
+function paneToggleFotografo(chk){
+  var knob=document.getElementById('pane-culto-fotografo-knob');
+  var track=knob.parentElement;
+  var info=document.getElementById('pane-culto-fotografo-info');
+  if(chk.checked){
+    knob.style.transform='translateX(18px)';knob.style.background='#C9A84C';track.style.background='rgba(201,168,76,.25)';
+    info.style.display='block';
+  } else {
+    knob.style.transform='';knob.style.background='#888';track.style.background='rgba(255,255,255,.1)';
+    info.style.display='none';
+  }
+  // Salva imediatamente
+  var d=(S.escala||[]).find(function(x){return x.id===paneCultoEditId;});
+  if(d){d.precisaFotografo=chk.checked;saveAll().then(function(){renderAll();});}
+}
+
+// Líder designa fotógrafo direto da escala
+function abrirDesignarFotografo(dayId){
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  var disponiveis=S.members.filter(function(m){return !m.afastado;});
+  if(!disponiveis.length){toast('Nenhum membro disponível.');return;}
+  var sel=document.getElementById('dfoto-select');
+  sel.innerHTML=disponiveis.map(function(m){return '<option value="'+m.id+'">'+m.name+' ('+m.role+')</option>';}).join('');
+  document.getElementById('dfoto-culto-nome').textContent=fmtDate(day.date)+' — '+day.label;
+  document.getElementById('mo-designar-foto').dataset.dayId=dayId;
+  document.getElementById('mo-designar-foto').classList.add('open');
+}
+
+// Líder designa fotógrafo do painel de edição do culto
+function paneDesignarFotografo(){
+  abrirDesignarFotografo(paneCultoEditId);
+}
+
+function salvarDesignarFotografo(){
+  var dayId=Number(document.getElementById('mo-designar-foto').dataset.dayId);
+  var day=S.escala.find(function(d){return d.id===dayId;});if(!day)return;
+  var memId=Number(document.getElementById('dfoto-select').value);
+  var mem=S.members.find(function(m){return m.id===memId;});if(!mem)return;
+  day.fotografo={id:mem.id,name:mem.name};
+  day.precisaFotografo=true;
+  S.notifs.unshift({id:Date.now(),icon:'📷',text:'<strong>'+mem.name+'</strong> foi designado(a) como <strong>Fotógrafo</strong> em <strong>'+fmtDate(day.date)+'</strong>.',time:nowStr(),unread:true});
+  saveAll().then(function(){
+    document.getElementById('mo-designar-foto').classList.remove('open');
+    toast('📷 '+mem.name+' designado como fotógrafo!');
+    renderAll();
+    // Atualiza info no pane se estiver aberto
+    var atual=document.getElementById('pane-culto-fotografo-atual');
+    if(atual)atual.innerHTML='📷 <strong style="color:var(--gold);">'+mem.name+'</strong> designado';
+    // Notifica o membro via WhatsApp
+    var memAtual=S.members.find(function(x){return x.id===mem.id;});
+    if(memAtual&&memAtual.phone&&memAtual.phone.length>=10){
+      setTimeout(function(){
+        window.open('https://wa.me/55'+memAtual.phone+'?text='+encodeURIComponent('📷 *MINISTERIO DE MIDIA*\n\n📸 Você foi designado(a) como *Fotógrafo(a)*!\n\n📅 *'+fmtDate(day.date)+' — '+day.label+'*\n\nAcesse o app para mais detalhes:\n'+APP_URL+'\n\n🙏 _Ministerio de Midia_'),'_blank');
+      },400);
+    }
+  });
 }
 
 function renderPedidos(){
@@ -2277,7 +2363,7 @@ function addCulto(){
     var st=modo==='confirmado'?'confirmed':'pending';
     membrosEsc=checked.map(function(cb){var m=S.members.find(function(x){return x.id==cb.value;});return{id:m.id,name:m.name,role:m.role,status:st};});
   }
-  S.escala.push({id:Date.now(),date:date,hora:hora,label:label,membros:membrosEsc,aberto:modo==='aberto'});
+  S.escala.push({id:Date.now(),date:date,hora:hora,label:label,membros:membrosEsc,aberto:modo==='aberto',precisaFotografo:!!document.getElementById('nd-fotografo').checked});
   S.escala.sort(function(a,b){return a.date.localeCompare(b.date);});
   S.notifs.unshift({id:Date.now()+1,icon:'&#128197;',text:'<strong>Novo culto:</strong> '+label+' em '+fmtDate(date)+(modo==='aberto'?' &#8212; aberto para inscricao!':'.')+'',time:nowStr(),unread:true});
   ntfy('📅 Nova Escala', label+' — '+fmtDate(date)+(modo==='aberto'?' (aberto para inscrição!)':' ('+membrosEsc.length+' escalados)'));
@@ -2911,6 +2997,20 @@ function paneAbrirEditCulto(id){
   document.getElementById('pane-culto-data').value = d.date||'';
   document.getElementById('pane-culto-label').value = d.label||'';
   document.getElementById('pane-culto-hora').value = d.hora||'';
+  // Toggle fotógrafo
+  var chk = document.getElementById('pane-culto-fotografo');
+  var knob = document.getElementById('pane-culto-fotografo-knob');
+  var info = document.getElementById('pane-culto-fotografo-info');
+  chk.checked = !!d.precisaFotografo;
+  if(d.precisaFotografo){
+    knob.style.transform='translateX(18px)';knob.style.background='#C9A84C';knob.parentElement.style.background='rgba(201,168,76,.25)';
+    info.style.display='block';
+    var atual = document.getElementById('pane-culto-fotografo-atual');
+    atual.innerHTML = d.fotografo ? '📷 <strong style="color:var(--gold);">'+d.fotografo.name+'</strong> designado' : '<span style="opacity:.5;">Nenhum fotógrafo designado ainda.</span>';
+  } else {
+    knob.style.transform='';knob.style.background='#888';knob.parentElement.style.background='rgba(255,255,255,.1)';
+    info.style.display='none';
+  }
   paneRenderMembrosCulto(d);
   openMo('mo-pane-culto');
 }
@@ -4067,6 +4167,25 @@ if('serviceWorker' in navigator){
     <label class="mfl">Membros Escalados</label>
     <div id="pane-culto-membros" style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;background:rgba(0,0,0,.15);border:1px solid rgba(201,168,76,.14);border-radius:9px;padding:10px;max-height:200px;overflow-y:auto;"></div>
     <button class="btn bout bsm" style="margin-bottom:14px;" onclick="paneAdicionarMembroCulto()">+ Adicionar Membro ao Culto</button>
+    <div style="border-top:1px solid rgba(201,168,76,.12);margin-bottom:14px;padding-top:12px;">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);opacity:.55;margin-bottom:8px;">📷 Fotógrafo</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:9px;padding:10px 13px;margin-bottom:8px;">
+        <div>
+          <div style="font-size:.76rem;font-weight:700;color:var(--cream);">Precisa de Fotógrafo?</div>
+          <div style="font-size:.63rem;color:var(--cream2);opacity:.5;margin-top:1px;">Habilita vaga neste culto</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;">
+          <input type="checkbox" id="pane-culto-fotografo" onchange="paneToggleFotografo(this)">
+          <span onclick="this.previousElementSibling.click()" style="position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:24px;transition:.3s;border:1px solid rgba(201,168,76,.3);">
+            <span id="pane-culto-fotografo-knob" style="position:absolute;height:18px;width:18px;left:3px;top:2px;background:#888;border-radius:50%;transition:.3s;"></span>
+          </span>
+        </label>
+      </div>
+      <div id="pane-culto-fotografo-info" style="display:none;">
+        <div id="pane-culto-fotografo-atual" style="font-size:.74rem;color:var(--cream2);padding:6px 0;"></div>
+        <button class="btn bout bsm" style="width:100%;justify-content:center;" onclick="paneDesignarFotografo()">📷 Designar Fotógrafo</button>
+      </div>
+    </div>
     <div class="macts">
       <button class="btn bred" onclick="paneExcluirCulto()">🗑️ Excluir</button>
       <button class="btn bgold" onclick="paneSalvarCulto()">✓ Salvar</button>
@@ -4148,6 +4267,21 @@ if('serviceWorker' in navigator){
   cursor:pointer;
 " onclick="applyUpdate()">
   🔄 Nova versão disponível — toque para atualizar
+</div>
+
+<!-- MODAL DESIGNAR FOTÓGRAFO -->
+<div class="mo" id="mo-designar-foto" onclick="this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhandle"></div>
+    <div class="mtitle">📷 Designar Fotógrafo</div>
+    <p style="font-size:.75rem;color:var(--cream2);opacity:.7;margin-bottom:12px;">Culto: <strong id="dfoto-culto-nome" style="color:var(--gold-l);"></strong></p>
+    <label class="mfl">Selecionar Membro</label>
+    <select class="mfs" id="dfoto-select"></select>
+    <div class="macts">
+      <button class="btn bout" onclick="document.getElementById('mo-designar-foto').classList.remove('open')">Cancelar</button>
+      <button class="btn bgold" onclick="salvarDesignarFotografo()">📷 Designar</button>
+    </div>
+  </div>
 </div>
 
 </body>
